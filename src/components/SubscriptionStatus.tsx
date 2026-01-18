@@ -661,19 +661,19 @@ export function SubscriptionStatus({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
               <div>
                 <p className="text-muted-foreground text-[10px] uppercase">Account Name</p>
-                <p className="font-medium">EduFleet Exchange Pvt Ltd</p>
+                <p className="font-medium">NAVEEN J</p>
               </div>
               <div>
                 <p className="text-muted-foreground text-[10px] uppercase">Bank Name</p>
-                <p className="font-medium">HDFC Bank</p>
+                <p className="font-medium">SBI Bank</p>
               </div>
               <div>
                 <p className="text-muted-foreground text-[10px] uppercase">Account Number</p>
-                <p className="font-mono font-bold text-lg tracking-wider">50200012345678</p>
+                <p className="font-mono font-bold text-lg tracking-wider">64182266761</p>
               </div>
               <div>
                 <p className="text-muted-foreground text-[10px] uppercase">IFSC Code</p>
-                <p className="font-mono font-bold text-lg tracking-wider">HDFC0001234</p>
+                <p className="font-mono font-bold text-lg tracking-wider">SBIN0040884</p>
               </div>
             </div>
           </div>
