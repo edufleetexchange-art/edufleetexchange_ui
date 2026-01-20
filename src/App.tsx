@@ -44,6 +44,15 @@ import AdManagement from '@/pages/admin/ads/AdManagement';
 import AdApprovals from '@/pages/admin/ads/AdApprovals';
 import AdAnalytics from '@/pages/admin/ads/AdAnalytics';
 import AdRequests from '@/pages/admin/ads/AdRequests';
+// Support pages imports
+import HelpCenter from '@/pages/support/HelpCenter';
+import ContactUs from '@/pages/support/ContactUs';
+import FAQ from '@/pages/support/FAQ';
+
+// Legal pages imports
+import PrivacyPolicy from '@/pages/legal/PrivacyPolicy';
+import TermsOfService from '@/pages/legal/TermsOfService';
+import CookiePolicy from '@/pages/legal/CookiePolicy';
 
 function App() {
   return (
@@ -72,6 +81,15 @@ function App() {
                 <Route path="/advertise" element={<Advertise />} />
                 <Route path="/notifications" element={<NotificationsPage />} />
                 <Route path="/admin/login" element={<AdminLogin />} />
+                {/* Support Routes */}
+                <Route path="/support/help" element={<HelpCenter />} />
+                <Route path="/support/contact" element={<ContactUs />} />
+                <Route path="/support/faq" element={<FAQ />} />
+
+                {/* Legal Routes */}
+                <Route path="/legal/privacy" element={<PrivacyPolicy />} />
+                <Route path="/legal/terms" element={<TermsOfService />} />
+                <Route path="/legal/cookies" element={<CookiePolicy />} />
 
                 {/* Protected Routes - Institute Only */}
                 <Route 

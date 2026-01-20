@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { ROUTES } from '@/constants/routes';
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
@@ -18,25 +19,25 @@ export function Footer() {
           <div>
             <h4 className="font-semibold mb-4 text-foreground">Quick Links</h4>
             <ul className="space-y-2 text-sm">
-              <li><Link to="/" className="text-muted-foreground hover:text-primary smooth-transition font-medium">Home</Link></li>
-              <li><Link to="/browse" className="text-muted-foreground hover:text-primary smooth-transition font-medium">Browse Vehicles</Link></li>
-              <li><Link to="/login" className="text-muted-foreground hover:text-primary smooth-transition font-medium">Login</Link></li>
+              <li><Link to={ROUTES.HOME} className="text-muted-foreground hover:text-primary smooth-transition font-medium">Home</Link></li>
+              <li><Link to={ROUTES.BROWSE} className="text-muted-foreground hover:text-primary smooth-transition font-medium">Browse Vehicles</Link></li>
+              <li><Link to={ROUTES.LOGIN} className="text-muted-foreground hover:text-primary smooth-transition font-medium">Login</Link></li>
             </ul>
           </div>
           <div>
             <h4 className="font-semibold mb-4 text-foreground">Support</h4>
             <ul className="space-y-2 text-sm">
-              <li><Link to="#" className="text-muted-foreground hover:text-primary smooth-transition font-medium">Help Center</Link></li>
-              <li><Link to="#" className="text-muted-foreground hover:text-primary smooth-transition font-medium">Contact Us</Link></li>
-              <li><Link to="#" className="text-muted-foreground hover:text-primary smooth-transition font-medium">FAQ</Link></li>
+              <li><Link to={ROUTES.SUPPORT.HELP_CENTER} className="text-muted-foreground hover:text-primary smooth-transition font-medium">Help Center</Link></li>
+              <li><Link to={ROUTES.SUPPORT.CONTACT_US} className="text-muted-foreground hover:text-primary smooth-transition font-medium">Contact Us</Link></li>
+              <li><Link to={ROUTES.SUPPORT.FAQ} className="text-muted-foreground hover:text-primary smooth-transition font-medium">FAQ</Link></li>
             </ul>
           </div>
           <div>
             <h4 className="font-semibold mb-4 text-foreground">Legal</h4>
             <ul className="space-y-2 text-sm">
-              <li><Link to="#" className="text-muted-foreground hover:text-primary smooth-transition font-medium">Privacy Policy</Link></li>
-              <li><Link to="#" className="text-muted-foreground hover:text-primary smooth-transition font-medium">Terms of Service</Link></li>
-              <li><Link to="#" className="text-muted-foreground hover:text-primary smooth-transition font-medium">Cookies</Link></li>
+              <li><Link to={ROUTES.LEGAL.PRIVACY_POLICY} className="text-muted-foreground hover:text-primary smooth-transition font-medium">Privacy Policy</Link></li>
+              <li><Link to={ROUTES.LEGAL.TERMS_OF_SERVICE} className="text-muted-foreground hover:text-primary smooth-transition font-medium">Terms of Service</Link></li>
+              <li><Link to={ROUTES.LEGAL.COOKIE_POLICY} className="text-muted-foreground hover:text-primary smooth-transition font-medium">Cookies</Link></li>
             </ul>
           </div>
         </div>
