@@ -133,13 +133,6 @@ export function Login() {
             </Button>
           </form>
 
-          {/* Demo Credentials */}
-          <div className="mt-6 p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-700">
-            <p className="font-medium mb-1">Demo Instructions:</p>
-            <p>1. Select your role (Institute, Teacher, or Admin)</p>
-            <p>2. Sign up first to create an account</p>
-            <p>3. Use your credentials to login</p>
-          </div>
 
           {/* Divider */}
           <div className="relative my-6">
