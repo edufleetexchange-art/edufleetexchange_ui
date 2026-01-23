@@ -65,7 +65,7 @@ const ContactUs = () => {
                   </div>
                   <div>
                     <h3 className="font-semibold text-slate-900">Email</h3>
-                    <p className="text-slate-600 mt-1">support@edufleet.com</p>
+                    <p className="text-slate-600 mt-1">edufleetexchange@gmail.com</p>
                     <p className="text-slate-500 text-sm mt-1">We'll reply within 24 hours</p>
                   </div>
                 </div>
@@ -76,7 +76,7 @@ const ContactUs = () => {
                   </div>
                   <div>
                     <h3 className="font-semibold text-slate-900">Phone</h3>
-                    <p className="text-slate-600 mt-1">+1 (555) 123-4567</p>
+                    <p className="text-slate-600 mt-1"> 7892841785</p>
                     <p className="text-slate-500 text-sm mt-1">Monday to Friday, 9am-6pm EST</p>
                   </div>
                 </div>
@@ -87,8 +87,8 @@ const ContactUs = () => {
                   </div>
                   <div>
                     <h3 className="font-semibold text-slate-900">Address</h3>
-                    <p className="text-slate-600 mt-1">123 Education Street</p>
-                    <p className="text-slate-600">New York, NY 10001</p>
+                    <p className="text-slate-600 mt-1">Anikethana Rd</p>
+                    <p className="text-slate-600">Kuvempu Nagara, Mysuru, Karnataka</p>
                   </div>
                 </div>
               </div>
