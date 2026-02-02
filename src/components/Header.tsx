@@ -27,6 +27,8 @@ export function Header() {
   const handleDashboard = (tab?: string) => {
     if (user?.role === 'admin') {
       navigate('/admin');
+    } else if (user?.role === 'marketing') {
+      navigate('/marketing/dashboard');
     } else if (user?.role === 'teacher') {
       navigate('/teacher/dashboard');
     } else {
@@ -41,6 +43,7 @@ export function Header() {
 
   // Determine which menu items to show based on user role
   const shouldShowTeacherNav = user?.role === 'teacher';
+  const isMarketing = user?.role === 'marketing';
   // Check if user is vendor to hide specific links
   const isVendor = user?.role === 'vendor';
   const shouldShowInstituteNav = user?.role === 'institute' || (!user?.role && user);
@@ -67,11 +70,23 @@ export function Header() {
     <header className="glass-nav sticky top-0 z-50 shadow-sm">
       <div className="container mx-auto px-4 lg:px-6 py-4">
         <div className="flex justify-between items-center gap-4">
-          <Link to="/" className="text-2xl lg:text-3xl font-bold flex items-center gap-1.5 shrink-0 group">
-            <span className="text-primary font-display tracking-tight transition-colors group-hover:text-primary-light">Edu</span>
-            <span className="text-accent font-display tracking-tight transition-colors group-hover:text-accent-light">Fleet</span>
-            <span className="text-xs font-sans text-muted-foreground ml-1 hidden sm:inline">Exchange</span>
-          </Link>
+<Link to="/" className="flex items-center shrink-0 group">
+  <div className="h-12 w-12 lg:h-16 lg:w-16 rounded-full overflow-hidden">
+    <img
+      src="/logo.jpeg"
+      alt="EduFleet Exchange"
+      className="h-full w-full object-contain transition-transform group-hover:scale-105"
+    />
+  </div>
+</Link>
+
+          {/* Marketing Role Badge */}
+          {isMarketing && (
+            <Badge variant="outline" className="hidden sm:flex bg-primary/5 text-primary border-primary/20 px-2 py-1 gap-1.5 font-mono text-[10px]">
+              <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+              MARKETING TEAM
+            </Badge>
+          )}
 
           {/* Search Bar - Visible on desktop inner pages */}
           {location.pathname !== '/' && (
@@ -149,7 +164,7 @@ export function Header() {
                     <Megaphone className="w-4 h-4" />
                     <span>Advertise</span>
                   </Link>
-                  <Link to="/signup" className="flex items-center gap-1.5 bg-accent/10 text-accent hover:bg-accent hover:text-accent-foreground transition-all font-semibold px-4 py-2 border border-accent/30 hover:border-accent rounded-lg shadow-sm hover:shadow-md">
+                  <Link to="/signup" className="flex items-center gap-1.5 bg-accent/10 text-accent hover:bg-accent hover:text-accent-foreground transition-all font-semibold px-4 py-2 border border-accent/30 hover:border-accent rounded-lg shadow-sm hover:shadow-md border-beam">
                     <span className="uppercase text-xs tracking-wide">Free Listing</span>
                   </Link>
                 </>
@@ -162,19 +177,19 @@ export function Header() {
                   <NotificationBell />
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <button className="flex items-center gap-2.5 hover:bg-muted/50 px-2 py-1.5 rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-primary/20">
-                        <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-border/60 hover:border-primary/40 transition-colors">
+                      <button className="flex items-center gap-2.5 hover:bg-muted/50 px-2 py-1.5 rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-primary/20 group">
+                        <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-border/60 group-hover:border-primary/40 transition-all group-hover:scale-105">
                           <img src={user.avatar || `https://ui-avatars.com/api/?name=${user.name}`} alt={user.name} className="w-full h-full object-cover" />
                         </div>
-                        <span className="text-sm font-medium max-w-[100px] truncate text-foreground">{user.name}</span>
+                        <span className="text-sm font-medium max-w-[100px] truncate text-foreground group-hover:text-primary transition-colors">{user.name}</span>
                       </button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-60 shadow-lg">
+                    <DropdownMenuContent align="end" className="w-60 shadow-xl border-beam">
                       <div className="px-3 py-2.5 border-b border-border">
                         <div className="flex items-center justify-between mb-1">
                           <div className="text-sm font-semibold text-foreground truncate max-w-[140px]">{user.name}</div>
                           {user.subscription?.planId?.displayName && (
-                            <Badge variant="outline" className="text-[10px] h-5 bg-primary/5 text-primary border-primary/20 px-1.5 flex items-center gap-1">
+                            <Badge variant="outline" className="text-[10px] h-5 bg-primary/5 text-primary border-primary/20 px-1.5 flex items-center gap-1 border-beam">
                               <Crown className="w-2.5 h-2.5" />
                               {(user.subscription.planId as any).displayName}
                             </Badge>
@@ -182,15 +197,15 @@ export function Header() {
                         </div>
                         <div className="text-xs text-muted-foreground truncate">{user.email}</div>
                       </div>
-                      <DropdownMenuItem onClick={() => handleDashboard()} className="cursor-pointer py-2.5 px-3">
+                      <DropdownMenuItem onClick={() => handleDashboard()} className="cursor-pointer py-2.5 px-3 hover:bg-primary/5 hover:text-primary transition-colors">
                         <LayoutDashboard className="w-4 h-4 mr-3" />
                         Dashboard
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleDashboard('profile')} className="cursor-pointer py-2.5 px-3">
+                      <DropdownMenuItem onClick={() => handleDashboard('profile')} className="cursor-pointer py-2.5 px-3 hover:bg-primary/5 hover:text-primary transition-colors">
                         <UserCircle className="w-4 h-4 mr-3" />
                         My Profile
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-destructive py-2.5 px-3">
+                      <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-destructive py-2.5 px-3 hover:bg-destructive/5 transition-colors border-t border-border mt-1">
                         <LogOut className="w-4 h-4 mr-3" />
                         Logout
                       </DropdownMenuItem>
@@ -199,11 +214,11 @@ export function Header() {
                 </>
               ) : (
                 <>
-                  <Link to="/login" className="text-sm font-medium text-foreground/70 hover:text-primary transition-colors px-3 py-2">Login</Link>
+                  <Link to="/login" className="text-sm font-medium text-foreground/70 hover:text-primary transition-all px-3 py-2 hover:bg-muted/30 rounded-lg">Login</Link>
                   <Button 
                     onClick={() => navigate('/signup')} 
                     size="sm"
-                    className="bg-primary text-primary-foreground hover:bg-primary-light shadow-sm hover:shadow-md transition-all font-semibold px-5 py-2.5"
+                    className="bg-primary text-primary-foreground hover:bg-primary-light shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all font-semibold px-6 py-2.5 active:scale-95 border-beam"
                   >
                     Sign Up Free
                   </Button>

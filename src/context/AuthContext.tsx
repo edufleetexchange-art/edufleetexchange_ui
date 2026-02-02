@@ -29,7 +29,7 @@ interface AuthContextType {
     stats: any;
     loading: boolean;
   };
-  login: (email: string, password: string, role: 'institute' | 'admin' | 'teacher', otp?: string) => Promise<void>;
+  login: (email: string, password: string, role: 'institute' | 'admin' | 'teacher' | 'marketing', otp?: string) => Promise<void>;
   signup: (name: string, email: string, password: string, instituteName: string, contactPerson: string, instituteCode: string, phone: string, otp?: string) => Promise<void>;
   signupTeacher: (data: TeacherSignupData) => Promise<void>;
   updateProfile: (data: Partial<User>) => Promise<void>;
@@ -185,7 +185,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     initAuth();
   }, [loadSubscriptionData]);
 
-  const login = async (email: string, password: string, role: 'institute' | 'admin' | 'teacher', otp?: string) => {
+  const login = async (email: string, password: string, role: 'institute' | 'admin' | 'teacher' | 'marketing', otp?: string) => {
     try {
       setIsLoading(true);
       // Traditional login (OTP verification can be added later if needed)
@@ -232,7 +232,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
- const signupTeacher = async (data: TeacherSignupData & { instituteSearchability?: boolean }) => {
+  const signupTeacher = async (data: TeacherSignupData & { instituteSearchability?: boolean }) => {
     try {
       setIsLoading(true);
       const response = await authService.signupTeacher({

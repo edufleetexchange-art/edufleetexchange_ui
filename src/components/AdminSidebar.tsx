@@ -9,7 +9,8 @@ import {
   CheckCircle,
   CreditCard,
   Briefcase,
-  Users
+  Users,
+  History
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
@@ -51,10 +52,15 @@ export function AdminSidebar({ pendingVehicles, pendingSuppliers }: AdminSidebar
       icon: Briefcase,
       path: '/admin/jobs'
     },
-       {
+    {
       title: 'Users',
       icon: Users,
       path: '/admin/users'
+    },
+    {
+      title: 'Audit Logs',
+      icon: History,
+      path: '/admin/audit-logs'
     },
     {
       title: 'Suppliers',
@@ -100,8 +106,15 @@ export function AdminSidebar({ pendingVehicles, pendingSuppliers }: AdminSidebar
   return (
     <aside className="w-64 h-screen flex flex-col border-r border-border bg-card">
       {/* Header */}
-      <div className="h-16 border-b border-border flex items-center px-6">
-        <h2 className="text-lg font-bold text-primary">Admin Panel</h2>
+      <div className="h-16 border-b border-border flex items-center px-6 gap-3">
+        <Link to="/" className="flex items-center gap-2">
+          <img 
+            src="https://firebasestorage.googleapis.com/v0/b/blink-451505.firebasestorage.app/o/user-uploads%2FmxwyRYTs2dcnubQCH6xSOA5OSFz2%2Fimage__9a481536.png?alt=media&token=b799bfcc-670d-46cb-9ea9-b9e521be88f2" 
+            alt="EduFleet" 
+            className="h-8 w-auto"
+          />
+          <h2 className="text-lg font-bold text-primary truncate">Admin</h2>
+        </Link>
       </div>
 
       {/* Navigation */}

@@ -26,7 +26,7 @@ export interface Vehicle {
   id: string;
   title: string;
   manufacturer: string;
-  vehiclemodel: string;
+  vehicleModel: string;
   year: number;
   type: 'school-bus' | 'minibus' | 'van' | 'truck';
   price: number;
@@ -41,7 +41,6 @@ export interface Vehicle {
   sellerEmail: string;
   sellerPhone: string;
   isPriority: boolean;
-  views?: number;
   createdAt: string;
   status: 'pending' | 'approved' | 'rejected';
   insurance?: {
@@ -84,7 +83,7 @@ export interface VehicleFilters {
 export interface CreateVehicleDto {
   title: string;
   manufacturer: string;
-  vehiclemodel: string;
+  vehicleModel: string;
   year: number;
   type: 'school-bus' | 'minibus' | 'van' | 'truck';
   price: number;
@@ -137,7 +136,8 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  role: 'guest' | 'institute' | 'admin' | 'teacher';
+  role: 'guest' | 'institute' | 'admin' | 'teacher' | 'vendor' | 'marketing';
+  employeeId?: string;
   instituteName?: string;
   contactPerson?: string;
   avatar?: string;
@@ -265,6 +265,30 @@ export interface SupplierStats {
   approved: number;
   rejected: number;
   verified: number;
+}
+
+// Audit Log Types
+export interface AuditLog {
+  _id: string;
+  userId: string;
+  employeeId?: string;
+  userName: string;
+  userRole: string;
+  action: string;
+  targetId?: string;
+  targetType?: string;
+  details: string;
+  ipAddress?: string;
+  userAgent?: string;
+  createdAt: string;
+}
+
+export interface AuditLogFilters {
+  role?: string;
+  action?: string;
+  employeeId?: string;
+  startDate?: string;
+  endDate?: string;
 }
 
 // Re-export subscription types

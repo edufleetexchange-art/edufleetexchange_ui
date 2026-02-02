@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Briefcase, Plus, X, Loader2, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { createJob } from '@/api/services/jobService';
+import { adminService } from '@/api/services/adminService';
 import { useAuth } from '@/context/AuthContext';
 import { checkJobPostLimit } from '@/api/services/subscriptionEnforcement';
 import { Alert } from '@/components/ui/alert';
@@ -19,9 +20,8 @@ export function JobListingForm({ onSuccess }: JobListingFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [checkingLimit, setCheckingLimit] = useState(true);
   const [jobLimitResult, setJobLimitResult] = useState<any>(null);
-
-  // If no user, don't render anything (Dashboard handles the loading state)
-  if (!user) return null;
+  const [institutes, setInstitutes] = useState<any[]>([]);
+  const [loadingInstitutes, setLoadingInstitutes] = useState(false);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -34,6 +34,7 @@ export function JobListingForm({ onSuccess }: JobListingFormProps) {
     salaryMax: '',
     description: '',
     deadline: '',
+    instituteId: '',
   });
 
   const [requirements, setRequirements] = useState<string[]>(['']);
@@ -61,6 +62,28 @@ export function JobListingForm({ onSuccess }: JobListingFormProps) {
     };
     checkLimit();
   }, [user?.id]);
+
+  // Load institutes for marketing/admin
+  useEffect(() => {
+    if (user?.role === 'admin' || user?.role === 'marketing') {
+      const loadInstitutes = async () => {
+        try {
+          setLoadingInstitutes(true);
+          const response = await adminService.getAllUsers();
+          const instituteUsers = response.data.filter((u: any) => u.role === 'institute');
+          setInstitutes(instituteUsers);
+        } catch (error) {
+          console.error('Failed to load institutes:', error);
+        } finally {
+          setLoadingInstitutes(false);
+        }
+      };
+      loadInstitutes();
+    }
+  }, [user?.role]);
+
+  // If no user, don't render anything (Dashboard handles the loading state)
+  if (!user) return null;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -103,10 +126,7 @@ export function JobListingForm({ onSuccess }: JobListingFormProps) {
     e.preventDefault();
 
     // Check limit before submission
-    if (jobLimitResult && !jobLimitResult
-      
-      
-    ) {
+    if (jobLimitResult && !jobLimitResult.allowed) {
       toast.error(jobLimitResult.message || 'Job post limit reached');
       return;
     }
@@ -188,6 +208,11 @@ export function JobListingForm({ onSuccess }: JobListingFormProps) {
       return;
     }
 
+    if ((user.role === 'admin' || user.role === 'marketing') && !formData.instituteId) {
+      toast.error('Please select an institute to list on behalf of');
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       // Parse numeric values (already validated above)
@@ -221,6 +246,7 @@ export function JobListingForm({ onSuccess }: JobListingFormProps) {
         benefits: filteredBenefits,
         subjects: filteredSubjects,
         qualification: filteredQualifications,
+        instituteId: (user.role === 'admin' || user.role === 'marketing') ? formData.instituteId : undefined,
       };
 
       console.log('Submitting job data:', jobData); // Debug log
@@ -242,6 +268,7 @@ export function JobListingForm({ onSuccess }: JobListingFormProps) {
           salaryMax: '',
           description: '',
           deadline: '',
+          instituteId: '',
         });
         setRequirements(['']);
         setResponsibilities(['']);
@@ -316,6 +343,30 @@ export function JobListingForm({ onSuccess }: JobListingFormProps) {
               </h3>
               
               <div className="space-y-4">
+                {(user.role === 'admin' || user.role === 'marketing') && (
+                  <div className="bg-primary/5 p-4 rounded-lg border border-primary/10 mb-4">
+                    <label className="text-sm font-medium mb-2 block text-primary flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4" />
+                      Post on behalf of Institute (Marketing/Admin)
+                    </label>
+                    <select
+                      name="instituteId"
+                      value={formData.instituteId}
+                      onChange={handleChange}
+                      className="w-full px-3 py-2 border border-primary/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-background"
+                      required={(user.role === 'admin' || user.role === 'marketing')}
+                    >
+                      <option value="">Select Institute</option>
+                      {institutes.map(inst => (
+                        <option key={inst._id} value={inst._id}>
+                          {inst.instituteName || inst.name} ({inst.email})
+                        </option>
+                      ))}
+                    </select>
+                    {loadingInstitutes && <p className="text-xs text-muted-foreground mt-1 italic text-center">Loading institutes...</p>}
+                  </div>
+                )}
+
                 <div>
                   <label className="text-sm font-medium mb-2 block">Job Title *</label>
                   <input

@@ -16,14 +16,15 @@ import { TeacherSignup } from '@/pages/TeacherSignup';
 import { TeacherDashboard } from '@/pages/TeacherDashboard';
 import { TeacherJobBrowse } from '@/pages/TeacherJobBrowse';
 import { TeacherJobDetails } from '@/pages/TeacherJobDetails';
-import { InstituteTeacherSearch } from '@/pages/InstituteTeacherSearch';
 import { TeacherSearch } from '@/pages/TeacherSearch';
+import { InstituteTeacherSearch } from '@/pages/InstituteTeacherSearch';
 import { InstituteJobApplications } from '@/pages/InstituteJobApplications';
 import { SupplierBrowse } from '@/pages/SupplierBrowse';
 import { Advertise } from '@/pages/Advertise';
 import { NotificationsPage } from '@/pages/NotificationsPage';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { Toaster } from '@/components/ui/sonner';
+import MarketingDashboard from '@/pages/MarketingDashboard';
 
 // Admin imports
 import { AdminLogin } from '@/pages/AdminLogin';
@@ -35,6 +36,7 @@ import { SupplierManagement } from '@/pages/admin/SupplierManagement';
 import { SubscriptionManagement } from '@/pages/admin/SubscriptionManagement';
 import { AdminSettingsPage } from '@/pages/admin/AdminSettingsPage';
 import UserManagement from '@/pages/admin/UserManagement';
+import AuditLogManagement from '@/pages/admin/AuditLogManagement';
 
 // Ad Management imports
 import { AdProvider } from '@/context/AdContext';
@@ -45,6 +47,7 @@ import AdManagement from '@/pages/admin/ads/AdManagement';
 import AdApprovals from '@/pages/admin/ads/AdApprovals';
 import AdAnalytics from '@/pages/admin/ads/AdAnalytics';
 import AdRequests from '@/pages/admin/ads/AdRequests';
+
 // Support pages imports
 import HelpCenter from '@/pages/support/HelpCenter';
 import ContactUs from '@/pages/support/ContactUs';
@@ -82,6 +85,7 @@ function App() {
                 <Route path="/advertise" element={<Advertise />} />
                 <Route path="/notifications" element={<NotificationsPage />} />
                 <Route path="/admin/login" element={<AdminLogin />} />
+
                 {/* Support Routes */}
                 <Route path="/support/help" element={<HelpCenter />} />
                 <Route path="/support/contact" element={<ContactUs />} />
@@ -93,58 +97,69 @@ function App() {
                 <Route path="/legal/cookies" element={<CookiePolicy />} />
 
                 {/* Protected Routes - Institute Only */}
-                <Route 
-                  path="/dashboard" 
+                <Route
+                  path="/dashboard"
                   element={
                     <ProtectedRoute requiredRole="institute">
                       <Dashboard />
                     </ProtectedRoute>
-                  } 
+                  }
                 />
-                <Route 
-                  path="/dashboard/create-listing" 
+                <Route
+                  path="/dashboard/create-listing"
                   element={
                     <ProtectedRoute requiredRole="institute">
                       <Dashboard initialTab="create" />
                     </ProtectedRoute>
-                  } 
+                  }
+                />
+
+                {/* Marketing Dashboard */}
+                <Route
+                  path="/marketing/dashboard"
+                  element={
+                    <ProtectedRoute requiredRole={['marketing', 'admin']}>
+                      <MarketingDashboard />
+                    </ProtectedRoute>
+                  }
                 />
 
                 {/* Teacher Routes - Teacher Only */}
-                <Route 
-                  path="/teacher/dashboard" 
+                <Route
+                  path="/teacher/dashboard"
                   element={
                     <ProtectedRoute requiredRole="teacher">
                       <TeacherDashboard />
                     </ProtectedRoute>
-                  } 
+                  }
                 />
 
                 {/* Institute Routes - Institute Only */}
-                <Route 
-                  path="/institute/teachers" 
+                <Route
+                  path="/institute/teachers"
                   element={
                     <ProtectedRoute requiredRole="institute">
                       <InstituteTeacherSearch />
                     </ProtectedRoute>
-                  } 
+                  }
                 />
-                <Route 
-                  path="/institute/job/:jobId/applications" 
+                <Route
+                  path="/institute/job/:jobId/applications"
                   element={
                     <ProtectedRoute requiredRole="institute">
                       <InstituteJobApplications />
                     </ProtectedRoute>
-                  } 
+                  }
                 />
 
                 {/* Admin Routes - Admin Only with Side Navigation */}
                 <Route path="/admin" element={<ProtectedRoute requiredRole="admin"><AdminLayout /></ProtectedRoute>}>
                   <Route index element={<AdminOverview />} />
                   <Route path="vehicles/:type" element={<VehicleManagement />} />
-                   <Route path="jobs" element={<JobManagement />} />
-                  <Route path="users" element={<UserManagement />} />
                   <Route path="suppliers/:type" element={<SupplierManagement />} />
+                  <Route path="jobs" element={<JobManagement />} />
+                  <Route path="users" element={<UserManagement />} />
+                  <Route path="audit-logs" element={<AuditLogManagement />} />
                   <Route path="subscriptions" element={<SubscriptionManagement />} />
                   <Route path="settings" element={<AdminSettingsPage />} />
                 </Route>

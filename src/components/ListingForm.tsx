@@ -4,6 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Upload, X, Image as ImageIcon, AlertCircle } from 'lucide-react';
 import { api } from '@/api';
+import { adminService } from '@/api/services/adminService';
 import { toast } from 'sonner';
 import { useAuth } from '@/context/AuthContext';
 import { checkListingLimit, incrementListingCount } from '@/api/services/subscriptionEnforcement';
@@ -22,6 +23,8 @@ export function ListingForm({ listing, onSuccess, onCancel }: ListingFormProps) 
   const [listingCheckResult, setListingCheckResult] = useState<any>(null);
   const [checkingLimit, setCheckingLimit] = useState(!listing); // Only check limit if creating
   const [submitting, setSubmitting] = useState(false);
+  const [institutes, setInstitutes] = useState<any[]>([]);
+  const [loadingInstitutes, setLoadingInstitutes] = useState(false);
   
   // Remove the useEffect that redirects if user.id is missing
   // ProtectedRoute handles the main auth check, and we'll handle the id check gracefully
@@ -47,6 +50,7 @@ export function ListingForm({ listing, onSuccess, onCancel }: ListingFormProps) 
     permitValid: listing?.permit?.valid || false,
     permitExpiry: listing?.permit?.expiryDate ? new Date(listing.permit.expiryDate).toISOString().split('T')[0] : '',
     permitType: listing?.permit?.permitType || '',
+    sellerId: listing?.sellerId || '',
   });
 
   const [uploadedImages, setUploadedImages] = useState<Array<{ url: string; file?: File; preview: string }>>(() => {
@@ -85,6 +89,25 @@ export function ListingForm({ listing, onSuccess, onCancel }: ListingFormProps) 
 
     checkLimit();
   }, [user?.id, (user as any)?._id, listing]);
+
+  // Load institutes for marketing/admin
+  useEffect(() => {
+    if ((user?.role === 'admin' || user?.role === 'marketing') && !listing) {
+      const loadInstitutes = async () => {
+        try {
+          setLoadingInstitutes(true);
+          const response = await adminService.getAllUsers();
+          const instituteUsers = response.data.filter((u: any) => u.role === 'institute');
+          setInstitutes(instituteUsers);
+        } catch (error) {
+          console.error('Failed to load institutes:', error);
+        } finally {
+          setLoadingInstitutes(false);
+        }
+      };
+      loadInstitutes();
+    }
+  }, [user?.role, listing]);
 
   // If no user, don't render anything (Dashboard handles the loading state)
   if (!user) return null;
@@ -232,6 +255,10 @@ export function ListingForm({ listing, onSuccess, onCancel }: ListingFormProps) 
       toast.error('Please enter a valid mileage');
       return;
     }
+    if ((user.role === 'admin' || user.role === 'marketing') && !listing && !formData.sellerId) {
+      toast.error('Please select an institute to list on behalf of');
+      return;
+    }
 
     setSubmitting(true);
 
@@ -253,6 +280,7 @@ export function ListingForm({ listing, onSuccess, onCancel }: ListingFormProps) 
         description: trimmedDescription,
         images: imageUrls,
         features: listing?.features || [], 
+        sellerId: (user.role === 'admin' || user.role === 'marketing') ? formData.sellerId : undefined,
       };
 
       // Add nested objects if valid
@@ -574,6 +602,30 @@ export function ListingForm({ listing, onSuccess, onCancel }: ListingFormProps) 
                 required
               />
             </div>
+
+            {(user.role === 'admin' || user.role === 'marketing') && !listing && (
+              <div className="bg-primary/5 p-4 rounded-lg border border-primary/10">
+                <label className="text-sm font-medium mb-2 block text-primary flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4" />
+                  List on behalf of Institute (Marketing/Admin)
+                </label>
+                <select
+                  name="sellerId"
+                  value={formData.sellerId}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-primary/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-background"
+                  required={(user.role === 'admin' || user.role === 'marketing')}
+                >
+                  <option value="">Select Institute</option>
+                  {institutes.map(inst => (
+                    <option key={inst._id} value={inst._id}>
+                      {inst.instituteName || inst.name} ({inst.email})
+                    </option>
+                  ))}
+                </select>
+                {loadingInstitutes && <p className="text-xs text-muted-foreground mt-1 italic text-center">Loading institutes...</p>}
+              </div>
+            )}
 
             {/* Insurance & Documents Section */}
             <div className="border-t border-border pt-6 mt-4">

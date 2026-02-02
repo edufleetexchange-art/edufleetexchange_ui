@@ -1,5 +1,5 @@
 import { apiClient } from '@/lib/apiClient';
-import { ApiResponse, Vehicle, ApprovalRequest, PriorityToggleRequest } from '../types';
+import { ApiResponse, Vehicle, ApprovalRequest, PriorityToggleRequest, AuditLog, AuditLogFilters } from '../types';
 
 interface VehicleStats {
   total: number;
@@ -190,9 +190,15 @@ export const adminService = {
         timestamp: new Date().toISOString(),
       };
     } catch (error: any) {
+      console.error('adminService.createUser error:', error);
+      // Pass through all error details from the API response
       throw {
         success: false,
         error: error.message || 'Failed to create user',
+        code: error.code || 'UNKNOWN_ERROR',
+        message: error.message || 'Failed to create user',
+        field: error.field, // For duplicate key errors
+        details: error.details, // For validation errors
         timestamp: new Date().toISOString(),
       };
     }
@@ -215,6 +221,34 @@ export const adminService = {
       throw {
         success: false,
         error: error.message || 'Failed to delete user',
+        timestamp: new Date().toISOString(),
+      };
+    }
+  },
+
+  /**
+   * Get audit logs (admin)
+   */
+  async getAuditLogs(filters?: AuditLogFilters): Promise<ApiResponse<AuditLog[]>> {
+    try {
+      const params = new URLSearchParams();
+      if (filters) {
+        Object.entries(filters).forEach(([key, value]) => {
+          if (value) params.append(key, value);
+        });
+      }
+
+      const logs = await apiClient.get<AuditLog[]>(`/admin/audit-logs?${params.toString()}`, { requiresAuth: true });
+
+      return {
+        success: true,
+        data: logs,
+        timestamp: new Date().toISOString(),
+      };
+    } catch (error: any) {
+      throw {
+        success: false,
+        error: error.message || 'Failed to fetch audit logs',
         timestamp: new Date().toISOString(),
       };
     }
