@@ -190,6 +190,7 @@ export const adminService = {
         timestamp: new Date().toISOString(),
       };
     } catch (error: any) {
+<<<<<<< Updated upstream
       console.error('adminService.createUser error:', error);
       // Pass through all error details from the API response
       throw {
@@ -199,6 +200,11 @@ export const adminService = {
         message: error.message || 'Failed to create user',
         field: error.field, // For duplicate key errors
         details: error.details, // For validation errors
+=======
+      throw {
+        success: false,
+        error: error.message || 'Failed to create user',
+>>>>>>> Stashed changes
         timestamp: new Date().toISOString(),
       };
     }
