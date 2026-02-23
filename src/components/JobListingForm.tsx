@@ -4,27 +4,31 @@ import { Button } from '@/components/ui/button';
 import { Briefcase, Plus, X, Loader2, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { createJob } from '@/api/services/jobService';
+import { adminService } from '@/api/services/adminService';
 import { useAuth } from '@/context/AuthContext';
 import { checkJobPostLimit } from '@/api/services/subscriptionEnforcement';
 import { Alert } from '@/components/ui/alert';
 import { useNavigate } from 'react-router-dom';
+import { useConfig } from '@/context/ConfigContext';
 
 interface JobListingFormProps {
+  initialInstituteId?: string;
   onSuccess?: () => void;
 }
 
-export function JobListingForm({ onSuccess }: JobListingFormProps) {
+export function JobListingForm({ initialInstituteId, onSuccess }: JobListingFormProps) {
   const navigate = useNavigate();
   const { user, refreshSubscription } = useAuth();
+  const { categories, getCategoryName } = useConfig();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [checkingLimit, setCheckingLimit] = useState(true);
   const [jobLimitResult, setJobLimitResult] = useState<any>(null);
-
-  // If no user, don't render anything (Dashboard handles the loading state)
-  if (!user) return null;
+  const [institutes, setInstitutes] = useState<any[]>([]);
+  const [loadingInstitutes, setLoadingInstitutes] = useState(false);
 
   const [formData, setFormData] = useState({
     title: '',
+    department: '',
     city: '',
     state: '',
     employmentType: 'full-time' as 'full-time' | 'part-time' | 'contract' | 'temporary',
@@ -34,7 +38,24 @@ export function JobListingForm({ onSuccess }: JobListingFormProps) {
     salaryMax: '',
     description: '',
     deadline: '',
+    instituteId: initialInstituteId || '',
   });
+
+  useEffect(() => {
+    if (initialInstituteId) {
+      setFormData(prev => ({ ...prev, instituteId: initialInstituteId }));
+    }
+  }, [initialInstituteId]);
+
+  // Set default department
+  useEffect(() => {
+    if (!formData.department) {
+      const jobCats = categories.filter(c => c.type === 'job');
+      if (jobCats.length > 0) {
+        setFormData(prev => ({ ...prev, department: jobCats[0].slug }));
+      }
+    }
+  }, [categories, formData.department]);
 
   const [requirements, setRequirements] = useState<string[]>(['']);
   const [responsibilities, setResponsibilities] = useState<string[]>(['']);
@@ -61,6 +82,28 @@ export function JobListingForm({ onSuccess }: JobListingFormProps) {
     };
     checkLimit();
   }, [user?.id]);
+
+  // Load institutes for admin/sales
+  useEffect(() => {
+    if (user?.role === 'admin' || user?.role === 'sales') {
+      const loadInstitutes = async () => {
+        try {
+          setLoadingInstitutes(true);
+          const response = await adminService.getAllUsers();
+          const instituteUsers = response.data.filter((u: any) => u.role === 'institute');
+          setInstitutes(instituteUsers);
+        } catch (error) {
+          console.error('Failed to load institutes:', error);
+        } finally {
+          setLoadingInstitutes(false);
+        }
+      };
+      loadInstitutes();
+    }
+  }, [user?.role]);
+
+  // If no user, don't render anything (Dashboard handles the loading state)
+  if (!user) return null;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -103,10 +146,7 @@ export function JobListingForm({ onSuccess }: JobListingFormProps) {
     e.preventDefault();
 
     // Check limit before submission
-    if (jobLimitResult && !jobLimitResult
-      
-      
-    ) {
+    if (jobLimitResult && !jobLimitResult.allowed) {
       toast.error(jobLimitResult.message || 'Job post limit reached');
       return;
     }
@@ -114,6 +154,10 @@ export function JobListingForm({ onSuccess }: JobListingFormProps) {
     // Validate required fields
     if (!formData.title.trim()) {
       toast.error('Please enter job title');
+      return;
+    }
+    if (!formData.department) {
+      toast.error('Please select a department');
       return;
     }
     if (!formData.city.trim()) {
@@ -188,6 +232,11 @@ export function JobListingForm({ onSuccess }: JobListingFormProps) {
       return;
     }
 
+    if ((user.role === 'admin' || user.role === 'sales') && !formData.instituteId) {
+      toast.error('Please select an institute to list on behalf of');
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       // Parse numeric values (already validated above)
@@ -199,6 +248,7 @@ export function JobListingForm({ onSuccess }: JobListingFormProps) {
       // Transform data to match backend schema
       const jobData = {
         title: formData.title.trim(),
+        department: formData.department,
         location: {
           city: formData.city.trim(),
           state: formData.state.trim(),
@@ -221,6 +271,7 @@ export function JobListingForm({ onSuccess }: JobListingFormProps) {
         benefits: filteredBenefits,
         subjects: filteredSubjects,
         qualification: filteredQualifications,
+        instituteId: (user.role === 'admin' || user.role === 'sales') ? formData.instituteId : undefined,
       };
 
       console.log('Submitting job data:', jobData); // Debug log
@@ -233,6 +284,7 @@ export function JobListingForm({ onSuccess }: JobListingFormProps) {
         // Reset form
         setFormData({
           title: '',
+          department: '',
           city: '',
           state: '',
           employmentType: 'full-time',
@@ -242,6 +294,7 @@ export function JobListingForm({ onSuccess }: JobListingFormProps) {
           salaryMax: '',
           description: '',
           deadline: '',
+          instituteId: '',
         });
         setRequirements(['']);
         setResponsibilities(['']);
@@ -316,6 +369,30 @@ export function JobListingForm({ onSuccess }: JobListingFormProps) {
               </h3>
               
               <div className="space-y-4">
+                {(user.role === 'admin' || user.role === 'sales') && (
+                  <div className="bg-primary/5 p-4 rounded-lg border border-primary/10 mb-4">
+                    <label className="text-sm font-medium mb-2 block text-primary flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4" />
+                      Post on behalf of Institute (Admin/Sales)
+                    </label>
+                    <select
+                      name="instituteId"
+                      value={formData.instituteId}
+                      onChange={handleChange}
+                      className="w-full px-3 py-2 border border-primary/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-background"
+                      required={(user.role === 'admin' || user.role === 'sales')}
+                    >
+                      <option value="">Select Institute</option>
+                      {institutes.map(inst => (
+                        <option key={inst._id} value={inst._id}>
+                          {inst.instituteName || inst.name} ({inst.email})
+                        </option>
+                      ))}
+                    </select>
+                    {loadingInstitutes && <p className="text-xs text-muted-foreground mt-1 italic text-center">Loading institutes...</p>}
+                  </div>
+                )}
+
                 <div>
                   <label className="text-sm font-medium mb-2 block">Job Title *</label>
                   <input
@@ -327,6 +404,22 @@ export function JobListingForm({ onSuccess }: JobListingFormProps) {
                     className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                     required
                   />
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Department *</label>
+                  <select
+                    name="department"
+                    value={formData.department}
+                    onChange={handleChange}
+                    className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-background"
+                    required
+                  >
+                    <option value="">Select Department</option>
+                    {categories.filter(c => c.type === 'job').map(cat => (
+                      <option key={cat._id} value={cat.slug}>{cat.name}</option>
+                    ))}
+                  </select>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -687,6 +780,10 @@ export function JobListingForm({ onSuccess }: JobListingFormProps) {
                     <div className="bg-muted/50 p-2 rounded">
                       <span className="text-muted-foreground">Type:</span>
                       <p className="font-medium capitalize">{formData.employmentType.replace('-', ' ')}</p>
+                    </div>
+                    <div className="bg-muted/50 p-2 rounded">
+                      <span className="text-muted-foreground">Department:</span>
+                      <p className="font-medium capitalize">{getCategoryName(formData.department, 'job')}</p>
                     </div>
                     <div className="bg-muted/50 p-2 rounded">
                       <span className="text-muted-foreground">Experience:</span>

@@ -9,10 +9,14 @@ import {
   CheckCircle,
   CreditCard,
   Briefcase,
-  Users
+  Users,
+  UserPlus,
+  History,
+  Handshake
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
+import { useAuth } from '@/context/AuthContext';
 
 interface AdminSidebarProps {
   pendingVehicles: number;
@@ -21,8 +25,11 @@ interface AdminSidebarProps {
 
 export function AdminSidebar({ pendingVehicles, pendingSuppliers }: AdminSidebarProps) {
   const location = useLocation();
+  const { user } = useAuth();
 
-  const navItems = [
+  const isInternalAccount = user?.role === 'admin' || user?.role === 'sales' || user?.role === 'marketing';
+
+  const internalNavItems = [
     {
       title: 'Overview',
       path: '/admin',
@@ -51,10 +58,36 @@ export function AdminSidebar({ pendingVehicles, pendingSuppliers }: AdminSidebar
       icon: Briefcase,
       path: '/admin/jobs'
     },
-       {
+    {
       title: 'Users',
       icon: Users,
-      path: '/admin/users'
+      children: [
+        {
+          title: 'All Users',
+          path: '/admin/users',
+          icon: Users
+        },
+        {
+          title: 'Create Internal Account',
+          path: '/admin/users?action=create-internal',
+          icon: UserPlus
+        },
+        {
+          title: 'Create Subscriber Account',
+          path: '/admin/users?action=create-subscriber',
+          icon: UserPlus
+        }
+      ]
+    },
+    {
+      title: 'Sales Team',
+      icon: Handshake,
+      path: '/admin/sales'
+    },
+    {
+      title: 'Audit Logs',
+      icon: History,
+      path: '/admin/audit-logs'
     },
     {
       title: 'Suppliers',
@@ -90,6 +123,42 @@ export function AdminSidebar({ pendingVehicles, pendingSuppliers }: AdminSidebar
     }
   ];
 
+  const subscribedNavItems = [
+    {
+      title: 'My Dashboard',
+      path: '/admin',
+      icon: LayoutDashboard,
+      exact: true
+    },
+    {
+      title: 'My Vehicles',
+      path: '/dashboard?tab=listings',
+      icon: Car
+    },
+    {
+      title: 'My Jobs',
+      path: '/dashboard?tab=jobs',
+      icon: Briefcase
+    },
+    {
+      title: 'Subscription',
+      path: '/dashboard?tab=subscription',
+      icon: CreditCard
+    },
+    {
+      title: 'My Ads',
+      path: '/advertise',
+      icon: Megaphone
+    },
+    {
+      title: 'Profile Settings',
+      path: '/dashboard?tab=profile',
+      icon: Settings
+    }
+  ];
+
+  const navItems = isInternalAccount ? internalNavItems : subscribedNavItems;
+
   const isActive = (path: string, exact?: boolean) => {
     if (exact) {
       return location.pathname === path;
@@ -100,8 +169,30 @@ export function AdminSidebar({ pendingVehicles, pendingSuppliers }: AdminSidebar
   return (
     <aside className="w-64 h-screen flex flex-col border-r border-border bg-card">
       {/* Header */}
-      <div className="h-16 border-b border-border flex items-center px-6">
-        <h2 className="text-lg font-bold text-primary">Admin Panel</h2>
+      <div className="h-16 border-b border-border flex items-center px-6 gap-3">
+        <Link to="/" className="flex items-center gap-2">
+          <img 
+            src="https://firebasestorage.googleapis.com/v0/b/blink-451505.firebasestorage.app/o/user-uploads%2FmxwyRYTs2dcnubQCH6xSOA5OSFz2%2Fimage__9a481536.png?alt=media&token=b799bfcc-670d-46cb-9ea9-b9e521be88f2" 
+            alt="EduFleet" 
+            className="h-8 w-auto"
+          />
+          <h2 className="text-lg font-bold text-primary truncate">
+            {isInternalAccount ? 'Admin' : 'Partner'}
+          </h2>
+        </Link>
+      </div>
+
+      {/* User Info */}
+      <div className="px-6 py-4 border-b border-border">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+            {user?.name?.[0] || 'U'}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold truncate">{user?.name}</p>
+            <p className="text-xs text-muted-foreground truncate uppercase">{user?.role}</p>
+          </div>
+        </div>
       </div>
 
       {/* Navigation */}

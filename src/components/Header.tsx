@@ -26,9 +26,29 @@ export function Header() {
 
   const handleDashboard = (tab?: string) => {
     if (user?.role === 'admin') {
-      navigate('/admin');
+      if (tab === 'profile') {
+        navigate('/admin/settings');
+      } else {
+        navigate('/admin');
+      }
+    } else if (user?.role === 'marketing') {
+      if (tab === 'profile') {
+        navigate('/marketing/dashboard?tab=profile');
+      } else {
+        navigate('/marketing/dashboard');
+      }
+    } else if (user?.role === 'sales') {
+      if (tab === 'profile') {
+        navigate('/sales/dashboard?tab=profile');
+      } else {
+        navigate('/sales/dashboard');
+      }
     } else if (user?.role === 'teacher') {
-      navigate('/teacher/dashboard');
+      if (tab === 'profile') {
+        navigate('/teacher/dashboard?tab=profile');
+      } else {
+        navigate('/teacher/dashboard');
+      }
     } else {
       // Default to institute dashboard for any other role
       if (tab === 'profile') {
@@ -41,10 +61,13 @@ export function Header() {
 
   // Determine which menu items to show based on user role
   const shouldShowTeacherNav = user?.role === 'teacher';
+  const isMarketing = user?.role === 'marketing';
+  const isSales = user?.role === 'sales';
+  const isCompanyUser = user?.role === 'admin' || isSales || isMarketing;
   // Check if user is vendor to hide specific links
   const isVendor = user?.role === 'vendor';
   const shouldShowInstituteNav = user?.role === 'institute' || (!user?.role && user);
-  const showPromoLinks = !(user?.role === 'institute' || user?.role === 'teacher');
+  const showPromoLinks = !(user?.role === 'institute' || user?.role === 'teacher' || isCompanyUser);
 
   const handleHeaderSearch = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
@@ -70,12 +93,31 @@ export function Header() {
 <Link to="/" className="flex items-center shrink-0 group">
   <div className="h-12 w-12 lg:h-16 lg:w-16 rounded-full overflow-hidden">
     <img
-      src="/logo.png"
+
+      src="/logo.jpeg"
+
       alt="EduFleet Exchange"
       className="h-full w-full object-contain transition-transform group-hover:scale-105"
     />
   </div>
 </Link>
+
+          {/* Marketing Role Badge */}
+          {isMarketing && (
+            <Badge variant="outline" className="hidden sm:flex bg-primary/5 text-primary border-primary/20 px-2 py-1 gap-1.5 font-mono text-[10px]">
+              <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+              MARKETING TEAM
+            </Badge>
+          )}
+
+          {/* Sales Role Badge */}
+          {isSales && (
+            <Badge variant="outline" className="hidden sm:flex bg-emerald-50 text-emerald-600 border-emerald-200 px-2 py-1 gap-1.5 font-mono text-[10px]">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              SALES TEAM
+            </Badge>
+          )}
+
 
           {/* Search Bar - Visible on desktop inner pages */}
           {location.pathname !== '/' && (
@@ -99,7 +141,7 @@ export function Header() {
             <nav className="flex items-center gap-7 text-sm font-medium">
               {!shouldShowTeacherNav && !isVendor && (
                 <>
-                  <Link to={user?.role === 'institute' ? "/dashboard?tab=listings" : "/browse"} className="text-foreground/70 hover:text-primary transition-all relative group">
+                  <Link to="/browse" className="text-foreground/70 hover:text-primary transition-all relative group">
                     <span>Vehicles</span>
                     <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all group-hover:w-full"></span>
                   </Link>
@@ -117,10 +159,12 @@ export function Header() {
                       <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all group-hover:w-full"></span>
                     </Link>
                   )}
-                  <Link to="/#pricing" className="text-foreground/70 hover:text-primary transition-all relative group">
-                    <span>Pricing</span>
-                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all group-hover:w-full"></span>
-                  </Link>
+                  {!isCompanyUser && (
+                    <Link to="/#pricing" className="text-foreground/70 hover:text-primary transition-all relative group">
+                      <span>Pricing</span>
+                      <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all group-hover:w-full"></span>
+                    </Link>
+                  )}
                   <div className="h-5 w-px bg-border/70"></div>
                 </>
               )}
@@ -134,10 +178,12 @@ export function Header() {
                     <span>Suppliers</span>
                     <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all group-hover:w-full"></span>
                   </Link>
-                   <Link to="/#pricing" className="text-foreground/70 hover:text-primary transition-all relative group">
-                    <span>Pricing</span>
-                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all group-hover:w-full"></span>
-                  </Link>
+                   {!isCompanyUser && (
+                    <Link to="/#pricing" className="text-foreground/70 hover:text-primary transition-all relative group">
+                      <span>Pricing</span>
+                      <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all group-hover:w-full"></span>
+                    </Link>
+                  )}
                   <div className="h-5 w-px bg-border/70"></div>
                 </>
               )}
@@ -153,7 +199,7 @@ export function Header() {
                     <Megaphone className="w-4 h-4" />
                     <span>Advertise</span>
                   </Link>
-                  <Link to="/signup" className="flex items-center gap-1.5 bg-accent/10 text-accent hover:bg-accent hover:text-accent-foreground transition-all font-semibold px-4 py-2 border border-accent/30 hover:border-accent rounded-lg shadow-sm hover:shadow-md">
+                  <Link to="/signup" className="flex items-center gap-1.5 bg-accent/10 text-accent hover:bg-accent hover:text-accent-foreground transition-all font-semibold px-4 py-2 border border-accent/30 hover:border-accent rounded-lg shadow-sm hover:shadow-md border-beam">
                     <span className="uppercase text-xs tracking-wide">Free Listing</span>
                   </Link>
                 </>
@@ -166,19 +212,19 @@ export function Header() {
                   <NotificationBell />
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <button className="flex items-center gap-2.5 hover:bg-muted/50 px-2 py-1.5 rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-primary/20">
-                        <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-border/60 hover:border-primary/40 transition-colors">
+                      <button className="flex items-center gap-2.5 hover:bg-muted/50 px-2 py-1.5 rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-primary/20 group">
+                        <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-border/60 group-hover:border-primary/40 transition-all group-hover:scale-105">
                           <img src={user.avatar || `https://ui-avatars.com/api/?name=${user.name}`} alt={user.name} className="w-full h-full object-cover" />
                         </div>
-                        <span className="text-sm font-medium max-w-[100px] truncate text-foreground">{user.name}</span>
+                        <span className="text-sm font-medium max-w-[100px] truncate text-foreground group-hover:text-primary transition-colors">{user.name}</span>
                       </button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-60 shadow-lg">
+                    <DropdownMenuContent align="end" className="w-60 shadow-xl border-beam">
                       <div className="px-3 py-2.5 border-b border-border">
                         <div className="flex items-center justify-between mb-1">
                           <div className="text-sm font-semibold text-foreground truncate max-w-[140px]">{user.name}</div>
                           {user.subscription?.planId?.displayName && (
-                            <Badge variant="outline" className="text-[10px] h-5 bg-primary/5 text-primary border-primary/20 px-1.5 flex items-center gap-1">
+                            <Badge variant="outline" className="text-[10px] h-5 bg-primary/5 text-primary border-primary/20 px-1.5 flex items-center gap-1 border-beam">
                               <Crown className="w-2.5 h-2.5" />
                               {(user.subscription.planId as any).displayName}
                             </Badge>
@@ -186,15 +232,15 @@ export function Header() {
                         </div>
                         <div className="text-xs text-muted-foreground truncate">{user.email}</div>
                       </div>
-                      <DropdownMenuItem onClick={() => handleDashboard()} className="cursor-pointer py-2.5 px-3">
+                      <DropdownMenuItem onClick={() => handleDashboard()} className="cursor-pointer py-2.5 px-3 hover:bg-primary/5 hover:text-primary transition-colors">
                         <LayoutDashboard className="w-4 h-4 mr-3" />
                         Dashboard
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleDashboard('profile')} className="cursor-pointer py-2.5 px-3">
+                      <DropdownMenuItem onClick={() => handleDashboard('profile')} className="cursor-pointer py-2.5 px-3 hover:bg-primary/5 hover:text-primary transition-colors">
                         <UserCircle className="w-4 h-4 mr-3" />
                         My Profile
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-destructive py-2.5 px-3">
+                      <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-destructive py-2.5 px-3 hover:bg-destructive/5 transition-colors border-t border-border mt-1">
                         <LogOut className="w-4 h-4 mr-3" />
                         Logout
                       </DropdownMenuItem>
@@ -203,11 +249,11 @@ export function Header() {
                 </>
               ) : (
                 <>
-                  <Link to="/login" className="text-sm font-medium text-foreground/70 hover:text-primary transition-colors px-3 py-2">Login</Link>
+                  <Link to="/login" className="text-sm font-medium text-foreground/70 hover:text-primary transition-all px-3 py-2 hover:bg-muted/30 rounded-lg">Login</Link>
                   <Button 
                     onClick={() => navigate('/signup')} 
                     size="sm"
-                    className="bg-primary text-primary-foreground hover:bg-primary-light shadow-sm hover:shadow-md transition-all font-semibold px-5 py-2.5"
+                    className="bg-primary text-primary-foreground hover:bg-primary-light shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all font-semibold px-6 py-2.5 active:scale-95 border-beam"
                   >
                     Sign Up Free
                   </Button>
@@ -248,9 +294,11 @@ export function Header() {
                       <span className="font-medium">Find Teacher</span>
                     </Link>
                   )}
-                  <Link to="/#pricing" className="flex flex-col items-center justify-center p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
-                    <span className="font-medium">Pricing</span>
-                  </Link>
+                  {!isCompanyUser && (
+                    <Link to="/#pricing" className="flex flex-col items-center justify-center p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
+                      <span className="font-medium">Pricing</span>
+                    </Link>
+                  )}
                 </>
               ) : isVendor ? (
                 <>
@@ -260,9 +308,11 @@ export function Header() {
                   <Link to="/suppliers" className="flex flex-col items-center justify-center p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
                     <span className="font-medium">Suppliers</span>
                   </Link>
-                  <Link to="/#pricing" className="flex flex-col items-center justify-center p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
-                    <span className="font-medium">Pricing</span>
-                  </Link>
+                  {!isCompanyUser && (
+                    <Link to="/#pricing" className="flex flex-col items-center justify-center p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
+                      <span className="font-medium">Pricing</span>
+                    </Link>
+                  )}
                 </>
               ) : (
                 <Link to="/jobs" className="flex flex-col items-center justify-center p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors col-span-2">

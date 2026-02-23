@@ -4,6 +4,8 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Upload, X, Image as ImageIcon, AlertCircle } from 'lucide-react';
 import { api } from '@/api';
+import { adminService } from '@/api/services/adminService';
+import { useConfig } from '@/context/ConfigContext';
 import { toast } from 'sonner';
 import { useAuth } from '@/context/AuthContext';
 import { checkListingLimit, incrementListingCount } from '@/api/services/subscriptionEnforcement';
@@ -12,16 +14,20 @@ import { Vehicle } from '@/api/types';
 
 interface ListingFormProps {
   listing?: Vehicle | null;
+  initialSellerId?: string;
   onSuccess?: () => Promise<void> | void;
   onCancel?: () => void;
 }
 
-export function ListingForm({ listing, onSuccess, onCancel }: ListingFormProps) {
+export function ListingForm({ listing, initialSellerId, onSuccess, onCancel }: ListingFormProps) {
   const navigate = useNavigate();
   const { user, refreshSubscription } = useAuth();
+  const { categories } = useConfig();
   const [listingCheckResult, setListingCheckResult] = useState<any>(null);
   const [checkingLimit, setCheckingLimit] = useState(!listing); // Only check limit if creating
   const [submitting, setSubmitting] = useState(false);
+  const [institutes, setInstitutes] = useState<any[]>([]);
+  const [loadingInstitutes, setLoadingInstitutes] = useState(false);
   
   // Remove the useEffect that redirects if user.id is missing
   // ProtectedRoute handles the main auth check, and we'll handle the id check gracefully
@@ -31,7 +37,7 @@ export function ListingForm({ listing, onSuccess, onCancel }: ListingFormProps) 
     manufacturer: listing?.manufacturer || '',
     vehicleModel: listing?.vehicleModel || '',
     year: listing?.year || new Date().getFullYear(),
-    type: listing?.type || 'school-bus',
+    type: listing?.type || '',
     price: listing?.price?.toString() || '',
     mileage: listing?.mileage?.toString() || '',
     condition: listing?.condition || 'good',
@@ -47,7 +53,24 @@ export function ListingForm({ listing, onSuccess, onCancel }: ListingFormProps) 
     permitValid: listing?.permit?.valid || false,
     permitExpiry: listing?.permit?.expiryDate ? new Date(listing.permit.expiryDate).toISOString().split('T')[0] : '',
     permitType: listing?.permit?.permitType || '',
+    sellerId: listing?.sellerId || initialSellerId || '',
   });
+
+  useEffect(() => {
+    if (initialSellerId) {
+      setFormData(prev => ({ ...prev, sellerId: initialSellerId }));
+    }
+  }, [initialSellerId]);
+
+  // Set default vehicle type if not provided
+  useEffect(() => {
+    if (!listing && !formData.type) {
+      const vehicleCats = categories.filter(c => c.type === 'vehicle');
+      if (vehicleCats.length > 0) {
+        setFormData(prev => ({ ...prev, type: vehicleCats[0].slug }));
+      }
+    }
+  }, [categories, listing, formData.type]);
 
   const [uploadedImages, setUploadedImages] = useState<Array<{ url: string; file?: File; preview: string }>>(() => {
     if (listing?.images) {
@@ -85,6 +108,25 @@ export function ListingForm({ listing, onSuccess, onCancel }: ListingFormProps) 
 
     checkLimit();
   }, [user?.id, (user as any)?._id, listing]);
+
+  // Load institutes for admin/sales
+  useEffect(() => {
+    if ((user?.role === 'admin' || user?.role === 'sales') && !listing) {
+      const loadInstitutes = async () => {
+        try {
+          setLoadingInstitutes(true);
+          const response = await adminService.getAllUsers();
+          const instituteUsers = response.data.filter((u: any) => u.role === 'institute');
+          setInstitutes(instituteUsers);
+        } catch (error) {
+          console.error('Failed to load institutes:', error);
+        } finally {
+          setLoadingInstitutes(false);
+        }
+      };
+      loadInstitutes();
+    }
+  }, [user?.role, listing]);
 
   // If no user, don't render anything (Dashboard handles the loading state)
   if (!user) return null;
@@ -232,6 +274,10 @@ export function ListingForm({ listing, onSuccess, onCancel }: ListingFormProps) 
       toast.error('Please enter a valid mileage');
       return;
     }
+    if ((user.role === 'admin' || user.role === 'sales') && !listing && !formData.sellerId) {
+      toast.error('Please select an institute to list on behalf of');
+      return;
+    }
 
     setSubmitting(true);
 
@@ -253,6 +299,7 @@ export function ListingForm({ listing, onSuccess, onCancel }: ListingFormProps) 
         description: trimmedDescription,
         images: imageUrls,
         features: listing?.features || [], 
+        sellerId: (user.role === 'admin' || user.role === 'sales') ? formData.sellerId : undefined,
       };
 
       // Add nested objects if valid
@@ -475,10 +522,9 @@ export function ListingForm({ listing, onSuccess, onCancel }: ListingFormProps) 
                   onChange={handleChange}
                   className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                 >
-                  <option value="school-bus">School Bus</option>
-                  <option value="minibus">Minibus</option>
-                  <option value="van">Van</option>
-                  <option value="truck">Truck</option>
+                  {categories.filter(c => c.type === 'vehicle').map(cat => (
+                    <option key={cat._id} value={cat.slug}>{cat.name}</option>
+                  ))}
                 </select>
               </div>
             </div>
@@ -574,6 +620,30 @@ export function ListingForm({ listing, onSuccess, onCancel }: ListingFormProps) 
                 required
               />
             </div>
+
+            {(user.role === 'admin' || user.role === 'sales') && !listing && (
+              <div className="bg-primary/5 p-4 rounded-lg border border-primary/10">
+                <label className="text-sm font-medium mb-2 block text-primary flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4" />
+                  List on behalf of Institute (Admin/Sales)
+                </label>
+                <select
+                  name="sellerId"
+                  value={formData.sellerId}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-primary/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-background"
+                  required={(user.role === 'admin' || user.role === 'sales')}
+                >
+                  <option value="">Select Institute</option>
+                  {institutes.map(inst => (
+                    <option key={inst._id} value={inst._id}>
+                      {inst.instituteName || inst.name} ({inst.email})
+                    </option>
+                  ))}
+                </select>
+                {loadingInstitutes && <p className="text-xs text-muted-foreground mt-1 italic text-center">Loading institutes...</p>}
+              </div>
+            )}
 
             {/* Insurance & Documents Section */}
             <div className="border-t border-border pt-6 mt-4">

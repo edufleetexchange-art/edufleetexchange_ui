@@ -6,13 +6,41 @@ export interface User {
   id: string;
   email: string;
   name: string;
-  role: 'institute' | 'admin' | 'teacher';
+  role: 'institute' | 'admin' | 'teacher' | 'vendor' | 'marketing' | 'sales';
+  employeeId?: string;
   avatar?: string;
   instituteName?: string;
   contactPerson?: string;
   instituteCode?: string;
   phone?: string;
   subscriptionId?: string;
+  subscription?: {
+    planId?: {
+      _id: string;
+      name: string;
+      displayName: string;
+      price: number;
+      duration: number;
+      features: {
+        maxListings: number;
+        maxJobPosts: number;
+        maxBrowsesPerMonth: number;
+        teacherDataDelayDays: number;
+        canAdvertiseVehicles: boolean;
+        priorityListings: boolean;
+      };
+    };
+    status: 'active' | 'inactive' | 'suspended' | 'expired';
+    paymentStatus: 'pending' | 'completed' | 'failed';
+    startDate: string;
+    endDate: string;
+    listingsUsed: number;
+    listingsLimit: number;
+    jobPostsUsed: number;
+    jobPostsLimit: number;
+    browseCount: number;
+    browseCountLimit: number;
+  };
   isActive?: boolean;
   qualifications?: string[];
   experience?: number;
@@ -38,7 +66,8 @@ export interface SignupRequest {
   contactPerson?: string;
   instituteCode?: string;
   phone: string;
-  role?: 'institute' | 'teacher';
+  role?: 'institute' | 'teacher' | 'vendor';
+  planId?: string;
 }
 
 export interface TeacherSignupRequest {
@@ -51,6 +80,8 @@ export interface TeacherSignupRequest {
   subjects: string[];
   bio?: string;
   location: string;
+  instituteSearchability?: boolean;
+  planId?: string;
 }
 
 export interface AuthResponse {

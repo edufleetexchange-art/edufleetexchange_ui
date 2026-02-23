@@ -90,32 +90,53 @@ export function UserDetailDialog({ user, isOpen, onClose, plans }: UserDetailDia
           </div>
 
           {/* Subscription Info */}
-          <div className="space-y-4 md:col-span-2">
-            <h3 className="font-semibold text-lg flex items-center gap-2">
-              <CreditCard className="w-4 h-4" /> Subscription & Usage
-            </h3>
-            <Card className="p-6">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                <div>
-                  <p className="text-xs text-muted-foreground uppercase font-bold mb-1">Current Plan</p>
-                  <p className="font-semibold text-primary">{plan?.displayName || 'No Active Plan'}</p>
-                  {user.subscription?.endDate && (
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Expires: {format(new Date(user.subscription.endDate), 'PPP')}
-                    </p>
-                  )}
+          {!['admin', 'marketing', 'sales'].includes(user.role) && (
+            <div className="space-y-4 md:col-span-2">
+              <h3 className="font-semibold text-lg flex items-center gap-2">
+                <CreditCard className="w-4 h-4" /> Subscription & Usage
+              </h3>
+              <Card className="p-6">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                  <div>
+                    <p className="text-xs text-muted-foreground uppercase font-bold mb-1">Current Plan</p>
+                    <p className="font-semibold text-primary">{plan?.displayName || 'No Active Plan'}</p>
+                    {user.subscription?.endDate && (
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Expires: {format(new Date(user.subscription.endDate), 'PPP')}
+                      </p>
+                    )}
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground uppercase font-bold mb-1">Listings Used</p>
+                    <p className="font-semibold">{user.subscription?.listingsUsed || 0} / {user.subscription?.listingsLimit || 0}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground uppercase font-bold mb-1">Job Posts Used</p>
+                    <p className="font-semibold">{user.subscription?.jobPostsUsed || 0} / {user.subscription?.jobPostsLimit || 0}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-xs text-muted-foreground uppercase font-bold mb-1">Listings Used</p>
-                  <p className="font-semibold">{user.subscription?.listingsUsed || 0} / {user.subscription?.listingsLimit || 0}</p>
+              </Card>
+            </div>
+          )}
+
+          {['admin', 'marketing', 'sales'].includes(user.role) && (
+            <div className="space-y-4 md:col-span-2">
+              <h3 className="font-semibold text-lg flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4" /> Company Account
+              </h3>
+              <Card className="p-6 bg-blue-500/5 border-blue-500/20">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 rounded-full bg-blue-500/10">
+                    <ShieldCheck className="w-6 h-6 text-blue-500" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-blue-900">Internal Staff Account</p>
+                    <p className="text-sm text-blue-700"> This user belongs to the EduFleet company team. Subscription limits do not apply to this account.</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-xs text-muted-foreground uppercase font-bold mb-1">Job Posts Used</p>
-                  <p className="font-semibold">{user.subscription?.jobPostsUsed || 0} / {user.subscription?.jobPostsLimit || 0}</p>
-                </div>
-              </div>
-            </Card>
-          </div>
+              </Card>
+            </div>
+          )}
 
           {/* Verification & Access */}
           <div className="space-y-4 md:col-span-2">

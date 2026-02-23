@@ -8,7 +8,9 @@ export class APIError extends Error {
   constructor(
     public statusCode: number,
     message: string,
-    public code?: string
+    public code?: string,
+    public field?: string,
+    public details?: string[]
   ) {
     super(message);
     this.name = 'APIError';
@@ -73,7 +75,7 @@ export const apiClient = {
    */
   async request<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
 
-     if (!endpoint) {
+    if (!endpoint) {
       throw new APIError(0, 'Endpoint is required', 'INVALID_ENDPOINT');
     }
 
@@ -116,7 +118,9 @@ export const apiClient = {
       if (!response.ok) {
         const errorMessage = responseData?.error || responseData?.message || 'Request failed';
         const errorCode = responseData?.code || 'UNKNOWN_ERROR';
-        throw new APIError(response.status, errorMessage, errorCode);
+        const errorField = responseData?.field;
+        const errorDetails = responseData?.details;
+        throw new APIError(response.status, errorMessage, errorCode, errorField, errorDetails);
       }
 
       // Return data (handle both wrapped and unwrapped responses)

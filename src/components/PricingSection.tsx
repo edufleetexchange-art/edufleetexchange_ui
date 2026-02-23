@@ -96,7 +96,7 @@ function PricingCardGrid({ plans, loading, onSelectPlan }: PricingCardGridProps)
           <Card 
             key={plan.id} 
             className={`flex flex-col h-full transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 relative border-2 ${
-              isPopular ? 'border-primary shadow-xl scale-105 z-10' : 'border-white/50 shadow-md'
+              isPopular ? 'border-primary shadow-xl scale-105 z-10 border-beam' : 'border-white/50 shadow-md'
             }`}
           >
             {isPopular && (
@@ -162,6 +162,7 @@ function PricingCardGrid({ plans, loading, onSelectPlan }: PricingCardGridProps)
 export function PricingSection() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const isCompanyUser = user?.role === 'admin' || user?.role === 'sales' || user?.role === 'marketing';
 
   // Determine plan type based on user role
   let planType: 'teacher' | 'institute' | 'vendor' | undefined;
@@ -193,6 +194,10 @@ export function PricingSection() {
   const institutePlans = plans.filter(p => p.planType === 'institute');
   const teacherPlans = plans.filter(p => p.planType === 'teacher');
   const supplierPlans = plans.filter(p => p.planType === 'vendor');
+
+  if (isCompanyUser) {
+    return null;
+  }
 
   return (
     <section id="pricing" className="py-24 bg-slate-50 overflow-hidden relative">

@@ -1,49 +1,46 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { adminService } from '@/api/services/adminService';
-import { subscriptionService } from '@/api/services/subscriptionService';
+import { getAllSubscriptionPlans } from '@/api/services/subscriptionService';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
 } from '@/components/ui/table';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
   DialogTrigger,
   DialogFooter
 } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import {
-  UserPlus,
-  Search,
-  MoreVertical,
-  UserX,
-  UserCheck,
-  Trash2,
+import { 
+  UserPlus, 
+  Search, 
+  MoreVertical, 
+  UserX, 
+  UserCheck, 
+  Trash2, 
+  Edit,
+  ShieldAlert,
   Eye
 } from 'lucide-react';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
   DropdownMenuTrigger,
   DropdownMenuSeparator
 } from '@/components/ui/dropdown-menu';
 import { toast } from 'sonner';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { UserDetailDialog } from '@/components/UserDetailDialog';
@@ -58,7 +55,10 @@ export default function UserManagement() {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [activeTab, setActiveTab] = useState('all');
-
+  const [creationType, setCreationType] = useState<'internal' | 'subscriber' | 'all'>('all');
+  const [searchParams, setSearchParams] = useSearchParams();
+  
+  // Form states
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -66,32 +66,42 @@ export default function UserManagement() {
     role: 'institute',
     instituteName: '',
     contactPerson: '',
-    phone: ''
+    phone: '',
+    employeeId: '',
+    planId: '',
   });
 
   useEffect(() => {
     loadData();
-  }, []);
+    
+    // Handle action from query params
+    const action = searchParams.get('action');
+    if (action === 'create-internal') {
+      setIsCreateOpen(true);
+      setCreationType('internal');
+      setFormData(prev => ({ ...prev, role: 'admin' }));
+      // Clear the param after opening
+      setSearchParams({});
+    } else if (action === 'create-subscriber') {
+      setIsCreateOpen(true);
+      setCreationType('subscriber');
+      setFormData(prev => ({ ...prev, role: 'institute' }));
+      // Clear the param after opening
+      setSearchParams({});
+    }
+  }, [searchParams]);
 
   const loadData = async () => {
     try {
       setLoading(true);
-
       const [usersResponse, plansResponse] = await Promise.all([
         adminService.getAllUsers(),
-        subscriptionService.getPlans()
+        getAllSubscriptionPlans()
       ]);
-
-      // ✅ ONLY FIX — HANDLE REAL API RESPONSE SHAPE
-      setUsers(
-        usersResponse?.data?.data || usersResponse?.data || []
-      );
-
-      setPlans(
-        plansResponse?.data?.data || plansResponse?.data || []
-      );
-
+      setUsers(usersResponse.data);
+      setPlans(plansResponse.data);
     } catch (error) {
+      console.error('Failed to load data:', error);
       toast.error('Failed to load user data');
     } finally {
       setLoading(false);
@@ -100,14 +110,54 @@ export default function UserManagement() {
 
   const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Client-side validation
+    if (formData.password.length < 6) {
+      toast.error('Password must be at least 6 characters');
+      return;
+    }
+    
     try {
-      await adminService.createUser(formData);
+      // Clean up data before sending - don't send empty strings
+      const cleanData: Record<string, string> = {
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        password: formData.password,
+        role: formData.role,
+      };
+      
+      if (formData.instituteName?.trim()) cleanData.instituteName = formData.instituteName.trim();
+      if (formData.contactPerson?.trim()) cleanData.contactPerson = formData.contactPerson.trim();
+      if (formData.phone?.trim()) cleanData.phone = formData.phone.trim();
+      if (formData.employeeId?.trim()) cleanData.employeeId = formData.employeeId.trim();
+      
+      await adminService.createUser(cleanData);
       toast.success('User created successfully');
       setIsCreateOpen(false);
       resetForm();
       loadData();
     } catch (error: any) {
-      toast.error(error.error || 'Failed to create user');
+      console.error('Create user error:', error);
+      // Extract the most specific error message available
+      let errorMessage = 'Failed to create user';
+      if (error.message) {
+        errorMessage = error.message;
+      } else if (error.error) {
+        errorMessage = error.error;
+      }
+      
+      // Handle specific error codes with better messages
+      if (error.code === 'DUPLICATE_ERROR' && error.field) {
+        errorMessage = `A user with this ${error.field} already exists. Please use a different value.`;
+      } else if (error.code === 'VALIDATION_ERROR' && error.details) {
+        errorMessage = error.details.join('; ');
+      } else if (error.code === 'USER_EXISTS') {
+        errorMessage = 'A user with this email already exists.';
+      } else if (error.code === 'EMPLOYEE_ID_EXISTS') {
+        errorMessage = 'This Employee ID is already in use.';
+      }
+      
+      toast.error(errorMessage);
     }
   };
 
@@ -122,7 +172,7 @@ export default function UserManagement() {
   };
 
   const handleDeleteUser = async (userId: string) => {
-    if (!window.confirm('Are you sure you want to delete this user?')) return;
+    if (!window.confirm('Are you sure you want to delete this user? This action cannot be undone.')) return;
     try {
       await adminService.deleteUser(userId);
       toast.success('User deleted successfully');
@@ -140,19 +190,20 @@ export default function UserManagement() {
       role: 'institute',
       instituteName: '',
       contactPerson: '',
-      phone: ''
+      phone: '',
+      employeeId: '',
+      planId: '',
     });
   };
 
   const filteredUsers = users.filter(user => {
-    const matchesSearch =
+    const matchesSearch = 
       user.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.instituteName?.toLowerCase().includes(searchQuery.toLowerCase());
-
-    const matchesTab =
-      activeTab === 'all' || user.role === activeTab;
-
+    
+    const matchesTab = activeTab === 'all' || user.role === activeTab;
+    
     return matchesSearch && matchesTab;
   });
 
@@ -166,9 +217,10 @@ export default function UserManagement() {
     { value: 'institute', label: 'Institutes' },
     { value: 'teacher', label: 'Teachers' },
     { value: 'vendor', label: 'Vendors' },
-    { value: 'admin', label: 'Admins' }
+    { value: 'marketing', label: 'Marketing' },
+    { value: 'sales', label: 'Sales Team' },
+    { value: 'admin', label: 'Admins' },
   ];
-
 
   return (
     <div className="p-8">
@@ -178,16 +230,58 @@ export default function UserManagement() {
           <p className="text-muted-foreground mt-1">Manage all user accounts, subscriptions, and status</p>
         </div>
         <div className="flex items-center gap-4">
-          <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-            <DialogTrigger asChild>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
               <Button className="gap-2">
                 <UserPlus className="w-4 h-4" />
                 Create User
               </Button>
-            </DialogTrigger>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuItem 
+                onClick={() => {
+                  resetForm();
+                  setCreationType('internal');
+                  setFormData(prev => ({ ...prev, role: 'admin' }));
+                  setIsCreateOpen(true);
+                }}
+              >
+                <ShieldAlert className="w-4 h-4 mr-2" />
+                Create Internal Account
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => {
+                  resetForm();
+                  setCreationType('subscriber');
+                  setFormData(prev => ({ ...prev, role: 'institute' }));
+                  setIsCreateOpen(true);
+                }}
+              >
+                <UserCheck className="w-4 h-4 mr-2" />
+                Create Subscriber Account
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem 
+                onClick={() => {
+                  resetForm();
+                  setCreationType('all');
+                  setIsCreateOpen(true);
+                }}
+              >
+                <UserPlus className="w-4 h-4 mr-2" />
+                Generic Account
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
             <DialogContent className="sm:max-w-[500px]">
               <DialogHeader>
-                <DialogTitle>Create New User</DialogTitle>
+                <DialogTitle>
+                  {creationType === 'internal' ? 'Create Internal Account' : 
+                   creationType === 'subscriber' ? 'Create Subscriber Account' : 
+                   'Create New User'}
+                </DialogTitle>
               </DialogHeader>
               <form onSubmit={handleCreateUser} className="space-y-4 py-4">
                 <div className="grid grid-cols-2 gap-4">
@@ -228,19 +322,68 @@ export default function UserManagement() {
                     <Label htmlFor="role">Role</Label>
                     <Select 
                       value={formData.role} 
-                      onValueChange={(value) => setFormData({...formData, role: value})}
+                      onValueChange={(value) => setFormData({...formData, role: value, planId: ''})}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Select role" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="institute">Institute</SelectItem>
-                        <SelectItem value="teacher">Teacher</SelectItem>
-                        <SelectItem value="vendor">Vendor</SelectItem>
-                        <SelectItem value="admin">Admin</SelectItem>
+                        {(creationType === 'all' || creationType === 'subscriber') && (
+                          <>
+                            <SelectItem value="institute">Institute</SelectItem>
+                            <SelectItem value="teacher">Teacher</SelectItem>
+                            <SelectItem value="vendor">Vendor</SelectItem>
+                          </>
+                        )}
+                        {(creationType === 'all' || creationType === 'internal') && (
+                          <>
+                            <SelectItem value="marketing">Marketing Team</SelectItem>
+                            <SelectItem value="sales">Sales Team</SelectItem>
+                            <SelectItem value="admin">Admin</SelectItem>
+                          </>
+                        )}
                       </SelectContent>
                     </Select>
                   </div>
+                  {(formData.role === 'admin' || formData.role === 'marketing' || formData.role === 'sales') ? (
+                    <div className="space-y-2">
+                      <Label htmlFor="employeeId">Employee ID</Label>
+                      <Input 
+                        id="employeeId" 
+                        placeholder="EMP123" 
+                        value={formData.employeeId}
+                        onChange={(e) => setFormData({...formData, employeeId: e.target.value})}
+                        required
+                      />
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <Label htmlFor="planId">Subscription Plan</Label>
+                      <Select 
+                        value={formData.planId} 
+                        onValueChange={(value) => setFormData({...formData, planId: value})}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select plan" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {plans
+                            .filter(p => p.planType === (formData.role === 'vendor' ? 'vendor' : formData.role))
+                            .map(plan => (
+                              <SelectItem key={plan._id} value={plan._id}>
+                                {plan.displayName} ({plan.price === 0 ? 'Free' : `₹${plan.price}`})
+                              </SelectItem>
+                            ))
+                          }
+                          {plans.filter(p => p.planType === (formData.role === 'vendor' ? 'vendor' : formData.role)).length === 0 && (
+                            <SelectItem value="none" disabled>No plans available</SelectItem>
+                          )}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+                </div>
+                {(formData.role === 'admin' || formData.role === 'marketing' || formData.role === 'sales') && (
                   <div className="space-y-2">
                     <Label htmlFor="phone">Phone Number</Label>
                     <Input 
@@ -250,7 +393,7 @@ export default function UserManagement() {
                       onChange={(e) => setFormData({...formData, phone: e.target.value})}
                     />
                   </div>
-                </div>
+                )}
                 {formData.role === 'institute' && (
                   <div className="space-y-4">
                     <div className="space-y-2">
@@ -301,7 +444,7 @@ export default function UserManagement() {
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-5">
+            <TabsList className="grid w-full grid-cols-6">
               {roles.map(role => (
                 <TabsTrigger key={role.value} value={role.value}>
                   {role.label}
@@ -358,6 +501,10 @@ export default function UserManagement() {
                     <div className="text-sm">
                       {user.role === 'institute' ? (
                         <span>{user.instituteName || '-'}</span>
+                      ) : (user.role === 'admin' || user.role === 'marketing' || user.role === 'sales') ? (
+                        <span className="font-mono text-xs text-primary bg-primary/5 px-2 py-0.5 rounded">
+                          ID: {user.employeeId || 'N/A'}
+                        </span>
                       ) : user.role === 'teacher' ? (
                         <span className="text-muted-foreground italic">Teacher Profile</span>
                       ) : (
@@ -370,6 +517,10 @@ export default function UserManagement() {
                       {user.subscription?.planId ? (
                         <Badge variant="secondary" className="font-medium text-primary">
                           {plans.find(p => p._id === user.subscription.planId)?.displayName || 'Custom Plan'}
+                        </Badge>
+                      ) : (['admin', 'marketing', 'sales'].includes(user.role)) ? (
+                        <Badge variant="outline" className="bg-blue-500/5 text-blue-500 border-blue-500/20">
+                          Internal Account
                         </Badge>
                       ) : (
                         <span className="text-muted-foreground italic">No Active Plan</span>

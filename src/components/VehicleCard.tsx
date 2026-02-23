@@ -1,10 +1,12 @@
 import { Vehicle } from '@/api/services/vehicleService';
 import { useAuth } from '@/context/AuthContext';
+import { useConfig } from '@/context/ConfigContext';
 import { useNavigate } from 'react-router-dom';
 import { PriorityBadge } from '@/components/PriorityBadge';
+import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { MapPin, Gauge, Calendar, Lock, Share2 } from 'lucide-react';
+import { MapPin, Gauge, Calendar, Lock, Share2, Clock, CheckCircle2, AlertTriangle } from 'lucide-react';
 import { MaskedContent } from '@/components/MaskedContent';
 import { ShareButton } from '@/components/ShareButton';
 
@@ -15,6 +17,7 @@ interface VehicleCardProps {
 
 export function VehicleCard({ vehicle, isListing = false }: VehicleCardProps) {
   const { user } = useAuth();
+  const { getCategoryName } = useConfig();
   const navigate = useNavigate();
   const isUnmasked = !!user;
 
@@ -27,7 +30,7 @@ export function VehicleCard({ vehicle, isListing = false }: VehicleCardProps) {
       onClick={handleClick}
       className="cursor-pointer relative group flex-shrink-0 w-full h-full"
     >
-      <Card className="overflow-hidden border border-border/40 shadow-card hover:shadow-xl hover:-translate-y-1 hover:border-primary/30 transition-all duration-300 rounded-xl w-full h-full flex flex-col p-0 bg-card">
+      <Card className="overflow-hidden border border-border/40 shadow-card hover:shadow-2xl hover:-translate-y-2 hover:border-primary/30 transition-all duration-500 rounded-xl w-full h-full flex flex-col p-0 bg-card border-beam">
         {/* Image Container */}
         <div className="relative overflow-hidden bg-muted/50 aspect-[4/3] flex-shrink-0">
           {!isUnmasked && !isListing ? (
@@ -35,17 +38,35 @@ export function VehicleCard({ vehicle, isListing = false }: VehicleCardProps) {
               <img
                 src={vehicle.images[0]}
                 alt={vehicle.title}
-                className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105"
+                className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110 group-hover:rotate-1"
               />
             </MaskedContent>
           ) : (
             <img
               src={vehicle.images[0]}
               alt={vehicle.title}
-              className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105"
+              className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110 group-hover:rotate-1"
             />
           )}
           
+          {/* Status Badge Overlay for Owners */}
+          {user && (user.id === vehicle.sellerId || (vehicle as any).sellerId === user.id) && vehicle.status !== 'approved' && (
+            <div className="absolute top-2 left-2 z-20 flex flex-col gap-2">
+              {vehicle.status === 'pending' && (
+                <Badge className="bg-amber-500 hover:bg-amber-600 text-white border-none flex items-center gap-1 shadow-md">
+                  <Clock className="w-3 h-3" />
+                  Pending Approval
+                </Badge>
+              )}
+              {vehicle.status === 'rejected' && (
+                <Badge className="bg-red-500 hover:bg-red-600 text-white border-none flex items-center gap-1 shadow-md">
+                  <AlertTriangle className="w-3 h-3" />
+                  Rejected
+                </Badge>
+              )}
+            </div>
+          )}
+
           {/* Gradient Overlay for better text visibility */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           
@@ -58,7 +79,7 @@ export function VehicleCard({ vehicle, isListing = false }: VehicleCardProps) {
           <div className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
             <ShareButton
               title={vehicle.title}
-              text={`Check out this ${vehicle.manufacturer} ${vehicle.vehiclemodel} on EduFleet Exchange!`}
+              text={`Check out this ${vehicle.manufacturer} ${vehicle.vehicleModel} on EduFleet Exchange!`}
               url={`/vehicle/${vehicle.id || (vehicle as any)._id}`}
               variant="secondary"
               size="icon"
@@ -100,7 +121,7 @@ export function VehicleCard({ vehicle, isListing = false }: VehicleCardProps) {
               
               <div className="flex gap-2 flex-shrink-0">
                 <span className="text-xs bg-secondary/10 text-secondary px-2.5 py-1 rounded-md font-semibold border border-secondary/20">
-                  {vehicle.type === 'bus' ? 'Bus' : vehicle.type === 'van' ? 'Van' : 'School Vehicle'}
+                  {getCategoryName(vehicle.type, 'vehicle')}
                 </span>
               </div>
             </div>
@@ -128,6 +149,3 @@ export function VehicleCard({ vehicle, isListing = false }: VehicleCardProps) {
     </div>
   );
 }
-
-
-

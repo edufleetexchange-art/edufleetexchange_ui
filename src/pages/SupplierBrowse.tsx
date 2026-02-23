@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/card';
 import { Search, Building2, Filter, Sliders, CheckCircle, Calendar, Users, Award, Mail, Phone, Globe, MapPin } from 'lucide-react';
 import { getSuppliers } from '@/api/services/supplierService';
 import { Supplier, SupplierFilters } from '@/api/types';
-import { categoryLabels } from '@/constants/categories';
+import { useConfig } from '@/context/ConfigContext';
 import { Spinner } from '@/components/ui/spinner';
 import { toast } from 'sonner';
 import {
@@ -20,6 +20,7 @@ import { Button } from '@/components/ui/button';
 import { AdSlot } from '@/components/ads/AdSlot';
 
 export function SupplierBrowse() {
+  const { categoryLabels } = useConfig();
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState<SupplierFilters>({
@@ -234,7 +235,7 @@ export function SupplierBrowse() {
               </div>
             ) : (
               <>
-               <div className="grid grid-cols-[repeat(auto-fill,minmax(192px,1fr))] gap-6">
+                <div className="grid grid-cols-[repeat(auto-fill,minmax(192px,1fr))] gap-6">
                   {suppliers.map((supplier, index) => (
                     <div key={supplier.id || (supplier as any)._id} className="animate-scale-in" style={{ animationDelay: `${index * 0.05}s` }}>
                       <SupplierCard

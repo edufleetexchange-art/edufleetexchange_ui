@@ -12,7 +12,8 @@ export function Footer() {
 <Link to="/" className="flex items-center shrink-0 group">
   <div className="h-12 w-12 lg:h-16 lg:w-16 rounded-full overflow-hidden">
     <img
-      src="/logo.png"
+      src="/logo.jpeg"
+
       alt="EduFleet Exchange"
       className="h-full w-full object-contain transition-transform group-hover:scale-105"
     />

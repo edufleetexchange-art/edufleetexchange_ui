@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { api } from '@/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -16,12 +16,12 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from '@/components/ui/select';
 import {
   Mail,
@@ -57,7 +57,9 @@ const getAllowedTransitions = (currentStatus: string): string[] => {
 
 export function InstituteJobApplications() {
   const { jobId } = useParams();
+  const location = useLocation();
   const { user } = useAuth();
+
   const [selectedApplication, setSelectedApplication] = useState<any>(null);
   const [showScheduleDialog, setShowScheduleDialog] = useState(false);
   const [showStatusDialog, setShowStatusDialog] = useState(false);
@@ -76,19 +78,52 @@ export function InstituteJobApplications() {
     notes: '',
   });
 
+  // ✅ Robust jobId resolution:
+  // 1) Prefer URL param if it's a real id (not "[object Object]")
+  // 2) Fallback to navigation state: location.state.job / location.state.jobId
+  const resolvedJobId = (() => {
+    const paramId = typeof jobId === 'string' ? jobId : '';
+    if (paramId && paramId !== '[object Object]' && paramId !== 'undefined' && paramId !== 'null') {
+      return paramId;
+    }
+
+    const st: any = (location as any)?.state;
+    const stateJobId =
+      typeof st?.jobId === 'string'
+        ? st.jobId
+        : typeof st?.job?.id === 'string'
+        ? st.job.id
+        : typeof st?.job?._id === 'string'
+        ? st.job._id
+        : undefined;
+
+    return stateJobId;
+  })();
+
   useEffect(() => {
     loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [jobId]);
 
   const loadData = async () => {
     try {
       setLoading(true);
+
+      // ✅ Guard: never call backend with a bad id
+      if (!resolvedJobId) {
+        console.error('Invalid jobId. URL param:', jobId, 'location.state:', location.state);
+        toast.error('Invalid Job ID in URL. Please open Applications from the Jobs list again.');
+        setJob(null);
+        setApplications([]);
+        return;
+      }
+
       // Load job details
-      const jobResponse = await api.jobs.getJobById(jobId!);
+      const jobResponse = await api.jobs.getJobById(resolvedJobId);
       setJob(jobResponse.data);
-      
+
       // Load applications
-      const appsResponse = await api.jobs.getApplications({ jobId });
+      const appsResponse = await api.jobs.getApplications({ jobId: resolvedJobId });
       setApplications(appsResponse.data);
     } catch (error) {
       console.error('Failed to load data:', error);
@@ -99,7 +134,7 @@ export function InstituteJobApplications() {
   };
 
   const getApplicationsByStatus = (status: string) => {
-    return applications.filter(app => app.status === status);
+    return applications.filter((app) => app.status === status);
   };
 
   const handleStatusChange = async (applicationId: string, newStatus: string) => {
@@ -119,7 +154,8 @@ export function InstituteJobApplications() {
       loadData(); // Reload data
     } catch (error: any) {
       console.error('Failed to update status:', error);
-      const errorMessage = error?.response?.data?.error || error?.message || 'Failed to update application status';
+      const errorMessage =
+        error?.response?.data?.error || error?.message || 'Failed to update application status';
       toast.error(errorMessage);
     }
   };
@@ -133,7 +169,7 @@ export function InstituteJobApplications() {
   const handleScheduleInterview = (application: any, reschedule = false) => {
     setSelectedApplication(application);
     setIsRescheduling(reschedule);
-    
+
     // Pre-fill if rescheduling
     if (reschedule && application.interviewScheduled) {
       setInterviewData({
@@ -156,7 +192,7 @@ export function InstituteJobApplications() {
         notes: '',
       });
     }
-    
+
     setShowScheduleDialog(true);
   };
 
@@ -198,7 +234,7 @@ export function InstituteJobApplications() {
         toast.success('Interview rescheduled successfully!');
       } else {
         await api.jobs.updateApplicationStatus(appId, {
-          interviewScheduled: interviewDetails
+          interviewScheduled: interviewDetails,
         });
         toast.success('Interview scheduled successfully!');
       }
@@ -288,17 +324,29 @@ export function InstituteJobApplications() {
         <Tabs defaultValue="all">
           <TabsList className="flex-wrap h-auto gap-1">
             <TabsTrigger value="all">All ({applications.length})</TabsTrigger>
-            <TabsTrigger value="pending">Pending ({getApplicationsByStatus('pending').length})</TabsTrigger>
-            <TabsTrigger value="reviewed">Reviewed ({getApplicationsByStatus('reviewed').length})</TabsTrigger>
-            <TabsTrigger value="shortlisted">Shortlisted ({getApplicationsByStatus('shortlisted').length})</TabsTrigger>
-            <TabsTrigger value="interview_scheduled">Interviews ({getApplicationsByStatus('interview_scheduled').length})</TabsTrigger>
-            <TabsTrigger value="accepted">Accepted ({getApplicationsByStatus('accepted').length})</TabsTrigger>
-            <TabsTrigger value="rejected">Rejected ({getApplicationsByStatus('rejected').length})</TabsTrigger>
+            <TabsTrigger value="pending">
+              Pending ({getApplicationsByStatus('pending').length})
+            </TabsTrigger>
+            <TabsTrigger value="reviewed">
+              Reviewed ({getApplicationsByStatus('reviewed').length})
+            </TabsTrigger>
+            <TabsTrigger value="shortlisted">
+              Shortlisted ({getApplicationsByStatus('shortlisted').length})
+            </TabsTrigger>
+            <TabsTrigger value="interview_scheduled">
+              Interviews ({getApplicationsByStatus('interview_scheduled').length})
+            </TabsTrigger>
+            <TabsTrigger value="accepted">
+              Accepted ({getApplicationsByStatus('accepted').length})
+            </TabsTrigger>
+            <TabsTrigger value="rejected">
+              Rejected ({getApplicationsByStatus('rejected').length})
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="all" className="mt-6">
-            <ApplicationsList 
-              applications={applications} 
+            <ApplicationsList
+              applications={applications}
               onStatusChange={handleStatusChange}
               onOpenStatusDialog={openStatusChangeDialog}
               onScheduleInterview={handleScheduleInterview}
@@ -306,8 +354,8 @@ export function InstituteJobApplications() {
           </TabsContent>
 
           <TabsContent value="pending" className="mt-6">
-            <ApplicationsList 
-              applications={getApplicationsByStatus('pending')} 
+            <ApplicationsList
+              applications={getApplicationsByStatus('pending')}
               onStatusChange={handleStatusChange}
               onOpenStatusDialog={openStatusChangeDialog}
               onScheduleInterview={handleScheduleInterview}
@@ -315,8 +363,8 @@ export function InstituteJobApplications() {
           </TabsContent>
 
           <TabsContent value="reviewed" className="mt-6">
-            <ApplicationsList 
-              applications={getApplicationsByStatus('reviewed')} 
+            <ApplicationsList
+              applications={getApplicationsByStatus('reviewed')}
               onStatusChange={handleStatusChange}
               onOpenStatusDialog={openStatusChangeDialog}
               onScheduleInterview={handleScheduleInterview}
@@ -324,8 +372,8 @@ export function InstituteJobApplications() {
           </TabsContent>
 
           <TabsContent value="shortlisted" className="mt-6">
-            <ApplicationsList 
-              applications={getApplicationsByStatus('shortlisted')} 
+            <ApplicationsList
+              applications={getApplicationsByStatus('shortlisted')}
               onStatusChange={handleStatusChange}
               onOpenStatusDialog={openStatusChangeDialog}
               onScheduleInterview={handleScheduleInterview}
@@ -333,8 +381,8 @@ export function InstituteJobApplications() {
           </TabsContent>
 
           <TabsContent value="interview_scheduled" className="mt-6">
-            <ApplicationsList 
-              applications={getApplicationsByStatus('interview_scheduled')} 
+            <ApplicationsList
+              applications={getApplicationsByStatus('interview_scheduled')}
               onStatusChange={handleStatusChange}
               onOpenStatusDialog={openStatusChangeDialog}
               onScheduleInterview={handleScheduleInterview}
@@ -342,8 +390,8 @@ export function InstituteJobApplications() {
           </TabsContent>
 
           <TabsContent value="accepted" className="mt-6">
-            <ApplicationsList 
-              applications={getApplicationsByStatus('accepted')} 
+            <ApplicationsList
+              applications={getApplicationsByStatus('accepted')}
               onStatusChange={handleStatusChange}
               onOpenStatusDialog={openStatusChangeDialog}
               onScheduleInterview={handleScheduleInterview}
@@ -351,8 +399,8 @@ export function InstituteJobApplications() {
           </TabsContent>
 
           <TabsContent value="rejected" className="mt-6">
-            <ApplicationsList 
-              applications={getApplicationsByStatus('rejected')} 
+            <ApplicationsList
+              applications={getApplicationsByStatus('rejected')}
               onStatusChange={handleStatusChange}
               onOpenStatusDialog={openStatusChangeDialog}
               onScheduleInterview={handleScheduleInterview}
@@ -373,12 +421,13 @@ export function InstituteJobApplications() {
               <div className="p-3 bg-blue-50 dark:bg-blue-950 rounded flex items-start gap-2">
                 <AlertCircle className="h-4 w-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
                 <p className="text-sm text-blue-900 dark:text-blue-100">
-                  Change status from <strong>{selectedApplication?.status}</strong> to <strong>{statusChangeTarget}</strong>?
+                  Change status from <strong>{selectedApplication?.status}</strong> to{' '}
+                  <strong>{statusChangeTarget}</strong>?
                 </p>
               </div>
               <div className="flex gap-3">
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="flex-1"
                   onClick={() => {
                     setShowStatusDialog(false);
@@ -387,11 +436,14 @@ export function InstituteJobApplications() {
                 >
                   Cancel
                 </Button>
-                <Button 
+                <Button
                   className="flex-1"
                   onClick={() => {
                     if (selectedApplication && statusChangeTarget) {
-                      handleStatusChange(selectedApplication._id || selectedApplication.id, statusChangeTarget);
+                      handleStatusChange(
+                        selectedApplication._id || selectedApplication.id,
+                        statusChangeTarget
+                      );
                     }
                   }}
                 >
@@ -408,7 +460,8 @@ export function InstituteJobApplications() {
             <DialogHeader>
               <DialogTitle>{isRescheduling ? 'Reschedule Interview' : 'Schedule Interview'}</DialogTitle>
               <DialogDescription>
-                {isRescheduling ? 'Update interview details for' : 'Schedule an interview with'} {selectedApplication?.teacherName}
+                {isRescheduling ? 'Update interview details for' : 'Schedule an interview with'}{' '}
+                {selectedApplication?.teacherName}
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
@@ -445,8 +498,8 @@ export function InstituteJobApplications() {
                 </div>
                 <div>
                   <Label htmlFor="mode">Mode *</Label>
-                  <Select 
-                    value={interviewData.mode} 
+                  <Select
+                    value={interviewData.mode}
                     onValueChange={(value: any) => setInterviewData({ ...interviewData, mode: value })}
                   >
                     <SelectTrigger>
@@ -496,17 +549,10 @@ export function InstituteJobApplications() {
               </div>
 
               <div className="flex gap-3">
-                <Button 
-                  variant="outline" 
-                  className="flex-1"
-                  onClick={() => setShowScheduleDialog(false)}
-                >
+                <Button variant="outline" className="flex-1" onClick={() => setShowScheduleDialog(false)}>
                   Cancel
                 </Button>
-                <Button 
-                  className="flex-1"
-                  onClick={submitScheduleInterview}
-                >
+                <Button className="flex-1" onClick={submitScheduleInterview}>
                   {isRescheduling ? 'Reschedule Interview' : 'Schedule Interview'}
                 </Button>
               </div>
@@ -518,11 +564,11 @@ export function InstituteJobApplications() {
   );
 }
 
-function ApplicationsList({ 
-  applications, 
+function ApplicationsList({
+  applications,
   onStatusChange,
   onOpenStatusDialog,
-  onScheduleInterview
+  onScheduleInterview,
 }: any) {
   if (applications.length === 0) {
     return (
@@ -538,7 +584,7 @@ function ApplicationsList({
     <div className="space-y-4">
       {applications.map((application: any) => {
         const teacher = application.teacherId; // Already populated from API
-        
+
         return (
           <Card key={application._id || application.id}>
             <CardHeader>
@@ -555,13 +601,19 @@ function ApplicationsList({
                     </CardDescription>
                   </div>
                 </div>
-                <Badge className={`${
-                  application.status === 'accepted' ? 'bg-green-500' :
-                  application.status === 'shortlisted' ? 'bg-purple-500' :
-                  application.status === 'reviewed' ? 'bg-blue-500' :
-                  application.status === 'rejected' ? 'bg-red-500' :
-                  'bg-yellow-500'
-                } text-white`}>
+                <Badge
+                  className={`${
+                    application.status === 'accepted'
+                      ? 'bg-green-500'
+                      : application.status === 'shortlisted'
+                      ? 'bg-purple-500'
+                      : application.status === 'reviewed'
+                      ? 'bg-blue-500'
+                      : application.status === 'rejected'
+                      ? 'bg-red-500'
+                      : 'bg-yellow-500'
+                  } text-white`}
+                >
                   {application.status}
                 </Badge>
               </div>
@@ -633,7 +685,10 @@ function ApplicationsList({
                     Interview Scheduled
                   </p>
                   <div className="space-y-1">
-                    <p>{new Date(application.interviewScheduled.scheduledDate).toLocaleDateString()} at {application.interviewScheduled.scheduledTime}</p>
+                    <p>
+                      {new Date(application.interviewScheduled.scheduledDate).toLocaleDateString()} at{' '}
+                      {application.interviewScheduled.scheduledTime}
+                    </p>
                     <p className="flex items-center gap-2">
                       {application.interviewScheduled.mode === 'video' && <Video className="h-3 w-3" />}
                       {application.interviewScheduled.mode === 'phone' && <Phone className="h-3 w-3" />}
@@ -651,71 +706,46 @@ function ApplicationsList({
                   {/* Primary workflow buttons */}
                   {application.status === 'pending' && (
                     <>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => onOpenStatusDialog(application, 'reviewed')}
-                      >
+                      <Button size="sm" variant="outline" onClick={() => onOpenStatusDialog(application, 'reviewed')}>
                         <CheckCircle className="h-4 w-4 mr-2" />
                         Mark Reviewed
                       </Button>
-                      <Button
-                        size="sm"
-                        onClick={() => onOpenStatusDialog(application, 'shortlisted')}
-                      >
+                      <Button size="sm" onClick={() => onOpenStatusDialog(application, 'shortlisted')}>
                         <CheckCircle className="h-4 w-4 mr-2" />
                         Shortlist
                       </Button>
                     </>
                   )}
-                  
+
                   {application.status === 'reviewed' && (
                     <>
-                      <Button
-                        size="sm"
-                        onClick={() => onOpenStatusDialog(application, 'shortlisted')}
-                      >
+                      <Button size="sm" onClick={() => onOpenStatusDialog(application, 'shortlisted')}>
                         <CheckCircle className="h-4 w-4 mr-2" />
                         Shortlist
                       </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => onOpenStatusDialog(application, 'pending')}
-                      >
+                      <Button size="sm" variant="outline" onClick={() => onOpenStatusDialog(application, 'pending')}>
                         <Clock className="h-4 w-4 mr-2" />
                         Back to Pending
                       </Button>
                     </>
                   )}
-                  
+
                   {application.status === 'shortlisted' && (
                     <>
-                      <Button
-                        size="sm"
-                        onClick={() => onScheduleInterview(application)}
-                      >
+                      <Button size="sm" onClick={() => onScheduleInterview(application)}>
                         <Calendar className="h-4 w-4 mr-2" />
                         Schedule Interview
                       </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => onOpenStatusDialog(application, 'reviewed')}
-                      >
+                      <Button size="sm" variant="outline" onClick={() => onOpenStatusDialog(application, 'reviewed')}>
                         <CheckCircle className="h-4 w-4 mr-2" />
                         Move to Reviewed
                       </Button>
                     </>
                   )}
-                  
+
                   {application.status === 'interview_scheduled' && (
                     <>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => onScheduleInterview(application, true)}
-                      >
+                      <Button size="sm" variant="outline" onClick={() => onScheduleInterview(application, true)}>
                         <Calendar className="h-4 w-4 mr-2" />
                         Reschedule Interview
                       </Button>
@@ -729,21 +759,17 @@ function ApplicationsList({
                       </Button>
                     </>
                   )}
-                  
+
                   {application.status === 'accepted' && (
                     <div className="flex items-center gap-2 text-sm">
                       <CheckCircle className="h-4 w-4 text-green-600" />
                       <span className="text-green-600 font-semibold">Candidate Accepted</span>
                     </div>
                   )}
-                  
+
                   {application.status === 'rejected' && (
                     <>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => onOpenStatusDialog(application, 'pending')}
-                      >
+                      <Button size="sm" variant="outline" onClick={() => onOpenStatusDialog(application, 'pending')}>
                         <Clock className="h-4 w-4 mr-2" />
                         Reconsider
                       </Button>
@@ -768,14 +794,10 @@ function ApplicationsList({
                       Accept Candidate
                     </Button>
                   )}
-                  
+
                   {/* Reject button - always available except when already rejected */}
                   {application.status !== 'rejected' && (
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      onClick={() => onOpenStatusDialog(application, 'rejected')}
-                    >
+                    <Button size="sm" variant="destructive" onClick={() => onOpenStatusDialog(application, 'rejected')}>
                       <XCircle className="h-4 w-4 mr-2" />
                       Reject
                     </Button>

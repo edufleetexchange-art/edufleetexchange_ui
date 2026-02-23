@@ -7,7 +7,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { X, Plus, Building2, Mail, Phone, Globe, MapPin, Save } from 'lucide-react';
-import { categoryLabels } from '@/constants/categories';
+import { useConfig } from '@/context/ConfigContext';
 import type { CreateSupplierDto, Supplier } from '@/api/types';
 
 interface SupplierFormProps {
@@ -17,9 +17,11 @@ interface SupplierFormProps {
 }
 
 export function SupplierForm({ onSubmit, isLoading, initialData }: SupplierFormProps) {
+  const { getCategoryLabelsByType, categories } = useConfig();
+  const supplierCategoryLabels = getCategoryLabelsByType('supplier');
   const [formData, setFormData] = useState<CreateSupplierDto>({
     name: '',
-    category: 'edutech',
+    category: '',
     description: '',
     services: [],
     contactPerson: '',
@@ -42,7 +44,7 @@ export function SupplierForm({ onSubmit, isLoading, initialData }: SupplierFormP
     if (initialData) {
       setFormData({
         name: initialData.name || '',
-        category: initialData.category || 'edutech',
+        category: initialData.category || '',
         description: initialData.description || '',
         services: initialData.services || [],
         contactPerson: initialData.contactPerson || '',
@@ -62,6 +64,20 @@ export function SupplierForm({ onSubmit, isLoading, initialData }: SupplierFormP
       });
     }
   }, [initialData]);
+
+  // Set default category when supplier categories load (separate effect to avoid infinite loop)
+  useEffect(() => {
+    if (!initialData) {
+      const categoryKeys = Object.keys(supplierCategoryLabels);
+      if (categoryKeys.length > 0) {
+        setFormData(prev => {
+          if (prev.category) return prev; // already set, skip
+          return { ...prev, category: categoryKeys[0] };
+        });
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialData, categories]);
 
   const [currentService, setCurrentService] = useState('');
   const [currentCertification, setCurrentCertification] = useState('');
@@ -135,7 +151,7 @@ export function SupplierForm({ onSubmit, isLoading, initialData }: SupplierFormP
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {Object.entries(categoryLabels).map(([value, label]) => (
+                {Object.entries(supplierCategoryLabels).map(([value, label]) => (
                   <SelectItem key={value} value={value}>
                     {label}
                   </SelectItem>
