@@ -138,7 +138,11 @@ export interface User {
   email: string;
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   role: 'guest' | 'institute' | 'admin' | 'teacher' | 'vendor' | 'marketing' | 'sales';
+=======
+  role: 'guest' | 'institute' | 'admin' | 'teacher' | 'vendor' | 'marketing';
+>>>>>>> Stashed changes
 =======
   role: 'guest' | 'institute' | 'admin' | 'teacher' | 'vendor' | 'marketing';
 >>>>>>> Stashed changes
