@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -21,43 +21,41 @@ import {
   DialogTrigger 
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { Plus, Pencil, Trash2, Save, X } from 'lucide-react';
+import { Plus, Pencil, Trash2, Loader2, Save } from 'lucide-react';
 import { toast } from 'sonner';
-import { categoryLabels } from '@/constants/categories';
-
-// Initial data
-const initialVehicleCategories = [
-  { id: 'vc-1', name: 'School Bus', slug: 'school-bus', count: 15 },
-  { id: 'vc-2', name: 'Minibus', slug: 'minibus', count: 8 },
-  { id: 'vc-3', name: 'Van', slug: 'van', count: 12 },
-  { id: 'vc-4', name: 'Truck', slug: 'truck', count: 3 },
-  { id: 'vc-5', name: 'SUV', slug: 'suv', count: 0 },
-];
-
-const initialJobCategories = [
-  { id: 'jc-1', name: 'Transport', slug: 'transport', count: 5 },
-  { id: 'jc-2', name: 'Operations', slug: 'operations', count: 2 },
-  { id: 'jc-3', name: 'Maintenance', slug: 'maintenance', count: 4 },
-  { id: 'jc-4', name: 'Administration', slug: 'administration', count: 1 },
-  { id: 'jc-5', name: 'Teaching', slug: 'teaching', count: 0 },
-  { id: 'jc-6', name: 'Safety & Security', slug: 'safety', count: 1 },
-];
-
-const initialSupplierCategories = Object.entries(categoryLabels).map(([slug, name], index) => ({
-  id: `sc-${index + 1}`,
-  name,
-  slug,
-  count: 0 // Count from backend
-}));
+import { useConfig } from '@/context/ConfigContext';
+import { adminService } from '@/api/services/adminService';
 
 type Category = {
-  id: string;
+  _id: string;
   name: string;
   slug: string;
-  count: number;
+  type: 'vehicle' | 'job' | 'supplier';
+  count?: number;
+  isActive: boolean;
+};
+
+type Setting = {
+  _id: string;
+  key: string;
+  value: any;
+  description: string;
+  group: string;
+  isPublic: boolean;
 };
 
 export function AdminSettings() {
+  const { getCategoryLabelsByType, refreshConfig } = useConfig();
+  const [categories, setCategories] = useState<any[]>([]);
+
+  const supplierCategoryLabels = getCategoryLabelsByType('supplier');
+  const initialSupplierCategories = Object.entries(supplierCategoryLabels).map(([slug, name], index) => ({
+    id: `sc-${index + 1}`,
+    name,
+    slug,
+    count: 0 // Count from backend
+  }));
+
   return (
     <div className="space-y-6">
       <div>
@@ -72,13 +70,13 @@ export function AdminSettings() {
           <TabsTrigger value="vehicles">Vehicle Categories</TabsTrigger>
           <TabsTrigger value="jobs">Job Categories</TabsTrigger>
           <TabsTrigger value="suppliers">Supplier Categories</TabsTrigger>
+          <TabsTrigger value="system">System Config</TabsTrigger>
         </TabsList>
         
         <TabsContent value="vehicles" className="space-y-4">
           <CategoryManager 
             title="Vehicle Categories" 
             description="Manage the types of vehicles that can be listed on the platform."
-            initialData={initialVehicleCategories}
             type="vehicle"
           />
         </TabsContent>
@@ -87,7 +85,6 @@ export function AdminSettings() {
           <CategoryManager 
             title="Job Categories" 
             description="Manage job roles and departments for recruitment."
-            initialData={initialJobCategories}
             type="job"
           />
         </TabsContent>
@@ -96,9 +93,12 @@ export function AdminSettings() {
           <CategoryManager 
             title="Supplier Categories" 
             description="Manage service categories for vendor listings."
-            initialData={initialSupplierCategories}
             type="supplier"
           />
+        </TabsContent>
+
+        <TabsContent value="system" className="space-y-4">
+          <SystemConfigManager />
         </TabsContent>
       </Tabs>
     </div>
@@ -108,63 +108,100 @@ export function AdminSettings() {
 function CategoryManager({ 
   title, 
   description, 
-  initialData,
-  type 
+  type
 }: { 
   title: string; 
   description: string; 
-  initialData: Category[];
-  type: string;
+  type: 'vehicle' | 'job' | 'supplier';
 }) {
-  const [categories, setCategories] = useState<Category[]>(initialData);
+  const { refreshConfig } = useConfig();
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [currentCategory, setCurrentCategory] = useState<Category | null>(null);
   
   // Form states
-  const [formData, setFormData] = useState({ name: '', slug: '' });
+  const [formData, setFormData] = useState({ name: '', slug: '', isActive: true });
 
-  const handleAdd = () => {
-    const newCategory: Category = {
-      id: `${type}-${Date.now()}`,
-      name: formData.name,
-      slug: formData.slug || formData.name.toLowerCase().replace(/\s+/g, '-'),
-      count: 0
-    };
-    
-    setCategories([...categories, newCategory]);
-    setIsAddOpen(false);
-    setFormData({ name: '', slug: '' });
-    toast.success(`${formData.name} category added successfully`);
+  const fetchCategories = async () => {
+    try {
+      setIsLoading(true);
+      const response = await adminService.getCategories(type);
+      if (response.success) {
+        setCategories(response.data);
+      }
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to fetch categories');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleEdit = () => {
-    if (!currentCategory) return;
-    
-    setCategories(categories.map(c => 
-      c.id === currentCategory.id 
-        ? { ...c, name: formData.name, slug: formData.slug } 
-        : c
-    ));
-    setIsEditOpen(false);
-    setCurrentCategory(null);
-    setFormData({ name: '', slug: '' });
-    toast.success('Category updated successfully');
+  useEffect(() => {
+    fetchCategories();
+  }, [type]);
+
+  const handleAdd = async () => {
+    try {
+      const response = await adminService.createCategory({
+        ...formData,
+        type,
+      });
+      
+      if (response.success) {
+        setCategories([...categories, response.data]);
+        setIsAddOpen(false);
+        setFormData({ name: '', slug: '', isActive: true });
+        toast.success(`${formData.name} category added successfully`);
+        refreshConfig(); // Update global config
+      }
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to create category');
+    }
   };
 
-  const handleDelete = () => {
+  const handleEdit = async () => {
     if (!currentCategory) return;
     
-    setCategories(categories.filter(c => c.id !== currentCategory.id));
-    setIsDeleteOpen(false);
-    setCurrentCategory(null);
-    toast.success('Category deleted successfully');
+    try {
+      const response = await adminService.updateCategory(currentCategory._id, formData);
+      if (response.success) {
+        setCategories(categories.map(c => 
+          c._id === currentCategory._id ? response.data : c
+        ));
+        setIsEditOpen(false);
+        setCurrentCategory(null);
+        setFormData({ name: '', slug: '', isActive: true });
+        toast.success('Category updated successfully');
+        refreshConfig(); // Update global config
+      }
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to update category');
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!currentCategory) return;
+    
+    try {
+      const response = await adminService.deleteCategory(currentCategory._id);
+      if (response.success) {
+        setCategories(categories.filter(c => c._id !== currentCategory._id));
+        setIsDeleteOpen(false);
+        setCurrentCategory(null);
+        toast.success('Category deleted successfully');
+        refreshConfig(); // Update global config
+      }
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to delete category');
+    }
   };
 
   const openEdit = (category: Category) => {
     setCurrentCategory(category);
-    setFormData({ name: category.name, slug: category.slug });
+    setFormData({ name: category.name, slug: category.slug, isActive: category.isActive });
     setIsEditOpen(true);
   };
 
@@ -172,6 +209,16 @@ function CategoryManager({
     setCurrentCategory(category);
     setIsDeleteOpen(true);
   };
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardContent className="flex items-center justify-center py-10">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>
@@ -233,21 +280,19 @@ function CategoryManager({
             <TableRow>
               <TableHead>Name</TableHead>
               <TableHead>Slug</TableHead>
-              <TableHead>Count</TableHead>
+              <TableHead>Status</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {categories.map((category) => (
-              <TableRow key={category.id}>
+              <TableRow key={category._id}>
                 <TableCell className="font-medium">{category.name}</TableCell>
                 <TableCell className="text-muted-foreground">{category.slug}</TableCell>
                 <TableCell>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs bg-secondary px-2 py-1 rounded-full">
-                      {category.count} items
-                    </span>
-                  </div>
+                  <span className={`px-2 py-1 rounded-full text-xs ${category.isActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                    {category.isActive ? 'Active' : 'Inactive'}
+                  </span>
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-2">
@@ -300,6 +345,21 @@ function CategoryManager({
                   className="col-span-3"
                 />
               </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="edit-active" className="text-right">
+                  Active
+                </Label>
+                <div className="col-span-3 flex items-center space-x-2">
+                  <input 
+                    type="checkbox" 
+                    id="edit-active"
+                    checked={formData.isActive}
+                    onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+                    className="h-4 w-4"
+                  />
+                  <Label htmlFor="edit-active">Enable this category</Label>
+                </div>
+              </div>
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setIsEditOpen(false)}>Cancel</Button>
@@ -324,6 +384,125 @@ function CategoryManager({
             </DialogFooter>
           </DialogContent>
         </Dialog>
+      </CardContent>
+    </Card>
+  );
+}
+
+function SystemConfigManager() {
+  const { refreshConfig } = useConfig();
+  const [settings, setSettings] = useState<Setting[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchSettings = async () => {
+    try {
+      setIsLoading(true);
+      const response = await adminService.getSettings();
+      if (response.success) {
+        setSettings(response.data);
+      }
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to fetch settings');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchSettings();
+  }, []);
+
+  const handleUpdate = async (key: string, value: any) => {
+    try {
+      const response = await adminService.updateSetting(key, { value });
+      if (response.success) {
+        setSettings(prev => prev.map(s => s.key === key ? response.data : s));
+        toast.success(`Setting ${key} updated successfully`);
+        refreshConfig(); // Update global config
+      }
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to update setting');
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardContent className="flex items-center justify-center py-10">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>System Configuration</CardTitle>
+        <CardDescription>
+          Global platform settings and business rules.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-6">
+          {settings.length === 0 && (
+            <div className="text-center py-6 text-muted-foreground">
+              No system configurations found.
+            </div>
+          )}
+          
+          {Object.entries(
+            settings.reduce((acc, setting) => {
+              if (!acc[setting.group]) acc[setting.group] = [];
+              acc[setting.group].push(setting);
+              return acc;
+            }, {} as Record<string, Setting[]>)
+          ).map(([group, groupSettings]) => (
+            <div key={group} className="space-y-4">
+              <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                {group}
+              </h3>
+              <div className="grid gap-4">
+                {groupSettings.map((setting) => (
+                  <div key={setting._id} className="flex flex-col space-y-2 border-b pb-4 last:border-0">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <Label className="text-base font-medium">{setting.key}</Label>
+                        <p className="text-sm text-muted-foreground">{setting.description}</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {typeof setting.value === 'boolean' ? (
+                          <Button 
+                            variant={setting.value ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => handleUpdate(setting.key, !setting.value)}
+                          >
+                            {setting.value ? 'Enabled' : 'Disabled'}
+                          </Button>
+                        ) : (
+                          <div className="flex gap-2">
+                            <Input 
+                              className="w-48"
+                              defaultValue={setting.value}
+                              onBlur={(e) => {
+                                if (e.target.value !== String(setting.value)) {
+                                  handleUpdate(setting.key, e.target.value);
+                                }
+                              }}
+                            />
+                            <Button size="icon" variant="ghost" disabled>
+                              <Save className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
       </CardContent>
     </Card>
   );

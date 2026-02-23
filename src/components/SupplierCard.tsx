@@ -3,7 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Building2, Mail, Phone, MapPin, CheckCircle, Star, MessageCircle, Calendar, Lock, Share2, Crown } from 'lucide-react';
 import type { Supplier } from '@/api/types';
-import { categoryLabels } from '@/constants/categories';
+import { useConfig } from '@/context/ConfigContext';
 import { useAuth } from '@/context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { MaskedContent } from '@/components/MaskedContent';
@@ -14,24 +14,30 @@ interface SupplierCardProps {
   supplier: Supplier;
   onViewDetails?: () => void;
   showStatus?: boolean;
+  disableNavigation?: boolean;
 }
 
-export function SupplierCard({ supplier, onViewDetails, showStatus = false }: SupplierCardProps) {
+export function SupplierCard({ supplier, onViewDetails, showStatus = false, disableNavigation = false }: SupplierCardProps) {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { categoryLabels } = useConfig();
   const isAuthenticated = !!user;
   const isPaid = supplier.isPaid ?? false;
+  const isCompanyUser = user?.role === 'admin' || user?.role === 'sales' || user?.role === 'marketing';
 
   // Handle click on card
   const handleClick = () => {
-    if (!isPaid && user?.role !== 'admin') {
+    // If navigation is disabled (e.g. in admin pending approval view), do nothing
+    if (disableNavigation) return;
+    
+    if (!isPaid && !isCompanyUser) {
       toast.error('Detailed view is only available for featured vendors. Please contact admin for more info.');
       return;
     }
     
     if (onViewDetails) {
       onViewDetails();
-    } else {
+    } else if (!isCompanyUser) {
       navigate(`/suppliers/${supplier.id || (supplier as any)._id}`);
     }
   };
@@ -44,8 +50,8 @@ export function SupplierCard({ supplier, onViewDetails, showStatus = false }: Su
   const reviewCount = 50 + (parseInt(idSuffix3, 36) % 200);
 
   return (
-    <div className={`relative group flex-shrink-0 w-[192px] h-[192px] ${isPaid ? 'cursor-pointer' : 'cursor-default'}`} onClick={handleClick}>
-      <Card className={`overflow-hidden border border-border/60 shadow-sm transition-all duration-300 rounded-lg w-full h-full flex flex-col p-2 bg-card border-beam ${isPaid ? 'hover:shadow-md group-hover:border-primary/40' : 'opacity-90 grayscale-[0.5]'}`}>
+    <div className={`relative group w-full ${disableNavigation ? 'cursor-default' : isPaid || isCompanyUser ? 'cursor-pointer' : 'cursor-default'}`} onClick={handleClick}>
+      <Card className={`overflow-hidden border border-border/60 shadow-sm transition-all duration-300 rounded-lg w-full h-full min-h-[192px] flex flex-col p-3 bg-card border-beam ${disableNavigation ? 'hover:shadow-md group-hover:border-border' : isPaid || isCompanyUser ? 'hover:shadow-md group-hover:border-primary/40' : 'opacity-90 grayscale-[0.5]'}`}>
         {/* Compact Header */}
         <div className="flex items-start justify-between gap-1 mb-1">
           <div className="relative w-8 h-8 rounded overflow-hidden bg-muted flex-shrink-0">
@@ -100,7 +106,11 @@ export function SupplierCard({ supplier, onViewDetails, showStatus = false }: Su
           </p>
 
           <div className="mt-auto">
-            {isAuthenticated && isPaid ? (
+            {disableNavigation ? (
+              <div className="w-full h-6 flex items-center justify-center bg-muted/30 rounded text-[8px] text-muted-foreground font-medium uppercase">
+                {supplier.status === 'pending' ? 'Pending Review' : supplier.status || 'Hover for actions'}
+              </div>
+            ) : isAuthenticated && isPaid ? (
               <Button 
                 size="sm" 
                 className="w-full text-[10px] h-6 bg-primary hover:bg-primary/90 text-white border-none"

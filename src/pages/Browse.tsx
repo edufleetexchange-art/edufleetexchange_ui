@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/select';
 import { Search, Sliders, Loader2 } from 'lucide-react';
 import { useVehicles } from '@/hooks/useApi';
+import { useConfig } from '@/context/ConfigContext';
 import type { Vehicle } from '@/api/types';
 import { AdSlot } from '@/components/ads/AdSlot';
 import { useAuth } from '@/context/AuthContext';
@@ -21,6 +22,7 @@ const ALL_FILTER = '__all__';
 
 export function Browse() {
   const { user, subscription } = useAuth();
+  const { categories } = useConfig();
   const navigate = useNavigate();
 
   // Redirect vendors away from vehicle browse
@@ -58,8 +60,11 @@ export function Browse() {
     [allVehicles]
   );
   const types = useMemo(
-    () => Array.from(new Set(allVehicles.map(v => v.type))),
-    [allVehicles]
+    () => {
+      const vehicleCats = categories.filter(c => c.type === 'vehicle');
+      return vehicleCats.map(c => ({ slug: c.slug, name: c.name }));
+    },
+    [categories]
   );
 
   // Filter vehicles
@@ -169,8 +174,8 @@ export function Browse() {
                         <SelectContent>
                           <SelectItem value={ALL_FILTER}>All Types</SelectItem>
                           {types.map((type) => (
-                            <SelectItem key={type} value={type}>
-                              {type.replace('-', ' ').charAt(0).toUpperCase() + type.replace('-', ' ').slice(1)}
+                            <SelectItem key={type.slug} value={type.slug}>
+                              {type.name}
                             </SelectItem>
                           ))}
                         </SelectContent>

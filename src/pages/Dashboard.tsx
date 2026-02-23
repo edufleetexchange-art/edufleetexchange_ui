@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { VehicleCard } from '@/components/VehicleCard';
 import { JobCard } from '@/components/JobCard';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Plus, Edit2, Trash2, Eye, User, Mail, Phone, MapPin, Building2, UserCircle } from 'lucide-react';
+import { Plus, Edit2, Trash2, Eye, User, Mail, Phone, MapPin, Building2, UserCircle, Users } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -27,8 +27,11 @@ import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { toast } from 'sonner';
 import { Vehicle } from '@/api/types';
+import { Badge } from '@/components/ui/badge';
+import { api } from '@/api';
 
 import { AdSlot } from '@/components/ads/AdSlot';
+import { JobApplicationsTab } from '@/components/JobApplicationsTab';
 
 interface DashboardProps {
   initialTab?: string;
@@ -41,10 +44,12 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
   const queryParams = new URLSearchParams(location.search);
   const queryTab = queryParams.get('tab');
 
-  const [activeTab, setActiveTab] = useState(queryTab || initialTab);
+  const [activeTab, setActiveTab] = useState(queryTab || initialTab || 'listings');
   const [statusFilter, setStatusFilter] = useState('all');
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [editingListing, setEditingListing] = useState<Vehicle | null>(null);
+  const [recentApplications, setRecentApplications] = useState<any[]>([]);
+  const [loadingRecentApps, setLoadingRecentApps] = useState(false);
 
   const isVendor = user?.role === 'vendor';
   const isInstitute = user?.role === 'institute';
@@ -72,8 +77,27 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
       ensureSubscription();
       refetchListings();
       refetchJobs();
+      if (isInstitute) {
+        fetchRecentApplications();
+      }
     }
-  }, [user?.id, refreshProfile, ensureSubscription, refetchListings, refetchJobs]);
+  }, [user?.id, refreshProfile, ensureSubscription, refetchListings, refetchJobs, isInstitute]);
+
+  const fetchRecentApplications = async () => {
+    try {
+      setLoadingRecentApps(true);
+      const response = await api.jobs.getJobApplications();
+      if (response.success && response.data) {
+        const apps = Array.isArray(response.data) ? response.data : (response.data as any).items || [];
+        // Sort by date (mock sorting) and take top 5
+        setRecentApplications(apps.slice(0, 5));
+      }
+    } catch (error) {
+      console.error('Failed to fetch recent apps:', error);
+    } finally {
+      setLoadingRecentApps(false);
+    }
+  };
 
   // Refresh subscription when switching to creation tabs to ensure limits are fresh
   useEffect(() => {
@@ -114,6 +138,8 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
     setEditingListing(null);
     // Refetch listings silently and wait for it to complete
     await refetchListings({ silent: true });
+    // Reset filter to 'all' so the newly created (pending) listing is visible
+    setStatusFilter('all');
     // Then switch to listings tab to show the new listing
     setActiveTab('listings');
   };
@@ -233,7 +259,7 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
     );
   }
 
-  if (listingsLoading || jobsLoading || subscriptionLoading) {
+  if (listingsLoading || jobsLoading || subscriptionLoading || loadingRecentApps) {
     return (
       <div className="min-h-screen bg-background py-8">
         <div className="container mx-auto px-4">
@@ -358,7 +384,10 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
           {!isVendor && (
             <>
               <button
-                onClick={() => setActiveTab('listings')}
+                onClick={() => {
+                  setActiveTab('listings');
+                  setStatusFilter('all');
+                }}
                 className={`px-4 py-2 font-medium border-b-2 smooth-transition whitespace-nowrap ${
                   activeTab === 'listings'
                     ? 'border-primary text-primary'
@@ -400,6 +429,18 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
               >
                 Create Job
               </button>
+              {isInstitute && (
+                <button
+                  onClick={() => setActiveTab('applications')}
+                  className={`px-4 py-2 font-medium border-b-2 smooth-transition whitespace-nowrap ${
+                    activeTab === 'applications'
+                      ? 'border-primary text-primary'
+                      : 'border-transparent text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  Applications
+                </button>
+              )}
             </>
           )}
           <button
@@ -431,7 +472,9 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
         </div>
 
         {/* Tab Content */}
-        {activeTab === 'subscription' ? (
+        {activeTab === 'applications' && isInstitute ? (
+          <JobApplicationsTab />
+        ) : activeTab === 'subscription' ? (
           <div className="space-y-6">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold">Subscription Management</h2>
@@ -562,7 +605,64 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
             )}
           </div>
         ) : activeTab === 'listings' ? (
-          <div>
+          <div className="space-y-8">
+            {isInstitute && recentApplications.length > 0 && (
+              <Card className="border-primary/10 shadow-sm overflow-hidden">
+                <CardHeader className="bg-primary/5 pb-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        <Users className="w-5 h-5 text-primary" />
+                        Recent Job Applications
+                      </CardTitle>
+                      <CardDescription>Latest candidates interested in your job postings</CardDescription>
+                    </div>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="text-primary hover:text-primary hover:bg-primary/10"
+                      onClick={() => setActiveTab('applications')}
+                    >
+                      View All
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent className="p-0">
+                  <div className="divide-y divide-border">
+                    {recentApplications.map((app) => (
+                      <div key={app._id || app.id} className="p-4 flex items-center justify-between hover:bg-muted/30 transition-colors">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+                            {(app.teacherName || 'U').charAt(0).toUpperCase()}
+                          </div>
+                          <div>
+                            <p className="font-semibold text-sm">{app.teacherName || 'Anonymous'}</p>
+                            <p className="text-xs text-muted-foreground line-clamp-1">Applied for: {app.jobTitle || 'N/A'}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-4">
+                          <Badge 
+                            variant="secondary" 
+                            className={`text-[10px] uppercase tracking-wider ${
+                              app.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
+                              app.status === 'accepted' ? 'bg-green-100 text-green-700' :
+                              app.status === 'rejected' ? 'bg-red-100 text-red-700' :
+                              'bg-blue-100 text-blue-700'
+                            }`}
+                          >
+                            {app.status}
+                          </Badge>
+                          <span className="text-[10px] text-muted-foreground hidden sm:inline">
+                            {app.appliedDate ? new Date(app.appliedDate).toLocaleDateString() : 'Recent'}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold">My Listings</h2>
               <Button onClick={() => {
@@ -581,7 +681,7 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
                 size="sm"
                 className="rounded-full"
               >
-                All
+                All ({userListings.length})
               </Button>
               <Button 
                 variant={statusFilter === 'approved' ? 'default' : 'outline'} 
@@ -589,7 +689,7 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
                 size="sm"
                 className="rounded-full"
               >
-                Active
+                Active ({userListings.filter(v => v.status === 'approved').length})
               </Button>
               <Button 
                 variant={statusFilter === 'pending' ? 'default' : 'outline'} 
@@ -597,7 +697,7 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
                 size="sm"
                 className="rounded-full"
               >
-                Pending
+                Pending ({userListings.filter(v => v.status === 'pending').length})
               </Button>
               <Button 
                 variant={statusFilter === 'rejected' ? 'default' : 'outline'} 
@@ -605,7 +705,7 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
                 size="sm"
                 className="rounded-full"
               >
-                Rejected
+                Rejected ({userListings.filter(v => v.status === 'rejected').length})
               </Button>
             </div>
 

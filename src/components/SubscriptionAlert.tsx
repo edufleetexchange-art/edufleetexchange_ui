@@ -8,6 +8,7 @@ import {
   CreditCard,
 } from 'lucide-react';
 import { UserSubscription, SubscriptionUsageStats } from '@/types/subscriptionTypes';
+import { useAuth } from '@/context/AuthContext';
 
 interface SubscriptionAlertProps {
   subscription: UserSubscription | null;
@@ -15,7 +16,14 @@ interface SubscriptionAlertProps {
 }
 
 export function SubscriptionAlert({ subscription, stats }: SubscriptionAlertProps) {
+  const { user } = useAuth();
+  
   if (!subscription || !stats) return null;
+
+  // Don't show subscription alerts to company users
+  if (user?.role === 'admin' || user?.role === 'sales' || user?.role === 'marketing') {
+    return null;
+  }
 
   const alerts = [];
 

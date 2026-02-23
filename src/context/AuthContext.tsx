@@ -29,9 +29,10 @@ interface AuthContextType {
     stats: any;
     loading: boolean;
   };
-  login: (email: string, password: string, role: 'institute' | 'admin' | 'teacher' | 'marketing', otp?: string) => Promise<void>;
-  signup: (name: string, email: string, password: string, instituteName: string, contactPerson: string, instituteCode: string, phone: string, otp?: string) => Promise<void>;
-  signupTeacher: (data: TeacherSignupData) => Promise<void>;
+  login: (email: string, password: string, otp?: string) => Promise<User>;
+  signup: (name: string, email: string, password: string, instituteName: string, contactPerson: string, instituteCode: string, phone: string, planId?: string) => Promise<void>;
+  signupTeacher: (data: TeacherSignupData & { planId?: string }) => Promise<void>;
+  signupSupplier: (data: any & { planId?: string }) => Promise<void>;
   updateProfile: (data: Partial<User>) => Promise<void>;
   refreshProfile: () => Promise<void>;
   logout: () => Promise<void>;
@@ -66,6 +67,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Guard against undefined/null userId
     if (!userId) {
       console.warn('[AuthContext] loadSubscriptionData called with no userId');
+      return;
+    }
+    
+    // Company roles (admin, sales, marketing) don't need subscriptions
+    if (userRole === 'admin' || userRole === 'sales' || userRole === 'marketing') {
+      setSubscription({ data: null, plans: [], stats: null, loading: false, hasLoaded: true });
       return;
     }
     
@@ -185,7 +192,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     initAuth();
   }, [loadSubscriptionData]);
 
-  const login = async (email: string, password: string, role: 'institute' | 'admin' | 'teacher' | 'marketing', otp?: string) => {
+  const login = async (email: string, password: string, otp?: string) => {
     try {
       setIsLoading(true);
       // Traditional login (OTP verification can be added later if needed)
@@ -195,6 +202,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Fetch subscription data after login
       loadSubscriptionData(response.user.id, true, response.user.role);
       toast.success('Login successful');
+      return response.user;
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Login failed';
       toast.error(message);
@@ -204,7 +212,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const signup = async (name: string, email: string, password: string, instituteName: string, contactPerson: string, instituteCode: string, phone: string, otp?: string) => {
+  const signup = async (
+    name: string, 
+    email: string, 
+    password: string, 
+    instituteName: string, 
+    contactPerson: string, 
+    instituteCode: string, 
+    phone: string,
+    planId?: string
+  ) => {
     try {
       setIsLoading(true);
       // Traditional signup (OTP verification can be added later if needed)
@@ -217,6 +234,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         contactPerson,
         instituteCode,
         phone,
+        planId
       });
       
       setUser(response.user);
@@ -232,7 +250,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const signupTeacher = async (data: TeacherSignupData & { instituteSearchability?: boolean }) => {
+  const signupTeacher = async (data: TeacherSignupData & { instituteSearchability?: boolean; planId?: string }) => {
     try {
       setIsLoading(true);
       const response = await authService.signupTeacher({
@@ -246,11 +264,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         bio: data.bio,
         location: data.location,
         instituteSearchability: data.instituteSearchability || false,
+        planId: data.planId
       });
       setUser(response.user);
       // Fetch subscription data after teacher signup
       loadSubscriptionData(response.user.id, true, response.user.role);
       toast.success('Teacher signup successful');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Signup failed';
+      toast.error(message);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const signupSupplier = async (data: any & { planId?: string }) => {
+    try {
+      setIsLoading(true);
+      const response = await authService.signup({
+        ...data,
+        role: 'vendor',
+      });
+      setUser(response.user);
+      // Fetch subscription data after signup
+      loadSubscriptionData(response.user.id, true, response.user.role);
+      toast.success('Supplier signup successful');
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Signup failed';
       toast.error(message);
@@ -333,6 +372,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       login, 
       signup, 
       signupTeacher, 
+      signupSupplier,
       updateProfile, 
       refreshProfile,
       logout,

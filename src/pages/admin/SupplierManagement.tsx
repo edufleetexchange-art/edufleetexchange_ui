@@ -32,9 +32,11 @@ import {
 } from '@/api/services/supplierService';
 import { adminService } from '@/api/services/adminService';
 import * as subscriptionService from '@/api/services/subscriptionService';
-import { categoryLabels } from '@/constants/categories';
+import { useAuth } from '@/context/AuthContext';
+import { useConfig } from '@/context/ConfigContext';
 
 export function SupplierManagement() {
+  const { categoryLabels } = useConfig();
   const navigate = useNavigate();
   const { type } = useParams<{ type: 'pending' | 'all' }>();
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
@@ -250,7 +252,7 @@ export function SupplierManagement() {
         <div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-6">
           {suppliers?.map(supplier => (
             <div key={supplier.id} className="relative group/card max-w-[240px] mx-auto md:mx-0">
-              <SupplierCard supplier={supplier} showStatus />
+              <SupplierCard supplier={supplier} showStatus disableNavigation />
               <div className="absolute top-2 right-2 flex flex-wrap justify-end gap-1 opacity-0 group-hover/card:opacity-100 transition-opacity z-10 w-[calc(100%-16px)]">
                 <Button
                   size="icon"

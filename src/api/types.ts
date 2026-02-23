@@ -28,7 +28,7 @@ export interface Vehicle {
   manufacturer: string;
   vehicleModel: string;
   year: number;
-  type: 'school-bus' | 'minibus' | 'van' | 'truck';
+  type: 'bus' | 'school-bus' | 'minibus' | 'van' | 'truck';
   price: number;
   registrationNumber: string;
   mileage: number;
@@ -85,7 +85,7 @@ export interface CreateVehicleDto {
   manufacturer: string;
   vehicleModel: string;
   year: number;
-  type: 'school-bus' | 'minibus' | 'van' | 'truck';
+  type: 'bus' | 'school-bus' | 'minibus' | 'van' | 'truck';
   price: number;
   registrationNumber: string;
   mileage: number;
@@ -136,7 +136,7 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  role: 'guest' | 'institute' | 'admin' | 'teacher' | 'vendor' | 'marketing';
+  role: 'guest' | 'institute' | 'admin' | 'teacher' | 'vendor' | 'marketing' | 'sales';
   employeeId?: string;
   instituteName?: string;
   contactPerson?: string;

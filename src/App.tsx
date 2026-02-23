@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from '@/context/AuthContext';
+import { ConfigProvider } from '@/context/ConfigContext';
 import { NotificationProvider } from '@/context/NotificationContext';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { Header } from '@/components/Header';
@@ -25,6 +26,7 @@ import { NotificationsPage } from '@/pages/NotificationsPage';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { Toaster } from '@/components/ui/sonner';
 import MarketingDashboard from '@/pages/MarketingDashboard';
+import SalesDashboard from '@/pages/SalesDashboard';
 
 // Admin imports
 import { AdminLogin } from '@/pages/AdminLogin';
@@ -63,9 +65,10 @@ function App() {
     <ErrorBoundary>
       <BrowserRouter>
         <AuthProvider>
-          <NotificationProvider>
-            <AdProvider>
-              <Toaster position="top-right" />
+          <ConfigProvider>
+            <NotificationProvider>
+              <AdProvider>
+                <Toaster position="top-right" />
           <div className="flex flex-col min-h-screen">
             <Header />
             <main className="flex-grow">
@@ -123,6 +126,16 @@ function App() {
                     </ProtectedRoute>
                   }
                 />
+                 {/* Sales Dashboard */}
+                <Route
+                  path="/sales/dashboard"
+                  element={
+                    <ProtectedRoute requiredRole={['sales', 'admin']}>
+                      <SalesDashboard />
+                    </ProtectedRoute>
+                  }
+                />
+
 
                 {/* Teacher Routes - Teacher Only */}
                 <Route
@@ -183,9 +196,10 @@ function App() {
           </div>
           </AdProvider>
         </NotificationProvider>
-      </AuthProvider>
-    </BrowserRouter>
-    </ErrorBoundary>
+      </ConfigProvider>
+    </AuthProvider>
+  </BrowserRouter>
+</ErrorBoundary>
   );
 }
 

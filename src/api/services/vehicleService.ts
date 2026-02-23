@@ -75,7 +75,7 @@ export const vehicleService = {
    */
   async getPriorityListings(): Promise<ApiResponse<Vehicle[]>> {
     try {
-      const vehicles = await apiClient.get<Vehicle[]>('/vehicles/priority');
+      const vehicles = await apiClient.get<Vehicle[]>('/vehicles/priority', { requiresAuth: false });
 
       return {
         success: true,
@@ -117,7 +117,14 @@ export const vehicleService = {
    */
   async getMyListings(sellerId: string): Promise<ApiResponse<Vehicle[]>> {
     try {
-      const vehicles = await apiClient.get<Vehicle[]>(`/vehicles/my/listings`, { requiresAuth: true });
+      const vehicles = await apiClient.get<Vehicle[]>(`/vehicles/my/listings`, { 
+        requiresAuth: true,
+        cache: 'no-store',
+        headers: {
+          'Pragma': 'no-cache',
+          'Cache-Control': 'no-cache'
+        }
+      });
 
       return {
         success: true,
@@ -135,9 +142,14 @@ export const vehicleService = {
 
   /**
    * Create new vehicle listing
+   * @param vehicleData - Vehicle data to create. If sellerId is already provided (sales/admin creating on behalf), it will be used.
+   * @param fallbackSellerId - Fallback seller ID (logged-in user) to use if sellerId is not in vehicleData
    */
-  async createVehicle(vehicleData: CreateVehicleDto, sellerId: string): Promise<ApiResponse<Vehicle>> {
+  async createVehicle(vehicleData: CreateVehicleDto, fallbackSellerId: string): Promise<ApiResponse<Vehicle>> {
     try {
+      // Use sellerId from vehicleData if present (for sales/admin creating on behalf of institute)
+      // Otherwise, use the fallback (logged-in user's ID)
+      const sellerId = vehicleData.sellerId || fallbackSellerId;
       const vehicle = await apiClient.post<Vehicle>('/vehicles', { ...vehicleData, sellerId });
 
       return {

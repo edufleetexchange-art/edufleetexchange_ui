@@ -14,6 +14,11 @@ interface SubscriptionUsageCardProps {
 export function SubscriptionUsageCard({ stats, loading }: SubscriptionUsageCardProps) {
   const { user } = useAuth();
 
+  // Company roles don't need subscription usage tracking
+  if (user?.role === 'admin' || user?.role === 'sales' || user?.role === 'marketing') {
+    return null;
+  }
+
   if (loading) {
     return (
       <Card className="p-6 bg-muted/50 animate-pulse">

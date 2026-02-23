@@ -275,4 +275,135 @@ export const adminService = {
       };
     }
   },
+
+  /**
+   * Get all categories
+   */
+  async getCategories(type?: string): Promise<ApiResponse<any[]>> {
+    try {
+      const url = type ? `/admin/categories?type=${type}` : '/admin/categories';
+      const categories = await apiClient.get<any[]>(url, { requiresAuth: true });
+
+      return {
+        success: true,
+        data: categories,
+        timestamp: new Date().toISOString(),
+      };
+    } catch (error: any) {
+      throw {
+        success: false,
+        error: error.message || 'Failed to fetch categories',
+        timestamp: new Date().toISOString(),
+      };
+    }
+  },
+
+  /**
+   * Create category
+   */
+  async createCategory(data: any): Promise<ApiResponse<any>> {
+    try {
+      const category = await apiClient.post<any>('/admin/categories', data, { requiresAuth: true });
+
+      return {
+        success: true,
+        data: category,
+        message: 'Category created successfully',
+        timestamp: new Date().toISOString(),
+      };
+    } catch (error: any) {
+      throw {
+        success: false,
+        error: error.message || 'Failed to create category',
+        timestamp: new Date().toISOString(),
+      };
+    }
+  },
+
+  /**
+   * Update category
+   */
+  async updateCategory(id: string, data: any): Promise<ApiResponse<any>> {
+    try {
+      const category = await apiClient.put<any>(`/admin/categories/${id}`, data, { requiresAuth: true });
+
+      return {
+        success: true,
+        data: category,
+        message: 'Category updated successfully',
+        timestamp: new Date().toISOString(),
+      };
+    } catch (error: any) {
+      throw {
+        success: false,
+        error: error.message || 'Failed to update category',
+        timestamp: new Date().toISOString(),
+      };
+    }
+  },
+
+  /**
+   * Delete category
+   */
+  async deleteCategory(id: string): Promise<ApiResponse<void>> {
+    try {
+      await apiClient.delete<void>(`/admin/categories/${id}`, { requiresAuth: true });
+
+      return {
+        success: true,
+        data: undefined,
+        message: 'Category deleted successfully',
+        timestamp: new Date().toISOString(),
+      };
+    } catch (error: any) {
+      throw {
+        success: false,
+        error: error.message || 'Failed to delete category',
+        timestamp: new Date().toISOString(),
+      };
+    }
+  },
+
+  /**
+   * Get system settings
+   */
+  async getSettings(): Promise<ApiResponse<any[]>> {
+    try {
+      const settings = await apiClient.get<any[]>('/admin/settings', { requiresAuth: true });
+
+      return {
+        success: true,
+        data: settings,
+        timestamp: new Date().toISOString(),
+      };
+    } catch (error: any) {
+      throw {
+        success: false,
+        error: error.message || 'Failed to fetch settings',
+        timestamp: new Date().toISOString(),
+      };
+    }
+  },
+
+  /**
+   * Update system setting
+   */
+  async updateSetting(key: string, data: any): Promise<ApiResponse<any>> {
+    try {
+      const setting = await apiClient.put<any>(`/admin/settings/${key}`, data, { requiresAuth: true });
+
+      return {
+        success: true,
+        data: setting,
+        message: 'Setting updated successfully',
+        timestamp: new Date().toISOString(),
+      };
+    } catch (error: any) {
+      throw {
+        success: false,
+        error: error.message || 'Failed to update setting',
+        timestamp: new Date().toISOString(),
+      };
+    }
+  },
 };

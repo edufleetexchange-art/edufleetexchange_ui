@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { adminService } from '@/api/services/adminService';
 import { getAllSubscriptionPlans } from '@/api/services/subscriptionService';
 import { Button } from '@/components/ui/button';
@@ -54,6 +55,8 @@ export default function UserManagement() {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [activeTab, setActiveTab] = useState('all');
+  const [creationType, setCreationType] = useState<'internal' | 'subscriber' | 'all'>('all');
+  const [searchParams, setSearchParams] = useSearchParams();
   
   // Form states
   const [formData, setFormData] = useState({
@@ -64,12 +67,29 @@ export default function UserManagement() {
     instituteName: '',
     contactPerson: '',
     phone: '',
-    employeeId: ''
+    employeeId: '',
+    planId: '',
   });
 
   useEffect(() => {
     loadData();
-  }, []);
+    
+    // Handle action from query params
+    const action = searchParams.get('action');
+    if (action === 'create-internal') {
+      setIsCreateOpen(true);
+      setCreationType('internal');
+      setFormData(prev => ({ ...prev, role: 'admin' }));
+      // Clear the param after opening
+      setSearchParams({});
+    } else if (action === 'create-subscriber') {
+      setIsCreateOpen(true);
+      setCreationType('subscriber');
+      setFormData(prev => ({ ...prev, role: 'institute' }));
+      // Clear the param after opening
+      setSearchParams({});
+    }
+  }, [searchParams]);
 
   const loadData = async () => {
     try {
@@ -171,7 +191,8 @@ export default function UserManagement() {
       instituteName: '',
       contactPerson: '',
       phone: '',
-      employeeId: ''
+      employeeId: '',
+      planId: '',
     });
   };
 
@@ -197,6 +218,7 @@ export default function UserManagement() {
     { value: 'teacher', label: 'Teachers' },
     { value: 'vendor', label: 'Vendors' },
     { value: 'marketing', label: 'Marketing' },
+    { value: 'sales', label: 'Sales Team' },
     { value: 'admin', label: 'Admins' },
   ];
 
@@ -208,16 +230,58 @@ export default function UserManagement() {
           <p className="text-muted-foreground mt-1">Manage all user accounts, subscriptions, and status</p>
         </div>
         <div className="flex items-center gap-4">
-          <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-            <DialogTrigger asChild>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
               <Button className="gap-2">
                 <UserPlus className="w-4 h-4" />
                 Create User
               </Button>
-            </DialogTrigger>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuItem 
+                onClick={() => {
+                  resetForm();
+                  setCreationType('internal');
+                  setFormData(prev => ({ ...prev, role: 'admin' }));
+                  setIsCreateOpen(true);
+                }}
+              >
+                <ShieldAlert className="w-4 h-4 mr-2" />
+                Create Internal Account
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => {
+                  resetForm();
+                  setCreationType('subscriber');
+                  setFormData(prev => ({ ...prev, role: 'institute' }));
+                  setIsCreateOpen(true);
+                }}
+              >
+                <UserCheck className="w-4 h-4 mr-2" />
+                Create Subscriber Account
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem 
+                onClick={() => {
+                  resetForm();
+                  setCreationType('all');
+                  setIsCreateOpen(true);
+                }}
+              >
+                <UserPlus className="w-4 h-4 mr-2" />
+                Generic Account
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
             <DialogContent className="sm:max-w-[500px]">
               <DialogHeader>
-                <DialogTitle>Create New User</DialogTitle>
+                <DialogTitle>
+                  {creationType === 'internal' ? 'Create Internal Account' : 
+                   creationType === 'subscriber' ? 'Create Subscriber Account' : 
+                   'Create New User'}
+                </DialogTitle>
               </DialogHeader>
               <form onSubmit={handleCreateUser} className="space-y-4 py-4">
                 <div className="grid grid-cols-2 gap-4">
@@ -258,21 +322,30 @@ export default function UserManagement() {
                     <Label htmlFor="role">Role</Label>
                     <Select 
                       value={formData.role} 
-                      onValueChange={(value) => setFormData({...formData, role: value})}
+                      onValueChange={(value) => setFormData({...formData, role: value, planId: ''})}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Select role" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="institute">Institute</SelectItem>
-                        <SelectItem value="teacher">Teacher</SelectItem>
-                        <SelectItem value="vendor">Vendor</SelectItem>
-                        <SelectItem value="marketing">Marketing Team</SelectItem>
-                        <SelectItem value="admin">Admin</SelectItem>
+                        {(creationType === 'all' || creationType === 'subscriber') && (
+                          <>
+                            <SelectItem value="institute">Institute</SelectItem>
+                            <SelectItem value="teacher">Teacher</SelectItem>
+                            <SelectItem value="vendor">Vendor</SelectItem>
+                          </>
+                        )}
+                        {(creationType === 'all' || creationType === 'internal') && (
+                          <>
+                            <SelectItem value="marketing">Marketing Team</SelectItem>
+                            <SelectItem value="sales">Sales Team</SelectItem>
+                            <SelectItem value="admin">Admin</SelectItem>
+                          </>
+                        )}
                       </SelectContent>
                     </Select>
                   </div>
-                  {(formData.role === 'admin' || formData.role === 'marketing') ? (
+                  {(formData.role === 'admin' || formData.role === 'marketing' || formData.role === 'sales') ? (
                     <div className="space-y-2">
                       <Label htmlFor="employeeId">Employee ID</Label>
                       <Input 
@@ -285,17 +358,32 @@ export default function UserManagement() {
                     </div>
                   ) : (
                     <div className="space-y-2">
-                      <Label htmlFor="phone">Phone Number</Label>
-                      <Input 
-                        id="phone" 
-                        placeholder="+91 9876543210" 
-                        value={formData.phone}
-                        onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                      />
+                      <Label htmlFor="planId">Subscription Plan</Label>
+                      <Select 
+                        value={formData.planId} 
+                        onValueChange={(value) => setFormData({...formData, planId: value})}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select plan" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {plans
+                            .filter(p => p.planType === (formData.role === 'vendor' ? 'vendor' : formData.role))
+                            .map(plan => (
+                              <SelectItem key={plan._id} value={plan._id}>
+                                {plan.displayName} ({plan.price === 0 ? 'Free' : `₹${plan.price}`})
+                              </SelectItem>
+                            ))
+                          }
+                          {plans.filter(p => p.planType === (formData.role === 'vendor' ? 'vendor' : formData.role)).length === 0 && (
+                            <SelectItem value="none" disabled>No plans available</SelectItem>
+                          )}
+                        </SelectContent>
+                      </Select>
                     </div>
                   )}
                 </div>
-                {(formData.role === 'admin' || formData.role === 'marketing') && (
+                {(formData.role === 'admin' || formData.role === 'marketing' || formData.role === 'sales') && (
                   <div className="space-y-2">
                     <Label htmlFor="phone">Phone Number</Label>
                     <Input 
@@ -413,7 +501,7 @@ export default function UserManagement() {
                     <div className="text-sm">
                       {user.role === 'institute' ? (
                         <span>{user.instituteName || '-'}</span>
-                      ) : (user.role === 'admin' || user.role === 'marketing') ? (
+                      ) : (user.role === 'admin' || user.role === 'marketing' || user.role === 'sales') ? (
                         <span className="font-mono text-xs text-primary bg-primary/5 px-2 py-0.5 rounded">
                           ID: {user.employeeId || 'N/A'}
                         </span>
@@ -429,6 +517,10 @@ export default function UserManagement() {
                       {user.subscription?.planId ? (
                         <Badge variant="secondary" className="font-medium text-primary">
                           {plans.find(p => p._id === user.subscription.planId)?.displayName || 'Custom Plan'}
+                        </Badge>
+                      ) : (['admin', 'marketing', 'sales'].includes(user.role)) ? (
+                        <Badge variant="outline" className="bg-blue-500/5 text-blue-500 border-blue-500/20">
+                          Internal Account
                         </Badge>
                       ) : (
                         <span className="text-muted-foreground italic">No Active Plan</span>

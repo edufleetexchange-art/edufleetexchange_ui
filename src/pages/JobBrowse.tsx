@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Search, Filter, Briefcase } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { useConfig } from '@/context/ConfigContext';
 import { AdSlot } from '@/components/ads/AdSlot';
 import { useAuth } from '@/context/AuthContext';
 import { SubscriptionAlert } from '@/components/SubscriptionAlert';
@@ -19,6 +20,7 @@ import {
 
 export function JobBrowse() {
   const { user, subscription } = useAuth();
+  const { categories } = useConfig();
   const [searchTerm, setSearchTerm] = useState('');
   const [typeFilter, setTypeFilter] = useState('all');
   const [departmentFilter, setDepartmentFilter] = useState('all');
@@ -154,8 +156,8 @@ export function JobBrowse() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Departments</SelectItem>
-                      {uniqueDepartments.map(dept => (
-                        <SelectItem key={dept} value={dept}>{dept}</SelectItem>
+                      {categories.filter(c => c.type === 'job').map(cat => (
+                        <SelectItem key={cat._id} value={cat.slug}>{cat.name}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -176,7 +178,7 @@ export function JobBrowse() {
             </div>
 
             {jobs.length > 0 ? (
-             <div className="grid grid-cols-[repeat(auto-fill,minmax(192px,1fr))] gap-6">
+              <div className="grid grid-cols-[repeat(auto-fill,minmax(192px,1fr))] gap-6">
                 {jobs.map((job, index) => (
                   <div key={job.id || (job as any)._id} className="animate-scale-in" style={{ animationDelay: `${index * 0.05}s` }}>
                     <JobCard job={job} />

@@ -79,9 +79,6 @@ export function InstituteTeacherSearch() {
   useEffect(() => {
     let filtered = teachers;
 
-    // Only show teachers with searchability enabled
-    filtered = filtered.filter((teacher) => teacher.instituteSearchability);
-
     // Search by name or email
     if (searchTerm) {
       filtered = filtered.filter(
@@ -296,6 +293,18 @@ export function InstituteTeacherSearch() {
                         >
                           View Profile
                         </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="flex-1 text-xs h-7"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedTeacher(teacher);
+                            setIsConnectDialogOpen(true);
+                          }}
+                        >
+                          Connect
+                        </Button>
                       </div>
                     </Card>
                   ))}
@@ -368,7 +377,7 @@ export function InstituteTeacherSearch() {
                     <div className="overflow-hidden">
                       <p className="text-xs text-muted-foreground font-medium">Email</p>
                       <p className="text-sm font-medium truncate" title={selectedTeacher.email}>
-                        {selectedTeacher.email}
+                        {selectedTeacher.email || 'Not provided'}
                       </p>
                     </div>
                   </div>
@@ -383,27 +392,49 @@ export function InstituteTeacherSearch() {
                       </p>
                     </div>
                   </div>
+                  <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+                    <div className="bg-primary/10 p-2 rounded-full">
+                      <MapPin className="w-4 h-4 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground font-medium">Location</p>
+                      <p className="text-sm font-medium">
+                        {selectedTeacher.location || 'Not provided'}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+                    <div className="bg-primary/10 p-2 rounded-full">
+                      <Briefcase className="w-4 h-4 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground font-medium">Experience</p>
+                      <p className="text-sm font-medium">
+                        {selectedTeacher.experience !== undefined && selectedTeacher.experience !== null
+                          ? `${selectedTeacher.experience} year${selectedTeacher.experience !== 1 ? 's' : ''}`
+                          : 'Not provided'}
+                      </p>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Bio */}
-                {selectedTeacher.bio && (
-                  <div className="space-y-2">
-                    <h4 className="text-sm font-semibold flex items-center gap-2">
-                      <Briefcase className="w-4 h-4" /> About
-                    </h4>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                      {selectedTeacher.bio}
-                    </p>
-                  </div>
-                )}
+                <div className="space-y-2">
+                  <h4 className="text-sm font-semibold flex items-center gap-2">
+                    <Award className="w-4 h-4" /> About
+                  </h4>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {selectedTeacher.bio || 'No bio provided yet.'}
+                  </p>
+                </div>
 
                 {/* Subjects & Qualifications */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  {selectedTeacher.subjects && selectedTeacher.subjects.length > 0 && (
-                    <div className="space-y-2">
-                      <h4 className="text-sm font-semibold flex items-center gap-2">
-                        <BookOpen className="w-4 h-4" /> Subjects
-                      </h4>
+                  <div className="space-y-2">
+                    <h4 className="text-sm font-semibold flex items-center gap-2">
+                      <BookOpen className="w-4 h-4" /> Subjects
+                    </h4>
+                    {selectedTeacher.subjects && selectedTeacher.subjects.length > 0 ? (
                       <div className="flex flex-wrap gap-1.5">
                         {selectedTeacher.subjects.map((subject) => (
                           <Badge key={subject} variant="secondary" className="text-xs font-normal">
@@ -411,29 +442,37 @@ export function InstituteTeacherSearch() {
                           </Badge>
                         ))}
                       </div>
-                    </div>
-                  )}
+                    ) : (
+                      <p className="text-sm text-muted-foreground italic">No subjects listed yet.</p>
+                    )}
+                  </div>
 
-                  {selectedTeacher.qualifications && selectedTeacher.qualifications.length > 0 && (
-                    <div className="space-y-2">
-                      <h4 className="text-sm font-semibold flex items-center gap-2">
-                        <GraduationCap className="w-4 h-4" /> Qualifications
-                      </h4>
+                  <div className="space-y-2">
+                    <h4 className="text-sm font-semibold flex items-center gap-2">
+                      <GraduationCap className="w-4 h-4" /> Qualifications
+                    </h4>
+                    {selectedTeacher.qualifications && selectedTeacher.qualifications.length > 0 ? (
                       <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
                         {selectedTeacher.qualifications.map((qual) => (
                           <li key={qual}>{qual}</li>
                         ))}
                       </ul>
-                    </div>
-                  )}
+                    ) : (
+                      <p className="text-sm text-muted-foreground italic">No qualifications listed yet.</p>
+                    )}
+                  </div>
                 </div>
               </div>
 
-              <DialogFooter className=" gap-2 border-t pt-4">
-
-                <Button onClick={() => setIsConnectDialogOpen(false)}>
-                
-                 Close
+              <DialogFooter className="sm:justify-between gap-2 border-t pt-4">
+                <Button variant="ghost" onClick={() => setIsConnectDialogOpen(false)}>
+                  Close
+                </Button>
+                <Button onClick={() => {
+                  toast.success(`Connection request sent to ${selectedTeacher.name}`);
+                  setIsConnectDialogOpen(false);
+                }}>
+                  Send Connection Request
                 </Button>
               </DialogFooter>
             </>

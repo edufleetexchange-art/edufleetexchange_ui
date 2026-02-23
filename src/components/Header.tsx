@@ -26,11 +26,29 @@ export function Header() {
 
   const handleDashboard = (tab?: string) => {
     if (user?.role === 'admin') {
-      navigate('/admin');
+      if (tab === 'profile') {
+        navigate('/admin/settings');
+      } else {
+        navigate('/admin');
+      }
     } else if (user?.role === 'marketing') {
-      navigate('/marketing/dashboard');
+      if (tab === 'profile') {
+        navigate('/marketing/dashboard?tab=profile');
+      } else {
+        navigate('/marketing/dashboard');
+      }
+    } else if (user?.role === 'sales') {
+      if (tab === 'profile') {
+        navigate('/sales/dashboard?tab=profile');
+      } else {
+        navigate('/sales/dashboard');
+      }
     } else if (user?.role === 'teacher') {
-      navigate('/teacher/dashboard');
+      if (tab === 'profile') {
+        navigate('/teacher/dashboard?tab=profile');
+      } else {
+        navigate('/teacher/dashboard');
+      }
     } else {
       // Default to institute dashboard for any other role
       if (tab === 'profile') {
@@ -44,10 +62,12 @@ export function Header() {
   // Determine which menu items to show based on user role
   const shouldShowTeacherNav = user?.role === 'teacher';
   const isMarketing = user?.role === 'marketing';
+  const isSales = user?.role === 'sales';
+  const isCompanyUser = user?.role === 'admin' || isSales || isMarketing;
   // Check if user is vendor to hide specific links
   const isVendor = user?.role === 'vendor';
   const shouldShowInstituteNav = user?.role === 'institute' || (!user?.role && user);
-  const showPromoLinks = !(user?.role === 'institute' || user?.role === 'teacher');
+  const showPromoLinks = !(user?.role === 'institute' || user?.role === 'teacher' || isCompanyUser);
 
   const handleHeaderSearch = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
@@ -88,6 +108,14 @@ export function Header() {
             </Badge>
           )}
 
+          {/* Sales Role Badge */}
+          {isSales && (
+            <Badge variant="outline" className="hidden sm:flex bg-emerald-50 text-emerald-600 border-emerald-200 px-2 py-1 gap-1.5 font-mono text-[10px]">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              SALES TEAM
+            </Badge>
+          )}
+
           {/* Search Bar - Visible on desktop inner pages */}
           {location.pathname !== '/' && (
             <div className="hidden md:flex flex-1 max-w-lg mx-8 relative">
@@ -110,7 +138,7 @@ export function Header() {
             <nav className="flex items-center gap-7 text-sm font-medium">
               {!shouldShowTeacherNav && !isVendor && (
                 <>
-                  <Link to={user?.role === 'institute' ? "/dashboard?tab=listings" : "/browse"} className="text-foreground/70 hover:text-primary transition-all relative group">
+                  <Link to="/browse" className="text-foreground/70 hover:text-primary transition-all relative group">
                     <span>Vehicles</span>
                     <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all group-hover:w-full"></span>
                   </Link>
@@ -128,10 +156,12 @@ export function Header() {
                       <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all group-hover:w-full"></span>
                     </Link>
                   )}
-                  <Link to="/#pricing" className="text-foreground/70 hover:text-primary transition-all relative group">
-                    <span>Pricing</span>
-                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all group-hover:w-full"></span>
-                  </Link>
+                  {!isCompanyUser && (
+                    <Link to="/#pricing" className="text-foreground/70 hover:text-primary transition-all relative group">
+                      <span>Pricing</span>
+                      <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all group-hover:w-full"></span>
+                    </Link>
+                  )}
                   <div className="h-5 w-px bg-border/70"></div>
                 </>
               )}
@@ -145,10 +175,12 @@ export function Header() {
                     <span>Suppliers</span>
                     <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all group-hover:w-full"></span>
                   </Link>
-                   <Link to="/#pricing" className="text-foreground/70 hover:text-primary transition-all relative group">
-                    <span>Pricing</span>
-                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all group-hover:w-full"></span>
-                  </Link>
+                   {!isCompanyUser && (
+                    <Link to="/#pricing" className="text-foreground/70 hover:text-primary transition-all relative group">
+                      <span>Pricing</span>
+                      <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all group-hover:w-full"></span>
+                    </Link>
+                  )}
                   <div className="h-5 w-px bg-border/70"></div>
                 </>
               )}
@@ -259,9 +291,11 @@ export function Header() {
                       <span className="font-medium">Find Teacher</span>
                     </Link>
                   )}
-                  <Link to="/#pricing" className="flex flex-col items-center justify-center p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
-                    <span className="font-medium">Pricing</span>
-                  </Link>
+                  {!isCompanyUser && (
+                    <Link to="/#pricing" className="flex flex-col items-center justify-center p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
+                      <span className="font-medium">Pricing</span>
+                    </Link>
+                  )}
                 </>
               ) : isVendor ? (
                 <>
@@ -271,9 +305,11 @@ export function Header() {
                   <Link to="/suppliers" className="flex flex-col items-center justify-center p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
                     <span className="font-medium">Suppliers</span>
                   </Link>
-                  <Link to="/#pricing" className="flex flex-col items-center justify-center p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
-                    <span className="font-medium">Pricing</span>
-                  </Link>
+                  {!isCompanyUser && (
+                    <Link to="/#pricing" className="flex flex-col items-center justify-center p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
+                      <span className="font-medium">Pricing</span>
+                    </Link>
+                  )}
                 </>
               ) : (
                 <Link to="/jobs" className="flex flex-col items-center justify-center p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors col-span-2">

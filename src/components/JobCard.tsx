@@ -1,5 +1,6 @@
 import { Job } from '@/api/services/jobService';
 import { useAuth } from '@/context/AuthContext';
+import { useConfig } from '@/context/ConfigContext';
 import { useNavigate } from 'react-router-dom';
 import { PriorityBadge } from '@/components/PriorityBadge';
 import { Card } from '@/components/ui/card';
@@ -75,6 +76,7 @@ interface JobCardProps {
 
 export function JobCard({ job, isListing = false, className, style }: JobCardProps) {
   const { user } = useAuth();
+  const { getCategoryName } = useConfig();
   const navigate = useNavigate();
   const isUnmasked = !!user;
 
@@ -96,7 +98,7 @@ export function JobCard({ job, isListing = false, className, style }: JobCardPro
           </div>
           <div className="flex flex-col items-end">
             <Badge variant="secondary" className="text-[8px] h-4 px-1 leading-none">
-              {job.type}
+              {getCategoryName(job.department || 'other', 'job')}
             </Badge>
             {job.isPriority && (
               <div className="mt-0.5 scale-50 origin-top-right">

@@ -32,6 +32,10 @@ export function ListingDetails() {
   const vehicleId = typeof id === 'string' ? id : '';
   const { vehicle, loading, error } = useVehicle(vehicleId);
   const isUnmasked = !!user;
+  const isOwner = user?.id === vehicle?.sellerId || (user as any)?._id === (vehicle as any)?.sellerId;
+  const isAssistant = user?.id === vehicle?.assistedBy || (user as any)?._id === (vehicle as any)?.assistedBy;
+  const isAdmin = user?.role === 'admin';
+  const canSeeStatus = isOwner || isAssistant || isAdmin;
 
   // Check and increment browse count when user views details
   useEffect(() => {
@@ -85,6 +89,7 @@ export function ListingDetails() {
       </div>
     );
   }
+
   const nextImage = () => {
     setCurrentImageIndex((prev) => (prev + 1) % vehicle.images.length);
   };
@@ -105,10 +110,28 @@ export function ListingDetails() {
     <div className="min-h-screen bg-background py-8">
       <div className="container mx-auto px-4">
         {/* Back Button */}
-        <Button variant="ghost" onClick={() => navigate('/browse')} className="mb-6 gap-2">
-          <ChevronLeft className="w-4 h-4" />
-          Back to Browse
-        </Button>
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
+          <Button variant="ghost" onClick={() => navigate('/browse')} className="gap-2 self-start">
+            <ChevronLeft className="w-4 h-4" />
+            Back to Browse
+          </Button>
+
+          {canSeeStatus && vehicle.status !== 'approved' && (
+            <div className={`px-4 py-2 rounded-lg border flex items-center gap-2 ${
+              vehicle.status === 'pending' ? 'bg-amber-50 border-amber-200 text-amber-700' : 'bg-rose-50 border-rose-200 text-rose-700'
+            }`}>
+              <div className={`w-2 h-2 rounded-full ${
+                vehicle.status === 'pending' ? 'bg-amber-500 animate-pulse' : 'bg-rose-500'
+              }`} />
+              <span className="font-semibold text-sm uppercase tracking-wide">
+                Listing Status: {vehicle.status}
+              </span>
+              {vehicle.status === 'pending' && (
+                <span className="text-xs opacity-75">(Awaiting Admin Approval)</span>
+              )}
+            </div>
+          )}
+        </div>
 
         {/* Alert for Unmasked View */}
         {!isUnmasked && (
@@ -218,7 +241,7 @@ export function ListingDetails() {
             <Card className="p-6 mb-6">
               <h1 className="text-2xl font-bold mb-2">{vehicle.title}</h1>
               <p className="text-sm text-muted-foreground mb-4">
-                {vehicle.manufacturer} {vehicle.vehiclemodel}
+                {vehicle.manufacturer} {vehicle.vehicleModel}
               </p>
 
               <div className="space-y-3 mb-6">

@@ -5,17 +5,29 @@ import { useAds } from '@/context/AdContext';
 import { Car, Building2, Megaphone, TrendingUp, CreditCard, Users } from 'lucide-react';
 import { DashboardSuggestion } from '@/components/DashboardSuggestion';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/context/AuthContext';
+import { useMyListings, useMyJobs } from '@/hooks/useApi';
+import { Button } from '@/components/ui/button';
 
 export function AdminOverview() {
   const navigate = useNavigate();
+  const { user, subscription } = useAuth();
   const { ads } = useAds();
   const [supplierStats, setSupplierStats] = useState({ total: 0, pending: 0, approved: 0, rejected: 0, verified: 0 });
   const [vehicleStats, setVehicleStats] = useState({ total: 0, pending: 0, approved: 0, rejected: 0, priorityListings: 0 });
   const [subscriptionStats, setSubscriptionStats] = useState<any>(null);
 
+  const isInternalAccount = user?.role === 'admin' || user?.role === 'sales' || user?.role === 'marketing';
+  
+  // Data for subscribed users
+  const { listings: myListings } = useMyListings(user?.role === 'admin' ? undefined : user?.id);
+  const { jobs: myJobs } = useMyJobs();
+
   useEffect(() => {
-    loadStats();
-  }, []);
+    if (isInternalAccount) {
+      loadStats();
+    }
+  }, [isInternalAccount]);
 
   const loadStats = async () => {
     try {
@@ -75,6 +87,76 @@ export function AdminOverview() {
   };
 
   const suggestion = getSuggestedAction();
+
+  if (!isInternalAccount) {
+    return (
+      <div className="p-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold mb-2">Partner Overview</h1>
+          <p className="text-muted-foreground">Welcome to your management portal, {user?.name}.</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <Card className="p-6">
+            <div className="flex items-center gap-4 mb-4">
+              <div className="p-3 bg-primary/10 rounded-lg">
+                <Car className="w-6 h-6 text-primary" />
+              </div>
+              <h3 className="font-semibold text-lg">My Vehicles</h3>
+            </div>
+            <p className="text-3xl font-bold">{myListings.length}</p>
+            <p className="text-sm text-muted-foreground mt-1">Total listings posted</p>
+            <Button variant="link" className="px-0 mt-4 h-auto" onClick={() => navigate('/dashboard?tab=listings')}>
+              Manage Listings →
+            </Button>
+          </Card>
+
+          <Card className="p-6">
+            <div className="flex items-center gap-4 mb-4">
+              <div className="p-3 bg-secondary/10 rounded-lg">
+                <Building2 className="w-6 h-6 text-secondary" />
+              </div>
+              <h3 className="font-semibold text-lg">My Jobs</h3>
+            </div>
+            <p className="text-3xl font-bold">{myJobs.length}</p>
+            <p className="text-sm text-muted-foreground mt-1">Active job openings</p>
+            <Button variant="link" className="px-0 mt-4 h-auto" onClick={() => navigate('/dashboard?tab=jobs')}>
+              Manage Jobs →
+            </Button>
+          </Card>
+
+          <Card className="p-6">
+            <div className="flex items-center gap-4 mb-4">
+              <div className="p-3 bg-accent/10 rounded-lg">
+                <CreditCard className="w-6 h-6 text-accent" />
+              </div>
+              <h3 className="font-semibold text-lg">Subscription</h3>
+            </div>
+            <p className="text-xl font-bold capitalize">{subscription?.data?.planId || 'Basic'}</p>
+            <p className="text-sm text-muted-foreground mt-1">Current active plan</p>
+            <Button variant="link" className="px-0 mt-4 h-auto" onClick={() => navigate('/dashboard?tab=subscription')}>
+              View Details →
+            </Button>
+          </Card>
+        </div>
+
+        <Card className="p-6 bg-primary/5 border-primary/20">
+          <div className="flex items-start gap-4">
+            <div className="p-2 bg-primary/10 rounded-full mt-1">
+              <TrendingUp className="w-5 h-5 text-primary" />
+            </div>
+            <div>
+              <h3 className="font-bold text-lg mb-1">Quick Tip: Reach more institutes</h3>
+              <p className="text-muted-foreground mb-4">
+                Did you know that priority listings get 3x more views? Upgrade your plan or boost your listings to appear at the top of search results.
+              </p>
+              <Button onClick={() => navigate('/advertise')}>Explore Ad Options</Button>
+            </div>
+          </div>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="p-8">
@@ -220,6 +302,24 @@ export function AdminOverview() {
             <Megaphone className="w-8 h-8 text-accent mb-2" />
             <h3 className="font-semibold mb-1">Manage Ads</h3>
             <p className="text-sm text-muted-foreground">View analytics & approvals</p>
+          </button>
+
+          <button
+            onClick={() => navigate('/admin/users?action=create-internal')}
+            className="p-4 border border-border rounded-lg hover:border-primary hover:bg-primary/5 transition-all text-left"
+          >
+            <Users className="w-8 h-8 text-primary mb-2" />
+            <h3 className="font-semibold mb-1">Create Internal</h3>
+            <p className="text-sm text-muted-foreground">Add Admin, Sales, or Marketing</p>
+          </button>
+
+          <button
+            onClick={() => navigate('/admin/users?action=create-subscriber')}
+            className="p-4 border border-border rounded-lg hover:border-green-500 hover:bg-green-50 transition-all text-left"
+          >
+            <Users className="w-8 h-8 text-green-500 mb-2" />
+            <h3 className="font-semibold mb-1">Create Subscriber</h3>
+            <p className="text-sm text-muted-foreground">Add Institute, Teacher, or Vendor</p>
           </button>
         </div>
       </Card>

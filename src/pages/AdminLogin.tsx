@@ -28,7 +28,7 @@ export function AdminLogin() {
     }
 
     try {
-      await login(email, password, 'admin');
+      await login(email, password);
       navigate('/admin');
     } catch (err) {
       setError('Invalid email or password. Please check your credentials.');
@@ -47,22 +47,21 @@ export function AdminLogin() {
 
         {/* Logo & Title */}
         <div className="text-center mb-8">
-          <div className="flex justify-center mb-4">
-            <div className="bg-primary/10 p-3 rounded-lg">
-              <ShieldCheck className="w-8 h-8 text-primary" />
-            </div>
-          </div>
-          <h1 className="text-3xl font-bold mb-2">
-            EduFleet<span className="text-primary">Exchange</span>
-          </h1>
+          <Link to="/" className="inline-block mb-4">
+            <img 
+              src="https://firebasestorage.googleapis.com/v0/b/blink-451505.firebasestorage.app/o/user-uploads%2FmxwyRYTs2dcnubQCH6xSOA5OSFz2%2Fimage__9a481536.png?alt=media&token=b799bfcc-670d-46cb-9ea9-b9e521be88f2" 
+              alt="EduFleet Exchange" 
+              className="h-12 w-auto"
+            />
+          </Link>
           <p className="text-muted-foreground">Admin Portal</p>
         </div>
 
         <Card className="p-8 border-border">
           <div className="mb-6 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-            <p className="text-sm text-blue-700 font-medium">Admin Access Only</p>
+            <p className="text-sm text-blue-700 font-medium">Management Portal Access</p>
             <p className="text-xs text-blue-600 mt-1">
-              Please enter your admin credentials to access the admin dashboard.
+              Internal staff and subscribed partners can access their management dashboard here.
             </p>
           </div>
 
@@ -115,16 +114,26 @@ export function AdminLogin() {
               disabled={loading}
             >
               <LogIn className="w-4 h-4" />
-              {loading ? 'Logging in...' : 'Login as Admin'}
+              {loading ? 'Logging in...' : 'Login to Portal'}
             </Button>
           </form>
 
           {/* Demo Credentials */}
-          <div className="mt-6 p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-700">
-            <p className="font-medium mb-2">Demo Admin Account:</p>
-            <div className="space-y-1 font-mono text-xs">
-              <p>Email: <span className="text-amber-900">admin@edufleet.com</span></p>
-              <p>Password: <span className="text-amber-900">admin123</span></p>
+          <div className="mt-6 space-y-4">
+            <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-700">
+              <p className="font-medium mb-1">Internal Admin Account:</p>
+              <div className="space-y-1 font-mono text-xs">
+                <p>Email: <span className="text-amber-900">admin@edufleet.com</span></p>
+                <p>Password: <span className="text-amber-900">admin123</span></p>
+              </div>
+            </div>
+            
+            <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-700">
+              <p className="font-medium mb-1">Subscribed Partner (Institute):</p>
+              <div className="space-y-1 font-mono text-xs">
+                <p>Email: <span className="text-blue-900">institute@demo.com</span></p>
+                <p>Password: <span className="text-blue-900">password123</span></p>
+              </div>
             </div>
           </div>
 
