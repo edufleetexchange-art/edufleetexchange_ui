@@ -137,6 +137,7 @@ export interface User {
   name: string;
   email: string;
   role: 'guest' | 'institute' | 'admin' | 'teacher' | 'vendor' | 'marketing' | 'sales';
+
   employeeId?: string;
   instituteName?: string;
   contactPerson?: string;
