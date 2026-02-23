@@ -136,23 +136,7 @@ export interface User {
   id: string;
   name: string;
   email: string;
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
   role: 'guest' | 'institute' | 'admin' | 'teacher' | 'vendor' | 'marketing' | 'sales';
-=======
-  role: 'guest' | 'institute' | 'admin' | 'teacher' | 'vendor' | 'marketing';
->>>>>>> Stashed changes
-=======
-  role: 'guest' | 'institute' | 'admin' | 'teacher' | 'vendor' | 'marketing';
->>>>>>> Stashed changes
-=======
-  role: 'guest' | 'institute' | 'admin' | 'teacher' | 'vendor' | 'marketing';
->>>>>>> Stashed changes
-=======
-  role: 'guest' | 'institute' | 'admin' | 'teacher' | 'vendor' | 'marketing';
->>>>>>> Stashed changes
   employeeId?: string;
   instituteName?: string;
   contactPerson?: string;
