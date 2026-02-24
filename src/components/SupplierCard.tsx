@@ -20,7 +20,8 @@ interface SupplierCardProps {
 export function SupplierCard({ supplier, onViewDetails, showStatus = false, disableNavigation = false }: SupplierCardProps) {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { categoryLabels } = useConfig();
+  const { categoryLabels, getCategoryLabelsByType } = useConfig();
+  const supplierCategoryLabels = getCategoryLabelsByType('supplier');
   const isAuthenticated = !!user;
   const isPaid = supplier.isPaid ?? false;
   const isCompanyUser = user?.role === 'admin' || user?.role === 'sales' || user?.role === 'marketing';
@@ -30,15 +31,16 @@ export function SupplierCard({ supplier, onViewDetails, showStatus = false, disa
     // If navigation is disabled (e.g. in admin pending approval view), do nothing
     if (disableNavigation) return;
     
-    if (!isPaid && !isCompanyUser) {
-      toast.error('Detailed view is only available for featured vendors. Please contact admin for more info.');
-      return;
-    }
-    
+    // If we have a details handler (on browse page), check for premium status
     if (onViewDetails) {
+      if (!isPaid && !isCompanyUser) {
+        toast.error('Detailed view is only available for featured vendors. Please contact admin for more info.');
+        return;
+      }
       onViewDetails();
-    } else if (!isCompanyUser) {
-      navigate(`/suppliers/${supplier.id || (supplier as any)._id}`);
+    } else {
+      // On landing page or other places without handler, redirect to suppliers directory
+      navigate('/suppliers');
     }
   };
 
@@ -50,8 +52,8 @@ export function SupplierCard({ supplier, onViewDetails, showStatus = false, disa
   const reviewCount = 50 + (parseInt(idSuffix3, 36) % 200);
 
   return (
-    <div className={`relative group w-full ${disableNavigation ? 'cursor-default' : isPaid || isCompanyUser ? 'cursor-pointer' : 'cursor-default'}`} onClick={handleClick}>
-      <Card className={`overflow-hidden border border-border/60 shadow-sm transition-all duration-300 rounded-lg w-full h-full min-h-[192px] flex flex-col p-3 bg-card border-beam ${disableNavigation ? 'hover:shadow-md group-hover:border-border' : isPaid || isCompanyUser ? 'hover:shadow-md group-hover:border-primary/40' : 'opacity-90 grayscale-[0.5]'}`}>
+    <div className={`relative group w-full ${disableNavigation ? 'cursor-default' : 'cursor-pointer'}`} onClick={handleClick}>
+      <Card className={`overflow-hidden border border-border/60 shadow-sm transition-all duration-300 rounded-lg w-full h-full min-h-[192px] flex flex-col p-3 bg-card border-beam ${disableNavigation ? 'hover:shadow-md group-hover:border-border' : 'hover:shadow-md group-hover:border-primary/40'}`}>
         {/* Compact Header */}
         <div className="flex items-start justify-between gap-1 mb-1">
           <div className="relative w-8 h-8 rounded overflow-hidden bg-muted flex-shrink-0">
@@ -96,7 +98,7 @@ export function SupplierCard({ supplier, onViewDetails, showStatus = false, disa
             )}
             <div className="flex items-center gap-1">
               <Badge variant="outline" className="text-[8px] h-4 px-1 leading-none uppercase tracking-tighter">
-                {categoryLabels[supplier.category] || supplier.category}
+                {supplierCategoryLabels[supplier.category] || categoryLabels[supplier.category] || supplier.category}
               </Badge>
             </div>
           </div>
