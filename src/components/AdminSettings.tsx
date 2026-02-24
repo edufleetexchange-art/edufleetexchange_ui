@@ -133,7 +133,8 @@ function CategoryManager({
         setCategories(response.data);
       }
     } catch (error: any) {
-      toast.error(error.message || 'Failed to fetch categories');
+      console.warn('Categories endpoint unavailable:', error.message);
+      setCategories([]);
     } finally {
       setIsLoading(false);
     }
@@ -143,10 +144,14 @@ function CategoryManager({
     fetchCategories();
   }, [type]);
 
+  const generateSlug = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+
   const handleAdd = async () => {
+    const slug = formData.slug || generateSlug(formData.name);
     try {
       const response = await adminService.createCategory({
         ...formData,
+        slug,
         type,
       });
       
@@ -158,7 +163,8 @@ function CategoryManager({
         refreshConfig(); // Update global config
       }
     } catch (error: any) {
-      toast.error(error.message || 'Failed to create category');
+      const msg = error?.response?.data?.error || error.message || 'Failed to create category';
+      toast.error(msg);
     }
   };
 
@@ -178,7 +184,8 @@ function CategoryManager({
         refreshConfig(); // Update global config
       }
     } catch (error: any) {
-      toast.error(error.message || 'Failed to update category');
+      const msg = error?.response?.data?.error || error.message || 'Failed to update category';
+      toast.error(msg);
     }
   };
 
@@ -249,7 +256,10 @@ function CategoryManager({
                 <Input
                   id="name"
                   value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  onChange={(e) => {
+                    const name = e.target.value;
+                    setFormData({ ...formData, name, slug: generateSlug(name) });
+                  }}
                   className="col-span-3"
                   placeholder="e.g. Electric Bus"
                 />

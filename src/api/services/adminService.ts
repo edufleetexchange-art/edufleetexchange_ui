@@ -1,5 +1,12 @@
 import { apiClient } from '@/lib/apiClient';
-import { ApiResponse, Vehicle, ApprovalRequest, PriorityToggleRequest, AuditLog, AuditLogFilters } from '../types';
+import {
+  ApiResponse,
+  Vehicle,
+  ApprovalRequest,
+  PriorityToggleRequest,
+  AuditLog,
+  AuditLogFilters,
+} from '../types';
 
 interface VehicleStats {
   total: number;
@@ -66,10 +73,14 @@ export const adminService = {
     try {
       const { vehicleId, status, reason } = request;
 
-      const vehicle = await apiClient.put<Vehicle>(`/admin/approve/${vehicleId}`, { 
-        status,
-        reason 
-      }, { requiresAuth: true });
+      const vehicle = await apiClient.put<Vehicle>(
+        `/admin/approve/${vehicleId}`,
+        {
+          status,
+          reason,
+        },
+        { requiresAuth: true }
+      );
 
       return {
         success: true,
@@ -93,9 +104,13 @@ export const adminService = {
     try {
       const { vehicleId, isPriority } = request;
 
-      const vehicle = await apiClient.put<Vehicle>(`/admin/priority/${vehicleId}`, { 
-        isPriority 
-      }, { requiresAuth: true });
+      const vehicle = await apiClient.put<Vehicle>(
+        `/admin/priority/${vehicleId}`,
+        {
+          isPriority,
+        },
+        { requiresAuth: true }
+      );
 
       return {
         success: true,
@@ -157,7 +172,10 @@ export const adminService = {
   /**
    * Update user status and subscription
    */
-  async updateUserStatus(userId: string, data: { isActive?: boolean; planId?: string; notes?: string }): Promise<ApiResponse<any>> {
+  async updateUserStatus(
+    userId: string,
+    data: { isActive?: boolean; planId?: string; notes?: string }
+  ): Promise<ApiResponse<any>> {
     try {
       const user = await apiClient.put<any>(`/admin/users/${userId}/status`, data, { requiresAuth: true });
 
@@ -190,15 +208,9 @@ export const adminService = {
         timestamp: new Date().toISOString(),
       };
     } catch (error: any) {
-      console.error('adminService.createUser error:', error);
-      // Pass through all error details from the API response
       throw {
         success: false,
         error: error.message || 'Failed to create user',
-        code: error.code || 'UNKNOWN_ERROR',
-        message: error.message || 'Failed to create user',
-        field: error.field, // For duplicate key errors
-        details: error.details, // For validation errors
         timestamp: new Date().toISOString(),
       };
     }
@@ -238,7 +250,10 @@ export const adminService = {
         });
       }
 
-      const logs = await apiClient.get<AuditLog[]>(`/admin/audit-logs?${params.toString()}`, { requiresAuth: true });
+      const logs = await apiClient.get<AuditLog[]>(
+        `/admin/audit-logs?${params.toString()}`,
+        { requiresAuth: true }
+      );
 
       return {
         success: true,
@@ -257,9 +272,14 @@ export const adminService = {
   /**
    * Approve/Reject supplier with optional plan update
    */
-  async approveSupplierStatus(supplierId: string, data: { status: 'approved' | 'rejected'; planId?: string; notes?: string }): Promise<ApiResponse<any>> {
+  async approveSupplierStatus(
+    supplierId: string,
+    data: { status: 'approved' | 'rejected'; planId?: string; notes?: string }
+  ): Promise<ApiResponse<any>> {
     try {
-      const response = await apiClient.put<any>(`/admin/suppliers/${supplierId}/approve`, data, { requiresAuth: true });
+      const response = await apiClient.put<any>(`/admin/suppliers/${supplierId}/approve`, data, {
+        requiresAuth: true,
+      });
 
       return {
         success: true,
@@ -374,7 +394,7 @@ export const adminService = {
       return {
         success: true,
         data: settings,
-        timestamp: new Date().toISOString(),
+       timestamp: new Date().toISOString(),
       };
     } catch (error: any) {
       throw {

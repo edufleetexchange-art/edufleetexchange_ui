@@ -22,14 +22,12 @@ export const ConfigProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   const fetchConfig = async () => {
     try {
       setIsLoading(true);
-      const [cats, sets] = await Promise.all([
+      const [cats, sets] = await Promise.allSettled([
         publicService.getCategories(),
         publicService.getSettings(),
       ]);
-      console.log('Fetched categories:', cats);
-      console.log('Fetched settings:', sets);
-      setCategories(cats);
-      setSettings(sets);
+      setCategories(cats.status === 'fulfilled' ? cats.value : []);
+      setSettings(sets.status === 'fulfilled' ? sets.value : []);
     } catch (error) {
       console.error('Failed to fetch configuration:', error);
     } finally {
