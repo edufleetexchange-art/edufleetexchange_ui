@@ -62,15 +62,16 @@ export function ListingForm({ listing, initialSellerId, onSuccess, onCancel }: L
     }
   }, [initialSellerId]);
 
-  // Set default vehicle type if not provided
+  // Set default vehicle type once categories load (if not editing an existing listing)
   useEffect(() => {
-    if (!listing && !formData.type) {
-      const vehicleCats = categories.filter(c => c.type === 'vehicle');
-      if (vehicleCats.length > 0) {
+    const vehicleCats = categories.filter(c => c.type === 'vehicle');
+    if (vehicleCats.length > 0 && !formData.type) {
+      // Only auto-set if no type is selected yet
+      if (!listing) {
         setFormData(prev => ({ ...prev, type: vehicleCats[0].slug }));
       }
     }
-  }, [categories, listing, formData.type]);
+  }, [categories, listing]);
 
   const [uploadedImages, setUploadedImages] = useState<Array<{ url: string; file?: File; preview: string }>>(() => {
     if (listing?.images) {
@@ -520,8 +521,10 @@ export function ListingForm({ listing, initialSellerId, onSuccess, onCancel }: L
                   name="type"
                   value={formData.type}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-background text-foreground"
+                  required
                 >
+                  <option value="" disabled>Select vehicle type</option>
                   {categories.filter(c => c.type === 'vehicle').map(cat => (
                     <option key={cat._id} value={cat.slug}>{cat.name}</option>
                   ))}
@@ -598,7 +601,7 @@ export function ListingForm({ listing, initialSellerId, onSuccess, onCancel }: L
                   name="condition"
                   value={formData.condition}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-background text-foreground"
                 >
                   <option value="excellent">Excellent</option>
                   <option value="good">Good</option>
@@ -631,7 +634,7 @@ export function ListingForm({ listing, initialSellerId, onSuccess, onCancel }: L
                   name="sellerId"
                   value={formData.sellerId}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-primary/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-background"
+                  className="w-full px-3 py-2 border border-primary/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-background text-foreground"
                   required={(user.role === 'admin' || user.role === 'sales')}
                 >
                   <option value="">Select Institute</option>

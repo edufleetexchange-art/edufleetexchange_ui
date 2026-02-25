@@ -104,6 +104,20 @@ export function Signup() {
           <p className="text-muted-foreground">
             Create your institution account
           </p>
+           <Link 
+                  to="/signup" 
+                  className="flex flex-col items-center p-3 rounded-xl border border-border/50 bg-muted/30 hover:bg-primary/5 hover:border-primary/20 transition-all group"
+                >
+                  <span className="text-xs font-bold text-primary group-hover:scale-110 transition-transform">INSTITUTE</span>
+                  <span className="text-[10px] text-muted-foreground mt-0.5">Register School</span>
+                </Link>
+                <Link 
+                  to="/teacher/signup" 
+                  className="flex flex-col items-center p-3 rounded-xl border border-border/50 bg-muted/30 hover:bg-secondary/5 hover:border-secondary/20 transition-all group"
+                >
+                  <span className="text-xs font-bold text-secondary group-hover:scale-110 transition-transform">TEACHER</span>
+                  <span className="text-[10px] text-muted-foreground mt-0.5">Individual Account</span>
+                </Link>
         </div>
 
         <Card className="p-8 border-border">
@@ -306,8 +320,20 @@ export function Signup() {
           <Link to="/" className="text-sm text-muted-foreground hover:text-primary smooth-transition">
             ← Back to Home
           </Link>
-        </div>
-
+        </div>                <Link 
+                  to="/signup" 
+                  className="flex flex-col items-center p-3 rounded-xl border border-border/50 bg-muted/30 hover:bg-primary/5 hover:border-primary/20 transition-all group"
+                >
+                  <span className="text-xs font-bold text-primary group-hover:scale-110 transition-transform">INSTITUTE</span>
+                  <span className="text-[10px] text-muted-foreground mt-0.5">Register School</span>
+                </Link>
+                <Link 
+                  to="/teacher/signup" 
+                  className="flex flex-col items-center p-3 rounded-xl border border-border/50 bg-muted/30 hover:bg-secondary/5 hover:border-secondary/20 transition-all group"
+                >
+                  <span className="text-xs font-bold text-secondary group-hover:scale-110 transition-transform">TEACHER</span>
+                  <span className="text-[10px] text-muted-foreground mt-0.5">Individual Account</span>
+                </Link>
         {/* Bottom Ad */}
         <div className="mt-6">
           <AdSlot placement="LP_INLINE_2" variant="banner" />
