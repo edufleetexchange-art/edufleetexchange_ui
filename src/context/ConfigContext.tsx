@@ -26,8 +26,19 @@ export const ConfigProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         publicService.getCategories(),
         publicService.getSettings(),
       ]);
-      setCategories(cats.status === 'fulfilled' ? cats.value : []);
-      setSettings(sets.status === 'fulfilled' ? sets.value : []);
+
+      if (cats.status === 'fulfilled') {
+        setCategories(cats.value);
+      } else {
+        console.warn('Failed to fetch categories:', cats.reason?.message || cats.reason);
+        // Keep existing categories if we have them, otherwise empty
+      }
+
+      if (sets.status === 'fulfilled') {
+        setSettings(sets.value);
+      } else {
+        console.warn('Failed to fetch settings:', sets.reason?.message || sets.reason);
+      }
     } catch (error) {
       console.error('Failed to fetch configuration:', error);
     } finally {

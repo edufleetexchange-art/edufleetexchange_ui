@@ -4,7 +4,7 @@ export interface Category {
   _id: string;
   name: string;
   slug: string;
-  type: string;
+  type: 'vehicle' | 'job' | 'supplier';
   description?: string;
   isActive: boolean;
   order: number;
@@ -24,20 +24,16 @@ export const publicService = {
    * Get all active categories
    */
   getCategories: async (type?: string): Promise<Category[]> => {
-    const response = await apiClient.get('/public/categories', {
-      params: { type },
-    });
-    console.log('***************************************')
-    console.log('Fetched categories11111:', response[0]);
-    return response;
+    const endpoint = type ? `/public/categories?type=${type}` : '/public/categories';
+    const data = await apiClient.get<Category[]>(endpoint, { requiresAuth: false });
+    return Array.isArray(data) ? data : [];
   },
 
   /**
    * Get public system settings
    */
   getSettings: async (): Promise<SystemSetting[]> => {
-    const response = await apiClient.get('/public/settings');
-    console.log('Fetched settings:', response);
-    return response;
+    const data = await apiClient.get<SystemSetting[]>('/public/settings', { requiresAuth: false });
+    return Array.isArray(data) ? data : [];
   },
 };
