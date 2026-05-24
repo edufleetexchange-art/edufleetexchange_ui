@@ -18,6 +18,7 @@ import {
   UpdateSubscriptionRequestDto,
 } from '../types';
 import { apiClient } from '@/lib/apiClient';
+import { authService } from './authService';
 
 // Cache for plans to avoid redundant calls
 let plansCache: ApiResponse<SubscriptionPlan[]> | null = null;
@@ -135,25 +136,14 @@ export const getUserSubscription = async (
       timestamp: new Date().toISOString(),
     };
   }
-  
-  try {
-    const data = await apiClient.get<UserSubscription>(`/subscriptions/user/${userId}`);
-    return {
-      success: true,
-      data,
-      timestamp: new Date().toISOString(),
-    };
-  } catch (error: any) {
-    // If 404, return null (no subscription found)
-    if (error.status === 404) {
-      return {
-        success: true,
-        data: null,
-        timestamp: new Date().toISOString(),
-      };
-    }
-    throw error;
-  }
+
+  // Read from the new AuthBundle — Task 18 migration.
+  const bundle = await authService.me();
+  return {
+    success: true,
+    data: (bundle?.subscription ?? null) as unknown as UserSubscription | null,
+    timestamp: new Date().toISOString(),
+  };
 };
 
 export const getAllUserSubscriptions = async (): Promise<ApiResponse<UserSubscription[]>> => {
@@ -247,6 +237,15 @@ export const cancelUserSubscription = async (
 // SUBSCRIPTION USAGE & STATS
 // ==========================================
 
+const EMPTY_USAGE_STATS: SubscriptionUsageStats = {
+  browseCount:   { used: 0, allowed: 0, remaining: 0, percentage: 0 },
+  listingCount:  { used: 0, allowed: 0, remaining: 0, percentage: 0 },
+  jobPostsCount: { used: 0, allowed: 0, remaining: 0, percentage: 0 },
+  daysRemaining: 0,
+  isExpiringSoon: false,
+  isExpired: false,
+};
+
 export const getSubscriptionUsageStats = async (
   userId: string
 ): Promise<ApiResponse<SubscriptionUsageStats>> => {
@@ -255,29 +254,55 @@ export const getSubscriptionUsageStats = async (
     console.warn('[SubscriptionService] getSubscriptionUsageStats called with no userId');
     return {
       success: true,
-      data: {
-        currentBrowseCount: 0,
-        maxBrowseLimit: 0,
-        remainingBrowses: 0,
-        percentageUsed: 0,
-        listingsPosted: 0,
-        maxListingsAllowed: 0,
-        jobsPosted: 0,
-        maxJobsAllowed: 0,
-        daysRemaining: 0,
-        isExpired: false,
-        isSuspended: false,
-      },
+      data: EMPTY_USAGE_STATS,
       timestamp: new Date().toISOString(),
     };
   }
-  
-  const data = await apiClient.get<SubscriptionUsageStats>(`/subscriptions/user/${userId}/usage`);
-  return {
-    success: true,
-    data,
-    timestamp: new Date().toISOString(),
+
+  // Derive stats from the new AuthBundle — Task 18 migration.
+  const bundle = await authService.me();
+  const sub = bundle?.subscription ?? null;
+  if (!sub) {
+    return { success: true, data: EMPTY_USAGE_STATS, timestamp: new Date().toISOString() };
+  }
+
+  const now = Date.now();
+  const endMs = sub.endDate ? new Date(sub.endDate).getTime() : now;
+  const daysRemaining = Math.max(0, Math.ceil((endMs - now) / 86_400_000));
+  const isExpired = sub.status === 'expired' || endMs < now;
+
+  const browseAllowed = sub.browseCountLimit || 0;
+  const browseUsed    = sub.browseCount      || 0;
+  const listingAllowed = sub.listingsLimit   || 0;
+  const listingUsed    = sub.listingsUsed    || 0;
+  const jobAllowed     = sub.jobPostsLimit   || 0;
+  const jobUsed        = sub.jobPostsUsed    || 0;
+
+  const stats: SubscriptionUsageStats = {
+    browseCount: {
+      used: browseUsed,
+      allowed: browseAllowed,
+      remaining: Math.max(0, browseAllowed - browseUsed),
+      percentage: browseAllowed > 0 ? Math.round((browseUsed / browseAllowed) * 100) : 0,
+    },
+    listingCount: {
+      used: listingUsed,
+      allowed: listingAllowed,
+      remaining: Math.max(0, listingAllowed - listingUsed),
+      percentage: listingAllowed > 0 ? Math.round((listingUsed / listingAllowed) * 100) : 0,
+    },
+    jobPostsCount: {
+      used: jobUsed,
+      allowed: jobAllowed,
+      remaining: Math.max(0, jobAllowed - jobUsed),
+      percentage: jobAllowed > 0 ? Math.round((jobUsed / jobAllowed) * 100) : 0,
+    },
+    daysRemaining,
+    isExpiringSoon: !isExpired && daysRemaining <= 7,
+    isExpired,
   };
+
+  return { success: true, data: stats, timestamp: new Date().toISOString() };
 };
 
 export const getGlobalSubscriptionStats = async (): Promise<ApiResponse<SubscriptionStats>> => {
