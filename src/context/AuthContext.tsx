@@ -26,12 +26,9 @@ export interface TeacherSignupData {
 }
 
 interface AuthContextType {
-  // New bundle shape
   account: Account | null;
   profile: Profile | null;
   subscription: Subscription | null;
-  // Back-compat alias — Task 21 will remove
-  user: Account | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   // Methods (new names)
@@ -283,7 +280,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         account,
         profile,
         subscription,
-        user: account, // back-compat
         isAuthenticated: !!account,
         isLoading,
         login,

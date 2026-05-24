@@ -230,22 +230,6 @@ export interface AuthResponse {
   data: AuthBundle;
 }
 
-// Legacy User type retained as deprecated alias during migration.
-// Remove after all consumers updated (Task 21).
-/** @deprecated use Account + Profile instead */
-export type User = Account & Partial<{
-  instituteName: string;
-  contactPerson: string;
-  experience: number;
-  qualifications: string[];
-  subjects: string[];
-  bio: string;
-  location: string;
-  isAvailable: boolean;
-  instituteSearchability: boolean;
-  employeeId: string;
-}>;
-
 // Admin Types
 export interface VehicleStats {
   total: number;

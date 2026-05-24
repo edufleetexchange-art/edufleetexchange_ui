@@ -94,12 +94,3 @@ export const authService = {
   },
 };
 
-// Legacy type export so existing callers that destructure `User` keep compiling
-// until Task 21 migrates them.
-export type { Account as User };
-
-// Back-compat named-export shims for existing consumers (Task 21 will remove).
-export const getCurrentUser = () => authService.me();
-export const signupTeacher  = (data: TeacherSignupRequest) => authService.signupTeacher(data);
-export const signupSupplier = (data: VendorSignupRequest)  => authService.signupVendor(data);
-export const signup = (input: any) => authService.signup(input);
