@@ -23,7 +23,7 @@ import { MaskedContent } from '@/components/MaskedContent';
 
 export function ListingDetails() {
   const { id } = useParams();
-  const { user } = useAuth();
+  const { account: user } = useAuth();
   const navigate = useNavigate();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [contactDialogOpen, setContactDialogOpen] = useState(false);
@@ -33,7 +33,7 @@ export function ListingDetails() {
   const { vehicle, loading, error } = useVehicle(vehicleId);
   const isUnmasked = !!user;
   const isOwner = user?.id === vehicle?.sellerId || (user as any)?._id === (vehicle as any)?.sellerId;
-  const isAssistant = user?.id === vehicle?.assistedBy || (user as any)?._id === (vehicle as any)?.assistedBy;
+  const isAssistant = user?.id === (vehicle as any)?.assistedBy || (user as any)?._id === (vehicle as any)?.assistedBy;
   const isAdmin = user?.role === 'admin';
   const canSeeStatus = isOwner || isAssistant || isAdmin;
 
@@ -43,11 +43,11 @@ export function ListingDetails() {
       if (!user?.id || browseChecked || !isUnmasked) return;
       
       try {
-        const checkResult = await checkBrowseLimit(user.id);
-        
+        const checkResult = await checkBrowseLimit();
+
         if (checkResult.success && checkResult.data.allowed) {
           // User is allowed - increment counter
-          await incrementBrowseCount(user.id);
+          await incrementBrowseCount();
           setBrowseChecked(true);
         } else if (checkResult.data.limitReached) {
           // Browse limit reached

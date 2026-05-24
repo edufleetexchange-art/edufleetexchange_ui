@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 
 export function AdminOverview() {
   const navigate = useNavigate();
-  const { user, subscription } = useAuth();
+  const { account: user, subscription } = useAuth();
   const { ads } = useAds();
   const [supplierStats, setSupplierStats] = useState({ total: 0, pending: 0, approved: 0, rejected: 0, verified: 0 });
   const [vehicleStats, setVehicleStats] = useState({ total: 0, pending: 0, approved: 0, rejected: 0, priorityListings: 0 });
@@ -132,7 +132,7 @@ export function AdminOverview() {
               </div>
               <h3 className="font-semibold text-lg">Subscription</h3>
             </div>
-            <p className="text-xl font-bold capitalize">{subscription?.data?.planId || 'Basic'}</p>
+            <p className="text-xl font-bold capitalize">{subscription?.planId || 'Basic'}</p>
             <p className="text-sm text-muted-foreground mt-1">Current active plan</p>
             <Button variant="link" className="px-0 mt-4 h-auto" onClick={() => navigate('/dashboard?tab=subscription')}>
               View Details →

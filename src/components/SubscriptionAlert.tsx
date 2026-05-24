@@ -16,12 +16,12 @@ interface SubscriptionAlertProps {
 }
 
 export function SubscriptionAlert({ subscription, stats }: SubscriptionAlertProps) {
-  const { user } = useAuth();
-  
+  const { account } = useAuth();
+
   if (!subscription || !stats) return null;
 
   // Don't show subscription alerts to company users
-  if (user?.role === 'admin' || user?.role === 'sales' || user?.role === 'marketing') {
+  if (account?.role === 'admin' || account?.role === 'sales' || account?.role === 'marketing') {
     return null;
   }
 

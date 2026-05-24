@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
+import type { TeacherProfile } from '@/api/types';
 import { useJobById } from '@/hooks/useApi';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -74,7 +75,8 @@ const formatDate = (dateValue: string | undefined | null): string => {
 
 export function JobDetails() {
   const { id } = useParams<{ id: string }>();
-  const { user } = useAuth();
+  const { account: user, profile } = useAuth();
+  const teacherProfile = profile as TeacherProfile | null;
   const navigate = useNavigate();
   const { job, loading } = useJobById(id || '');
   
@@ -88,7 +90,7 @@ export function JobDetails() {
       if (!user || user.role !== 'teacher' || !id) return;
       try {
         const response = await jobService.getMyApplications();
-        const applied = response.some((app: any) => app.jobId === id || (app.jobId && app.jobId._id === id));
+        const applied = response.data?.some((app: any) => app.jobId === id || (app.jobId && app.jobId._id === id));
         setHasApplied(applied);
       } catch (error) {
         console.error('Failed to check application status', error);
@@ -422,8 +424,8 @@ export function JobDetails() {
                 <li>Name: {user?.name}</li>
                 <li>Email: {user?.email}</li>
                 <li>Phone: {user?.phone}</li>
-                <li>Qualifications: {user?.qualifications?.join(', ')}</li>
-                <li>Experience: {user?.experience} years</li>
+                <li>Qualifications: {teacherProfile?.qualifications?.join(', ')}</li>
+                <li>Experience: {teacherProfile?.experience} years</li>
               </ul>
             </div>
             <div className="flex gap-3">

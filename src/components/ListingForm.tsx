@@ -21,7 +21,7 @@ interface ListingFormProps {
 
 export function ListingForm({ listing, initialSellerId, onSuccess, onCancel }: ListingFormProps) {
   const navigate = useNavigate();
-  const { user, refreshSubscription } = useAuth();
+  const { account: user, refreshSubscription } = useAuth();
   const { categories } = useConfig();
   const [listingCheckResult, setListingCheckResult] = useState<any>(null);
   const [checkingLimit, setCheckingLimit] = useState(!listing); // Only check limit if creating
@@ -98,7 +98,7 @@ export function ListingForm({ listing, initialSellerId, onSuccess, onCancel }: L
       }
 
       try {
-        const result = await checkListingLimit(userId);
+        const result = await checkListingLimit();
         setListingCheckResult(result.data);
       } catch (err) {
         console.error('Listing limit check error:', err);

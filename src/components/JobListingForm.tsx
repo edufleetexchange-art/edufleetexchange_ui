@@ -18,7 +18,7 @@ interface JobListingFormProps {
 
 export function JobListingForm({ initialInstituteId, onSuccess }: JobListingFormProps) {
   const navigate = useNavigate();
-  const { user, refreshSubscription } = useAuth();
+  const { account: user, refreshSubscription } = useAuth();
   const { categories, getCategoryName } = useConfig();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [checkingLimit, setCheckingLimit] = useState(true);

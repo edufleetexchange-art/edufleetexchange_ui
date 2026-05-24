@@ -9,12 +9,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useState, useEffect } from 'react';
 import { useAds } from '@/context/AdContext';
 import { useAuth } from '@/context/AuthContext';
+import type { InstituteProfile } from '@/api/types';
 import { toast } from 'sonner';
 
 export function Advertise() {
   const navigate = useNavigate();
   const { submitAdRequest } = useAds();
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, account: user, profile } = useAuth();
+  const instituteProfile = profile as InstituteProfile | null;
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -31,7 +33,7 @@ export function Advertise() {
         ...prev,
         name: user.name || '',
         email: user.email || '',
-        company: user.instituteName || '',
+        company: instituteProfile?.instituteName || '',
         phone: user.phone || ''
       }));
     }

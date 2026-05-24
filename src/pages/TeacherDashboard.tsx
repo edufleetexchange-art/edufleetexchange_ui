@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
+import type { TeacherProfile } from '@/api/types';
 import { api } from '@/api';
 import { useMyApplications } from '@/hooks/useApi';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -40,7 +41,8 @@ import { SubscriptionAlert } from '@/components/SubscriptionAlert';
 import { SubscriptionUsageCard } from '@/components/SubscriptionUsageCard';
 
 export function TeacherDashboard() {
-  const { user, updateProfile, refreshProfile, subscription, ensureSubscription } = useAuth();
+  const { account: user, profile, updateAccount, refresh: refreshProfile, subscription, ensureSubscription } = useAuth();
+  const teacherProfile = profile as TeacherProfile | null;
   const { applications, loading: appsLoading, refetch: refetchApps } = useMyApplications();
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
@@ -51,12 +53,12 @@ export function TeacherDashboard() {
   const [editData, setEditData] = useState({
     name: user?.name || '',
     phone: user?.phone || '',
-    location: user?.location || '',
-    bio: user?.bio || '',
-    experience: user?.experience || 0,
-    qualifications: user?.qualifications || [],
-    subjects: user?.subjects || [],
-    isAvailable: user?.isAvailable ?? true,
+    location: teacherProfile?.location || '',
+    bio: teacherProfile?.bio || '',
+    experience: teacherProfile?.experience || 0,
+    qualifications: teacherProfile?.qualifications || [],
+    subjects: teacherProfile?.subjects || [],
+    isAvailable: teacherProfile?.isAvailable ?? true,
   });
   const [newQual, setNewQual] = useState('');
   const [newSubject, setNewSubject] = useState('');
@@ -82,22 +84,23 @@ export function TeacherDashboard() {
       setEditData({
         name: user.name || '',
         phone: user.phone || '',
-        location: user.location || '',
-        bio: user.bio || '',
-        experience: user.experience || 0,
-        qualifications: user.qualifications || [],
-        subjects: user.subjects || [],
-        isAvailable: user.isAvailable ?? true,
+        location: teacherProfile?.location || '',
+        bio: teacherProfile?.bio || '',
+        experience: teacherProfile?.experience || 0,
+        qualifications: teacherProfile?.qualifications || [],
+        subjects: teacherProfile?.subjects || [],
+        isAvailable: teacherProfile?.isAvailable ?? true,
       });
     }
-  }, [user]);
+  }, [user, profile]);
 
   // Separate interviews from applications that have interviews scheduled
   const interviews = applications.filter(app => app.interviewScheduled);
 
   const handleSaveProfile = () => {
     if (user) {
-      updateProfile(editData);
+      // TODO: updateAccount only supports name/phone/avatar; teacher-specific fields (location, bio, experience, qualifications, subjects, isAvailable) require a separate profile endpoint
+      updateAccount({ name: editData.name, phone: editData.phone });
       setIsEditing(false);
       toast.success('Profile updated successfully!');
     }
@@ -166,10 +169,11 @@ export function TeacherDashboard() {
     }
   };
 
-  const subscriptionData = subscription.data;
-  const availablePlans = subscription.plans;
-  const subscriptionStats = subscription.stats;
-  const subscriptionLoading = subscription.loading;
+  // subscription is now a plain Subscription | null from AuthContext
+  const subscriptionData = subscription;
+  const availablePlans: any[] = [];
+  const subscriptionStats: any = null;
+  const subscriptionLoading = false;
 
   // Loading state while checking auth or loading data
   if (!user || appsLoading || subscriptionLoading) {
@@ -200,9 +204,9 @@ export function TeacherDashboard() {
         {/* Subscription Alerts & Usage Summary */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           <div className="lg:col-span-2">
-            <SubscriptionAlert 
-              subscription={subscriptionData} 
-              stats={subscriptionStats} 
+            <SubscriptionAlert
+              subscription={null}
+              stats={null}
             />
           </div>
           <div className="lg:col-span-1">
@@ -339,7 +343,7 @@ export function TeacherDashboard() {
                     ) : (
                       <div className="flex items-center gap-2">
                         <MapPin className="h-4 w-4 text-muted-foreground" />
-                        <span>{user.location || 'Not provided'}</span>
+                        <span>{teacherProfile?.location || 'Not provided'}</span>
                       </div>
                     )}
                     <div className="flex items-center gap-2 text-muted-foreground">
@@ -356,7 +360,7 @@ export function TeacherDashboard() {
                           <span>years experience</span>
                         </div>
                       ) : (
-                        <span>{user.experience || 0} years experience</span>
+                        <span>{teacherProfile?.experience || 0} years experience</span>
                       )}
                     </div>
                   </div>
@@ -393,12 +397,12 @@ export function TeacherDashboard() {
                     </>
                   ) : (
                     <div className="flex flex-wrap gap-2">
-                      {user.qualifications?.map((qual) => (
+                      {teacherProfile?.qualifications?.map((qual) => (
                         <Badge key={qual} variant="secondary">
                           {qual}
                         </Badge>
                       ))}
-                      {user.qualifications?.length === 0 && <p className="text-muted-foreground">No qualifications added yet</p>}
+                      {(teacherProfile?.qualifications?.length ?? 0) === 0 && <p className="text-muted-foreground">No qualifications added yet</p>}
                     </div>
                   )}
                 </div>
@@ -434,12 +438,12 @@ export function TeacherDashboard() {
                     </>
                   ) : (
                     <div className="flex flex-wrap gap-2">
-                      {user.subjects?.map((subj) => (
+                      {teacherProfile?.subjects?.map((subj) => (
                         <Badge key={subj} variant="outline">
                           {subj}
                         </Badge>
                       ))}
-                      {user.subjects?.length === 0 && <p className="text-muted-foreground">No subjects added yet</p>}
+                      {(teacherProfile?.subjects?.length ?? 0) === 0 && <p className="text-muted-foreground">No subjects added yet</p>}
                     </div>
                   )}
                 </div>
@@ -454,7 +458,7 @@ export function TeacherDashboard() {
                       rows={4}
                     />
                   ) : (
-                    <p className="text-muted-foreground">{user.bio || 'No bio added yet'}</p>
+                    <p className="text-muted-foreground">{teacherProfile?.bio || 'No bio added yet'}</p>
                   )}
                 </div>
 

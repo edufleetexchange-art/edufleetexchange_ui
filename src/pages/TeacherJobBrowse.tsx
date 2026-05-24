@@ -72,7 +72,7 @@ export function TeacherJobBrowse() {
   const loadJobs = async () => {
     try {
       setLoading(true);
-      const response = await jobService.getJobs({
+      const response = await jobService.getAllJobs({
         searchTerm: searchTerm || undefined,
         type: typeFilter !== 'all' ? typeFilter as any : undefined,
         location: locationFilter !== 'all' ? locationFilter : undefined,

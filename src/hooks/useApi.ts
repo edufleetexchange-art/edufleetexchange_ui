@@ -512,7 +512,7 @@ export function useApplications(params?: { jobId?: string }) {
     try {
       setLoading(true);
       setError(null);
-      const response = await api.jobs.getJobApplications(params);
+      const response = await api.jobs.getApplications(params);
       setApplications(response.data || []);
     } catch (err: any) {
       setError(err.error || 'Failed to load applications');
