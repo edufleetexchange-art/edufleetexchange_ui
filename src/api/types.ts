@@ -117,45 +117,134 @@ export interface UpdateVehicleDto extends Partial<CreateVehicleDto> {
   id: string;
 }
 
-// Auth Types
-export interface LoginRequest {
-  email: string;
-  password: string;
-  role: 'institute' | 'admin' | 'teacher';
-}
+// Auth Types — Account + Profile + Subscription bundle
+export type AccountRole = 'institute' | 'teacher' | 'vendor' | 'admin' | 'marketing' | 'sales';
 
-export interface SignupRequest {
-  name: string;
-  email: string;
-  password: string;
-  instituteName: string;
-  contactPerson: string;
-}
-
-export interface User {
+export interface Account {
   id: string;
   name: string;
   email: string;
-  role: 'guest' | 'institute' | 'admin' | 'teacher' | 'vendor' | 'marketing' | 'sales';
-
-  employeeId?: string;
-  instituteName?: string;
-  contactPerson?: string;
-  avatar?: string;
+  role: AccountRole;
   phone?: string;
-  location?: string;
-  experience?: number;
-  qualifications?: string[];
-  subjects?: string[];
+  avatar?: string;
+  isActive: boolean;
+  isVerified: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface InstituteProfile {
+  id: string;
+  accountId: string;
+  instituteName: string;
+  contactPerson?: string;
+  instituteSearchability: boolean;
+  address: { street: string; city: string; state: string; pincode: string; country: string };
+}
+
+export interface TeacherProfile {
+  id: string;
+  accountId: string;
+  experience: number;
+  qualifications: string[];
+  subjects: string[];
   bio?: string;
-  isAvailable?: boolean;
+  location?: string;
+  preferredLocation?: string[];
+  currentInstitute?: string;
+  achievements?: string[];
+  isAvailable: boolean;
+}
+
+export interface VendorProfile {
+  id: string;
+  accountId: string;
+  businessName: string;
+  contactPerson?: string;
+  phone?: string;
+  website?: string;
+  address?: { street?: string; city?: string; state?: string; pincode?: string; country?: string };
+}
+
+export interface StaffProfile {
+  id: string;
+  accountId: string;
+  employeeId?: string;
+  department?: string;
+  permissions?: string[];
+}
+
+export type Profile = InstituteProfile | TeacherProfile | VendorProfile | StaffProfile;
+
+export interface Subscription {
+  id: string;
+  accountId: string;
+  planId?: string;
+  status: 'active' | 'inactive' | 'suspended' | 'expired';
+  paymentStatus: 'pending' | 'completed' | 'failed';
+  transactionId?: string;
+  startDate: string;
+  endDate: string;
+  listingsUsed: number;
+  listingsLimit: number;
+  jobPostsUsed: number;
+  jobPostsLimit: number;
+  browseCount: number;
+  browseCountLimit: number;
+  lastBrowseReset?: string;
+  notes?: string;
+}
+
+export interface AuthBundle {
+  account: Account;
+  profile: Profile | null;
+  subscription: Subscription | null;
+}
+
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface InstituteSignupRequest {
+  name: string; email: string; password: string; phone?: string;
+  instituteName: string; contactPerson?: string;
+  address: { street: string; city: string; state: string; pincode: string; country?: string };
   instituteSearchability?: boolean;
 }
 
-export interface AuthResponse {
-  user: User;
-  token: string;
+export interface TeacherSignupRequest {
+  name: string; email: string; password: string; phone?: string;
+  experience: number; qualifications: string[]; subjects: string[];
+  bio?: string; location?: string; preferredLocation?: string[];
+  isAvailable?: boolean;
 }
+
+export interface VendorSignupRequest {
+  name: string; email: string; password: string; phone?: string;
+  businessName: string; contactPerson?: string; website?: string;
+  address?: { street?: string; city?: string; state?: string; pincode?: string; country?: string };
+}
+
+export interface AuthResponse {
+  data: AuthBundle;
+}
+
+// Legacy User type retained as deprecated alias during migration.
+// Remove after all consumers updated (Task 21).
+/** @deprecated use Account + Profile instead */
+export type User = Account & Partial<{
+  instituteName: string;
+  contactPerson: string;
+  experience: number;
+  qualifications: string[];
+  subjects: string[];
+  bio: string;
+  location: string;
+  isAvailable: boolean;
+  instituteSearchability: boolean;
+  employeeId: string;
+}>;
 
 // Admin Types
 export interface VehicleStats {
