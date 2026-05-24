@@ -37,7 +37,14 @@ export function AdminOverview() {
         api.subscriptions.getGlobalSubscriptionStats()
       ]);
       setSupplierStats(supplierResponse.data);
-      setVehicleStats(vehicleResponse.data);
+      const vd = vehicleResponse.data;
+      setVehicleStats({
+        total: vd.vehicles?.total ?? 0,
+        pending: vd.vehicles?.pending ?? 0,
+        approved: vd.vehicles?.approved ?? 0,
+        rejected: vd.vehicles?.rejected ?? 0,
+        priorityListings: vd.vehicles?.priority ?? 0,
+      });
       if (subscriptionResponse.success) {
         setSubscriptionStats(subscriptionResponse.data);
       }

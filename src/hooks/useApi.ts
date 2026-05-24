@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { api } from '@/api';
-import type { Vehicle, VehicleFilters, CreateVehicleDto, UpdateVehicleDto, Job } from '@/api/types';
+import type { Vehicle, VehicleFilters, CreateVehicleDto, UpdateVehicleDto } from '@/api/types';
 import type { Teacher, TeacherFilters } from '@/api/services/teacherService';
+import type { Job } from '@/api/services/jobService';
 import type { SubscriptionPlan } from '@/types/subscriptionTypes';
 
 /**
@@ -315,7 +316,14 @@ export function useAdminStats() {
       setLoading(true);
       setError(null);
       const response = await api.admin.getStats();
-      setStats(response.data);
+      const d = response.data;
+      setStats({
+        total: d.vehicles?.total ?? 0,
+        pending: d.vehicles?.pending ?? 0,
+        approved: d.vehicles?.approved ?? 0,
+        rejected: d.vehicles?.rejected ?? 0,
+        priorityListings: d.vehicles?.priority ?? 0,
+      });
     } catch (err: any) {
       setError(err.error || 'Failed to load statistics');
       console.error('Error fetching admin stats:', err);

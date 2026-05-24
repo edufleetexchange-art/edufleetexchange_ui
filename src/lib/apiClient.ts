@@ -32,42 +32,42 @@ export const apiClient = {
    * Make a GET request
    */
   async get<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
-    return this.request<T>(endpoint, {
+    return this.request(endpoint, {
       ...options,
       method: 'GET',
-    });
+    }) as Promise<T>;
   },
 
   /**
    * Make a POST request
    */
   async post<T>(endpoint: string, data?: unknown, options: RequestOptions = {}): Promise<T> {
-    return this.request<T>(endpoint, {
+    return this.request(endpoint, {
       ...options,
       method: 'POST',
       body: data ? JSON.stringify(data) : undefined,
-    });
+    }) as Promise<T>;
   },
 
   /**
    * Make a PUT request
    */
   async put<T>(endpoint: string, data?: unknown, options: RequestOptions = {}): Promise<T> {
-    return this.request<T>(endpoint, {
+    return this.request(endpoint, {
       ...options,
       method: 'PUT',
       body: data ? JSON.stringify(data) : undefined,
-    });
+    }) as Promise<T>;
   },
 
   /**
    * Make a DELETE request
    */
   async delete<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
-    return this.request<T>(endpoint, {
+    return this.request(endpoint, {
       ...options,
       method: 'DELETE',
-    });
+    }) as Promise<T>;
   },
 
   /**
