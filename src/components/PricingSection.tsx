@@ -161,16 +161,16 @@ function PricingCardGrid({ plans, loading, onSelectPlan }: PricingCardGridProps)
 
 export function PricingSection() {
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const isCompanyUser = user?.role === 'admin' || user?.role === 'sales' || user?.role === 'marketing';
+  const { account } = useAuth();
+  const isCompanyUser = account?.role === 'admin' || account?.role === 'sales' || account?.role === 'marketing';
 
-  // Determine plan type based on user role
+  // Determine plan type based on account role
   let planType: 'teacher' | 'institute' | 'vendor' | undefined;
-  if (user?.role === 'teacher') {
+  if (account?.role === 'teacher') {
     planType = 'teacher';
-  } else if (user?.role === 'institute') {
+  } else if (account?.role === 'institute') {
     planType = 'institute';
-  } else if (user?.role === 'vendor') {
+  } else if (account?.role === 'vendor') {
     planType = 'vendor';
   }
 
@@ -218,7 +218,7 @@ export function PricingSection() {
           </p>
         </div>
 
-        {user ? (
+        {account ? (
           // Logged in: Show specific plans for the user role
           <PricingCardGrid 
             plans={plans} 

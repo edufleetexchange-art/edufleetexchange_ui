@@ -40,7 +40,7 @@ import { adminService } from '@/api/services/adminService';
 import { AdminSettings } from '@/components/AdminSettings';
 
 export function AdminDashboard() {
-  const { user } = useAuth();
+  const { account } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('vehicles-pending');
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
@@ -173,7 +173,7 @@ export function AdminDashboard() {
     }
   };
 
-  if (!user || user.role !== 'admin') {
+  if (!account || account.role !== 'admin') {
     return (
       <div className="container mx-auto px-4 py-12 text-center">
         <h1 className="text-2xl font-bold mb-4">Access Denied</h1>

@@ -18,13 +18,13 @@ interface SupplierCardProps {
 }
 
 export function SupplierCard({ supplier, onViewDetails, showStatus = false, disableNavigation = false }: SupplierCardProps) {
-  const { user } = useAuth();
+  const { account } = useAuth();
   const navigate = useNavigate();
   const { categoryLabels, getCategoryLabelsByType } = useConfig();
   const supplierCategoryLabels = getCategoryLabelsByType('supplier');
-  const isAuthenticated = !!user;
+  const isAuthenticated = !!account;
   const isPaid = supplier.isPaid ?? false;
-  const isCompanyUser = user?.role === 'admin' || user?.role === 'sales' || user?.role === 'marketing';
+  const isCompanyUser = account?.role === 'admin' || account?.role === 'sales' || account?.role === 'marketing';
 
   // Handle click on card
   const handleClick = () => {

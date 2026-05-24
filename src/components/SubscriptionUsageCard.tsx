@@ -12,10 +12,10 @@ interface SubscriptionUsageCardProps {
 }
 
 export function SubscriptionUsageCard({ stats, loading }: SubscriptionUsageCardProps) {
-  const { user } = useAuth();
+  const { account } = useAuth();
 
   // Company roles don't need subscription usage tracking
-  if (user?.role === 'admin' || user?.role === 'sales' || user?.role === 'marketing') {
+  if (account?.role === 'admin' || account?.role === 'sales' || account?.role === 'marketing') {
     return null;
   }
 
@@ -50,8 +50,8 @@ export function SubscriptionUsageCard({ stats, loading }: SubscriptionUsageCardP
   const listingWarning = listingPercentage >= 80;
   const jobPostsWarning = jobPostsPercentage >= 80;
 
-  const isTeacher = user?.role === 'teacher';
-  const isInstitute = user?.role === 'institute';
+  const isTeacher = account?.role === 'teacher';
+  const isInstitute = account?.role === 'institute';
 
   const showListings = isInstitute && (stats.listingCount.allowed > 0 || stats.listingCount.used > 0);
   const showJobPosts = isInstitute && stats.jobPostsCount && (stats.jobPostsCount.allowed > 0 || stats.jobPostsCount.used > 0);

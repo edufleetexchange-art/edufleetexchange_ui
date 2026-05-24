@@ -25,14 +25,14 @@ interface AdContextType {
 const AdContext = createContext<AdContextType | undefined>(undefined);
 
 export const AdProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user } = useAuth();
+  const { account } = useAuth();
   const [ads, setAds] = useState<Ad[]>([]);
   const [adRequests, setAdRequests] = useState<AdRequest[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   // Fetch all ads (admin)
   const fetchAllAds = useCallback(async (params?: { status?: string; placement?: string }) => {
-    if (user?.role !== 'admin') return;
+    if (account?.role !== 'admin') return;
     
     setIsLoading(true);
     try {
@@ -44,11 +44,11 @@ export const AdProvider: React.FC<{ children: React.ReactNode }> = ({ children }
     } finally {
       setIsLoading(false);
     }
-  }, [user?.role]);
+  }, [account?.role]);
 
   // Fetch ad requests (admin)
   const fetchAdRequests = useCallback(async (params?: { status?: string }) => {
-    if (user?.role !== 'admin') return;
+    if (account?.role !== 'admin') return;
     
     setIsLoading(true);
     try {
@@ -60,11 +60,11 @@ export const AdProvider: React.FC<{ children: React.ReactNode }> = ({ children }
     } finally {
       setIsLoading(false);
     }
-  }, [user?.role]);
+  }, [account?.role]);
 
   // Create ad (admin)
   const addAd = useCallback(async (newAd: CreateAdPayload) => {
-    if (user?.role !== 'admin') {
+    if (account?.role !== 'admin') {
       toast.error("Unauthorized: Only admins can create ads");
       return;
     }
@@ -81,11 +81,11 @@ export const AdProvider: React.FC<{ children: React.ReactNode }> = ({ children }
     } finally {
       setIsLoading(false);
     }
-  }, [user?.role]);
+  }, [account?.role]);
 
   // Update ad (admin)
   const updateAd = useCallback(async (id: string, updates: Partial<CreateAdPayload>) => {
-    if (user?.role !== 'admin') {
+    if (account?.role !== 'admin') {
       toast.error("Unauthorized: Only admins can update ads");
       return;
     }
@@ -102,11 +102,11 @@ export const AdProvider: React.FC<{ children: React.ReactNode }> = ({ children }
     } finally {
       setIsLoading(false);
     }
-  }, [user?.role]);
+  }, [account?.role]);
 
   // Delete ad (admin)
   const deleteAd = useCallback(async (id: string) => {
-    if (user?.role !== 'admin') {
+    if (account?.role !== 'admin') {
       toast.error("Unauthorized: Only admins can delete ads");
       return;
     }
@@ -123,7 +123,7 @@ export const AdProvider: React.FC<{ children: React.ReactNode }> = ({ children }
     } finally {
       setIsLoading(false);
     }
-  }, [user?.role]);
+  }, [account?.role]);
 
   // Get ads by placement (public - for displaying ads)
   const getAdsByPlacement = useCallback(async (placement: AdPlacement): Promise<Ad[]> => {
@@ -166,7 +166,7 @@ export const AdProvider: React.FC<{ children: React.ReactNode }> = ({ children }
 
   // Update ad request status (admin)
   const updateAdRequestStatus = useCallback(async (id: string, status: AdRequest['status']) => {
-    if (user?.role !== 'admin') {
+    if (account?.role !== 'admin') {
       toast.error("Unauthorized: Only admins can update request status");
       return;
     }
@@ -183,15 +183,15 @@ export const AdProvider: React.FC<{ children: React.ReactNode }> = ({ children }
     } finally {
       setIsLoading(false);
     }
-  }, [user?.role]);
+  }, [account?.role]);
 
   // Auto-fetch ads for admin users
   useEffect(() => {
-    if (user?.role === 'admin') {
+    if (account?.role === 'admin') {
       fetchAllAds();
       fetchAdRequests();
     }
-  }, [user?.role, fetchAllAds, fetchAdRequests]);
+  }, [account?.role, fetchAllAds, fetchAdRequests]);
 
   return (
     <AdContext.Provider value={{ 

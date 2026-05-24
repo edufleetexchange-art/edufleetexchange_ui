@@ -34,17 +34,17 @@ interface PersonaAccessInfoProps {
 }
 
 export function PersonaAccessInfo({ showDetails = true, compact = false }: PersonaAccessInfoProps) {
-  const { user } = useAuth();
+  const { account } = useAuth();
   const [accessControl, setAccessControl] = useState<any>(null);
   const [specificAccess, setSpecificAccess] = useState<any>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (user?.id) {
+    if (account?.id) {
       loadAccessInfo();
     }
-  }, [user?.id]);
+  }, [account?.id]);
 
   const loadAccessInfo = async () => {
     try {
@@ -59,15 +59,15 @@ export function PersonaAccessInfo({ showDetails = true, compact = false }: Perso
 
       // Get persona-specific access based on role
       const specific: any = {};
-      if (user?.role === 'institute') {
+      if (account?.role === 'institute') {
         const vehicleAccess = await checkVehicleListingAccess();
         const jobPostAccess = await checkJobPostAccess();
         specific.vehicle = vehicleAccess.data;
         specific.jobPost = jobPostAccess.data;
-      } else if (user?.role === 'teacher') {
+      } else if (account?.role === 'teacher') {
         const jobAppAccess = await checkJobApplicationAccess();
         specific.jobApplication = jobAppAccess.data;
-      } else if (user?.role === 'vendor' || user?.role === 'supplier') {
+      } else if (account?.role === 'vendor' || account?.role === 'supplier') {
         const productAccess = await checkProductListingAccess();
         specific.product = productAccess.data;
       }

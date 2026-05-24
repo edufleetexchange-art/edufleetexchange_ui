@@ -8,13 +8,13 @@ import { getSupplierStats } from '@/api/services/supplierService';
 import { apiClient } from '@/lib/apiClient';
 
 export function AdminLayout() {
-  const { user } = useAuth();
+  const { account } = useAuth();
   const navigate = useNavigate();
   const [supplierStats, setSupplierStats] = useState({ total: 0, pending: 0, approved: 0, rejected: 0, verified: 0 });
   const [pendingVehicles, setPendingVehicles] = useState(0);
 
-  const isInternalAccount = user?.role === 'admin' || user?.role === 'sales' || user?.role === 'marketing';
-  const isSubscribedUser = user?.role === 'institute' || user?.role === 'vendor' || user?.role === 'teacher';
+  const isInternalAccount = account?.role === 'admin' || account?.role === 'sales' || account?.role === 'marketing';
+  const isSubscribedUser = account?.role === 'institute' || account?.role === 'vendor' || account?.role === 'teacher';
 
   useEffect(() => {
     if (isInternalAccount) {
@@ -35,7 +35,7 @@ export function AdminLayout() {
     }
   };
 
-  if (!user || (!isInternalAccount && !isSubscribedUser)) {
+  if (!account || (!isInternalAccount && !isSubscribedUser)) {
     return (
       <div className="container mx-auto px-4 py-12 text-center">
         <h1 className="text-2xl font-bold mb-4">Access Denied</h1>
@@ -62,7 +62,7 @@ export function AdminLayout() {
           </Link>
           <div className="flex items-center gap-2">
             <span className="text-xs font-medium px-2 py-1 bg-primary/10 text-primary rounded-full uppercase">
-              {user.role}
+              {account.role}
             </span>
           </div>
         </div>
