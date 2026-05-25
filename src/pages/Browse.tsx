@@ -43,14 +43,16 @@ export function Browse() {
   const [yearFilter, setYearFilter] = useState<string>(ALL_FILTER);
   const [conditionFilter, setConditionFilter] = useState<string>(ALL_FILTER);
 
-  // Enforce browse quota on mount
+  // Enforce browse quota on mount — only for authenticated users.
+  // Guests browse the public catalogue freely; quotas apply once logged in.
   useEffect(() => {
+    if (!user) return;
     checkBrowseLimit().then((result) => {
       if (result.data?.allowed === false) {
         setBrowseLimitReached(true);
       }
     });
-  }, []);
+  }, [user]);
 
   // Fetch vehicles
   const { vehicles: allVehicles, loading: vehiclesLoading, error: vehiclesError } = useVehicles({

@@ -1,5 +1,5 @@
 // Subscription enforcement with real backend API implementation
-import { apiClient } from '@/lib/apiClient';
+import { apiClient, APIError } from '@/lib/apiClient';
 import {
   BrowseCheckResult,
   ListingCheckResult,
@@ -7,6 +7,12 @@ import {
   ApiResponse,
   JobPostCheckResult,
 } from '../types';
+
+// 401 from a quota endpoint means the caller has no session — guests have no
+// subscription-level quota and should be allowed to browse public content.
+// (Server-side route protection enforces auth where it actually matters.)
+const isUnauthorized = (err: unknown): boolean =>
+  err instanceof APIError && err.statusCode === 401;
 
 // Helper for mock data
 const getMockBrowseCount = () => {
@@ -38,8 +44,16 @@ export const checkBrowseLimit = async (): Promise<ApiResponse<BrowseCheckResult>
       data: response,
       timestamp: new Date().toISOString(),
     };
-  } catch (error: any) {
-    // Fail closed: when the backend is unreachable we must not silently allow browsing.
+  } catch (error: unknown) {
+    // Unauthenticated → no quota applies (guest browsing the public site).
+    if (isUnauthorized(error)) {
+      return {
+        success: true,
+        data: { allowed: true, remaining: -1, limitReached: false, subscription: null },
+        timestamp: new Date().toISOString(),
+      };
+    }
+    // Otherwise fail closed: when the backend is unreachable we must not silently allow browsing.
     return {
       success: false,
       data: {
@@ -90,7 +104,14 @@ export const checkListingLimit = async (): Promise<ApiResponse<ListingCheckResul
       data: response,
       timestamp: new Date().toISOString(),
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
+    if (isUnauthorized(error)) {
+      return {
+        success: true,
+        data: { allowed: true, remaining: -1, limitReached: false, subscription: null },
+        timestamp: new Date().toISOString(),
+      };
+    }
     // Fail closed: when the backend is unreachable we must not silently allow listings.
     return {
       success: false,
@@ -167,7 +188,14 @@ export const checkJobPostLimit = async (): Promise<ApiResponse<JobPostCheckResul
       data: response,
       timestamp: new Date().toISOString(),
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
+    if (isUnauthorized(error)) {
+      return {
+        success: true,
+        data: { allowed: true, remaining: -1, limitReached: false, subscription: null },
+        timestamp: new Date().toISOString(),
+      };
+    }
     // Fail closed: when the backend is unreachable we must not silently allow job posts.
     return {
       success: false,
@@ -246,7 +274,20 @@ export const checkListingVisibility = async (
       data: response,
       timestamp: new Date().toISOString(),
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
+    if (isUnauthorized(error)) {
+      // Guests viewing a public listing — no visibility delay applies.
+      return {
+        success: true,
+        data: {
+          visible: true,
+          delayHours: 0,
+          availableAt: new Date().toISOString(),
+          subscription: null,
+        },
+        timestamp: new Date().toISOString(),
+      };
+    }
     // Fail closed: when the backend is unreachable treat listing as not yet visible.
     return {
       success: false,
