@@ -4,7 +4,7 @@ import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
-import { Mail, Lock, Building2, User, Send } from 'lucide-react';
+import { Mail, Lock, Building2, User, Send, MapPin } from 'lucide-react';
 import { AdSlot } from '@/components/ads/AdSlot';
 
 export function Signup() {
@@ -15,13 +15,16 @@ export function Signup() {
     confirmPassword: '',
     instituteName: '',
     contactPerson: '',
-    instituteCode: '',
     phone: '',
+    street: '',
+    city: '',
+    state: '',
+    pincode: '',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const { signup } = useAuth();
+  const { signupInstitute } = useAuth();
   const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -38,8 +41,14 @@ export function Signup() {
     setLoading(true);
 
     // Validation
-    if (!formData.name || !formData.email || !formData.password || !formData.instituteName || !formData.contactPerson || !formData.instituteCode || !formData.phone) {
+    if (!formData.name || !formData.email || !formData.password || !formData.instituteName || !formData.contactPerson || !formData.phone) {
       setError('Please fill in all fields');
+      setLoading(false);
+      return;
+    }
+
+    if (!formData.street || !formData.city || !formData.state || !formData.pincode) {
+      setError('Please fill in all address fields');
       setLoading(false);
       return;
     }
@@ -48,13 +57,6 @@ export function Signup() {
     const phoneRegex = /^[6-9]\d{9}$/;
     if (!phoneRegex.test(formData.phone)) {
       setError('Please enter a valid 10-digit Indian phone number');
-      setLoading(false);
-      return;
-    }
-
-    // Institute code validation
-    if (formData.instituteCode.length < 4) {
-      setError('Institute code must be at least 4 characters');
       setLoading(false);
       return;
     }
@@ -72,15 +74,21 @@ export function Signup() {
     }
 
     try {
-      await signup(
-        formData.name,
-        formData.email,
-        formData.password,
-        formData.instituteName,
-        formData.contactPerson,
-        formData.instituteCode,
-        formData.phone
-      );
+      await signupInstitute({
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        phone: formData.phone,
+        instituteName: formData.instituteName,
+        contactPerson: formData.contactPerson,
+        address: {
+          street: formData.street,
+          city: formData.city,
+          state: formData.state,
+          pincode: formData.pincode,
+          country: 'India',
+        },
+      });
       navigate('/dashboard');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Signup failed. Please try again.');
@@ -104,15 +112,15 @@ export function Signup() {
           <p className="text-muted-foreground">
             Create your institution account
           </p>
-           <Link 
-                  to="/signup" 
+           <Link
+                  to="/signup"
                   className="flex flex-col items-center p-3 rounded-xl border border-border/50 bg-muted/30 hover:bg-primary/5 hover:border-primary/20 transition-all group"
                 >
                   <span className="text-xs font-bold text-primary group-hover:scale-110 transition-transform">INSTITUTE</span>
                   <span className="text-[10px] text-muted-foreground mt-0.5">Register School</span>
                 </Link>
-                <Link 
-                  to="/teacher/signup" 
+                <Link
+                  to="/teacher/signup"
                   className="flex flex-col items-center p-3 rounded-xl border border-border/50 bg-muted/30 hover:bg-secondary/5 hover:border-secondary/20 transition-all group"
                 >
                   <span className="text-xs font-bold text-secondary group-hover:scale-110 transition-transform">TEACHER</span>
@@ -183,26 +191,8 @@ export function Signup() {
                   </div>
                 </div>
 
-                {/* Institute Code and Phone Number */}
+                {/* Phone Number and Contact Person */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Institute Code */}
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">
-                      Institute Code <span className="text-red-500">*</span>
-                    </label>
-                    <Input
-                      type="text"
-                      name="instituteCode"
-                      placeholder="e.g., INST2024"
-                      value={formData.instituteCode}
-                      onChange={handleChange}
-                      disabled={loading}
-                    />
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Unique code provided by your institution
-                    </p>
-                  </div>
-
                   {/* Phone Number */}
                   <div>
                     <label className="text-sm font-medium mb-2 block">
@@ -221,19 +211,91 @@ export function Signup() {
                       10-digit Indian mobile number
                     </p>
                   </div>
-                </div>
 
-                {/* Contact Person Title */}
+                  {/* Contact Person Title */}
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Your Title/Position</label>
+                    <Input
+                      type="text"
+                      name="contactPerson"
+                      placeholder="e.g., Transport Manager, Principal"
+                      value={formData.contactPerson}
+                      onChange={handleChange}
+                      disabled={loading}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Address Information */}
+            <div className="pt-4 border-t border-border">
+              <h3 className="font-semibold mb-4 text-lg flex items-center gap-2">
+                <MapPin className="w-4 h-4" />
+                Institute Address
+              </h3>
+              <div className="space-y-4">
+                {/* Street */}
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Your Title/Position</label>
+                  <label className="text-sm font-medium mb-2 block">
+                    Street Address <span className="text-red-500">*</span>
+                  </label>
                   <Input
                     type="text"
-                    name="contactPerson"
-                    placeholder="e.g., Transport Manager, Principal"
-                    value={formData.contactPerson}
+                    name="street"
+                    placeholder="123 Main Street"
+                    value={formData.street}
                     onChange={handleChange}
                     disabled={loading}
                   />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* City */}
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">
+                      City <span className="text-red-500">*</span>
+                    </label>
+                    <Input
+                      type="text"
+                      name="city"
+                      placeholder="Mumbai"
+                      value={formData.city}
+                      onChange={handleChange}
+                      disabled={loading}
+                    />
+                  </div>
+
+                  {/* State */}
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">
+                      State <span className="text-red-500">*</span>
+                    </label>
+                    <Input
+                      type="text"
+                      name="state"
+                      placeholder="Maharashtra"
+                      value={formData.state}
+                      onChange={handleChange}
+                      disabled={loading}
+                    />
+                  </div>
+
+                  {/* Pincode */}
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">
+                      Pincode <span className="text-red-500">*</span>
+                    </label>
+                    <Input
+                      type="text"
+                      name="pincode"
+                      placeholder="400001"
+                      value={formData.pincode}
+                      onChange={handleChange}
+                      disabled={loading}
+                      maxLength={6}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
@@ -320,7 +382,7 @@ export function Signup() {
           <Link to="/" className="text-sm text-muted-foreground hover:text-primary smooth-transition">
             ← Back to Home
           </Link>
-        </div>             
+        </div>
         {/* Bottom Ad */}
         <div className="mt-6">
           <AdSlot placement="LP_INLINE_2" variant="banner" />

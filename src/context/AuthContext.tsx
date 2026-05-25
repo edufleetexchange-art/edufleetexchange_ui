@@ -40,16 +40,6 @@ interface AuthContextType {
   logout: () => Promise<void>;
   refresh: () => Promise<void>;
   // Back-compat methods (Task 21 cleans up consumer call-sites)
-  signup: (
-    name: string,
-    email: string,
-    password: string,
-    instituteName: string,
-    contactPerson: string,
-    _instituteCode: string,
-    phone: string,
-    _planId?: string,
-  ) => Promise<void>;
   signupSupplier: (data: VendorSignupRequest & { planId?: string }) => Promise<void>;
   updateProfile: (data: Partial<Account>) => Promise<void>;
   refreshProfile: () => Promise<void>;
@@ -181,31 +171,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     [applyBundle],
   );
 
-  // Back-compat: old signup signature used by `Signup.tsx`
-  const signup = useCallback(
-    async (
-      name: string,
-      email: string,
-      password: string,
-      instituteName: string,
-      contactPerson: string,
-      _instituteCode: string,
-      phone: string,
-      _planId?: string,
-    ) => {
-      await signupInstitute({
-        name,
-        email,
-        password,
-        phone,
-        instituteName,
-        contactPerson,
-        address: { street: '', city: '', state: '', pincode: '', country: 'India' },
-      });
-    },
-    [signupInstitute],
-  );
-
   const signupSupplier = useCallback(
     async (data: VendorSignupRequest & { planId?: string }) => {
       // planId silently dropped — server picks the free vendor plan by default.
@@ -286,7 +251,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         signupInstitute,
         signupTeacher,
         signupVendor,
-        signup,
         signupSupplier,
         updateAccount,
         updateProfile,
