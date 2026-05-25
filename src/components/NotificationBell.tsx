@@ -23,20 +23,20 @@ export function NotificationBell() {
           className="relative"
           title="Notifications"
         >
-          {loading ? (
-            <Loader2 className="w-5 h-5 animate-spin" />
-          ) : (
-            <Bell className="w-5 h-5" />
-          )}
+          <Bell className={`w-5 h-5${loading && unreadCount === 0 ? ' animate-pulse' : ''}`} />
 
-          {unreadCount > 0 && (
+          {loading && unreadCount === 0 ? (
+            <span className="absolute -top-2 -right-2 h-4 w-4 flex items-center justify-center">
+              <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
+            </span>
+          ) : unreadCount > 0 ? (
             <Badge
               variant="destructive"
               className="absolute -top-2 -right-2 h-6 w-6 flex items-center justify-center p-0 text-xs"
             >
               {unreadCount > 99 ? '99+' : unreadCount}
             </Badge>
-          )}
+          ) : null}
         </Button>
       </PopoverTrigger>
 

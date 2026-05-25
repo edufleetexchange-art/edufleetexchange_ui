@@ -135,18 +135,21 @@ export function Login() {
             <form onSubmit={handlePasswordLogin} className="space-y-6">
               {/* Email */}
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-foreground/80 ml-1">Email Address</label>
+                <label htmlFor="login-email" className="text-sm font-semibold text-foreground/80 ml-1">Email Address</label>
                 <div className="relative group">
                   <div className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors">
                     <Mail className="w-full h-full" />
                   </div>
                   <Input
+                    id="login-email"
                     type="email"
                     placeholder="name@institution.edu"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="pl-12 h-12 bg-background/50 border-border/50 focus:ring-primary/20 transition-all"
                     disabled={loading}
+                    autoComplete="email"
+                    autoFocus
                   />
                 </div>
               </div>
@@ -154,7 +157,7 @@ export function Login() {
               {/* Password */}
               <div className="space-y-2">
                 <div className="flex justify-between items-center ml-1">
-                  <label className="text-sm font-semibold text-foreground/80">Password</label>
+                  <label htmlFor="login-password" className="text-sm font-semibold text-foreground/80">Password</label>
                   <Link to="/forgot-password" title="Feature coming soon" className="text-xs font-medium text-primary hover:text-primary-light transition-colors">
                     Forgot password?
                   </Link>
@@ -164,12 +167,14 @@ export function Login() {
                     <Lock className="w-full h-full" />
                   </div>
                   <Input
+                    id="login-password"
                     type="password"
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="pl-12 h-12 bg-background/50 border-border/50 focus:ring-primary/20 transition-all"
                     disabled={loading}
+                    autoComplete="current-password"
                   />
                 </div>
               </div>

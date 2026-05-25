@@ -30,6 +30,8 @@ export function TeacherSignup() {
   const [currentSubject, setCurrentSubject] = useState('');
   const [isAvailable, setIsAvailable] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [confirmPasswordError, setConfirmPasswordError] = useState('');
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({
@@ -67,6 +69,12 @@ export function TeacherSignup() {
       toast.error('Please fill in all required fields');
       return;
     }
+
+    if (formData.password !== confirmPassword) {
+      setConfirmPasswordError('Passwords do not match');
+      return;
+    }
+    setConfirmPasswordError('');
 
     if (qualifications.length === 0) {
       toast.error('Please add at least one qualification');
@@ -158,6 +166,25 @@ export function TeacherSignup() {
                 </div>
 
                 <div>
+                  <Label htmlFor="confirmPassword">Confirm Password *</Label>
+                  <Input
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => {
+                      setConfirmPassword(e.target.value);
+                      if (confirmPasswordError) setConfirmPasswordError('');
+                    }}
+                    required
+                  />
+                  {confirmPasswordError && (
+                    <p className="text-sm text-destructive mt-1">{confirmPasswordError}</p>
+                  )}
+                  {/* TODO: Add forgot-password flow once backend reset endpoint is available */}
+                </div>
+
+                <div>
                   <Label htmlFor="phone">Phone Number *</Label>
                   <Input
                     id="phone"
@@ -206,7 +233,7 @@ export function TeacherSignup() {
                       value={currentQualification}
                       onChange={(e) => setCurrentQualification(e.target.value)}
                       placeholder="e.g., B.Ed, M.A."
-                      onKeyPress={(e) => {
+                      onKeyDown={(e) => {
                         if (e.key === 'Enter') {
                           e.preventDefault();
                           addQualification();
@@ -241,7 +268,7 @@ export function TeacherSignup() {
                       value={currentSubject}
                       onChange={(e) => setCurrentSubject(e.target.value)}
                       placeholder="e.g., Mathematics, English"
-                      onKeyPress={(e) => {
+                      onKeyDown={(e) => {
                         if (e.key === 'Enter') {
                           e.preventDefault();
                           addSubject();
@@ -304,7 +331,7 @@ export function TeacherSignup() {
 
               <div className="flex gap-4">
                 <Button type="submit" className="flex-1" disabled={submitting}>
-                  {submitting ? 'Creating Profile...' : 'Create Profile'}
+                  {submitting ? 'Creating account…' : 'Create Profile'}
                 </Button>
                 <Button type="button" variant="outline" onClick={() => navigate('/login')}>
                   Already have an account?
