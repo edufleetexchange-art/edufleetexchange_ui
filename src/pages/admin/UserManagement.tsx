@@ -444,7 +444,7 @@ export default function UserManagement() {
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-6">
+            <TabsList className="grid w-full grid-cols-7">
               {roles.map(role => (
                 <TabsTrigger key={role.value} value={role.value}>
                   {role.label}
@@ -515,8 +515,9 @@ export default function UserManagement() {
                   <TableCell>
                     <div className="text-sm">
                       {user.subscription?.planId ? (
+                        // NOTE: user.subscription is populated by the backend via $lookup; if missing, falls through to "No Active Plan"
                         <Badge variant="secondary" className="font-medium text-primary">
-                          {plans.find(p => p._id === user.subscription.planId)?.displayName || 'Custom Plan'}
+                          {plans.find(p => p._id === user.subscription?.planId)?.displayName || 'Custom Plan'}
                         </Badge>
                       ) : (['admin', 'marketing', 'sales'].includes(user.role)) ? (
                         <Badge variant="outline" className="bg-blue-500/5 text-blue-500 border-blue-500/20">

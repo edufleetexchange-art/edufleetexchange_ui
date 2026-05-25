@@ -105,7 +105,7 @@ export default function AuditLogManagement() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
               <div className="space-y-2">
                 <Label>User Role</Label>
                 <Select 
@@ -153,10 +153,19 @@ export default function AuditLogManagement() {
 
               <div className="space-y-2">
                 <Label>Start Date</Label>
-                <Input 
-                  type="date" 
+                <Input
+                  type="date"
                   value={filters.startDate}
                   onChange={(e) => handleFilterChange('startDate', e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>End Date</Label>
+                <Input
+                  type="date"
+                  value={filters.endDate}
+                  onChange={(e) => setFilters({ ...filters, endDate: e.target.value })}
                 />
               </div>
 
