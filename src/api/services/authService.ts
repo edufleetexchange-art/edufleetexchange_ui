@@ -92,5 +92,11 @@ export const authService = {
     if (input?.role === 'teacher') return this.signupTeacher(input);
     return this.signupInstitute(input);
   },
+  async forgotPassword(email: string): Promise<{ success: boolean; message: string }> {
+    return apiClient.post('/auth/forgot-password', { email });
+  },
+  async resetPassword(token: string, newPassword: string): Promise<{ success: boolean; message: string }> {
+    return apiClient.post('/auth/reset-password', { token, newPassword });
+  },
 };
 
