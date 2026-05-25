@@ -97,12 +97,17 @@ export function TeacherDashboard() {
   // Separate interviews from applications that have interviews scheduled
   const interviews = applications.filter(app => app.interviewScheduled);
 
-  const handleSaveProfile = () => {
+  const handleSaveProfile = async () => {
     if (user) {
-      // TODO: updateAccount only supports name/phone/avatar; teacher-specific fields (location, bio, experience, qualifications, subjects, isAvailable) require a separate profile endpoint
-      updateAccount({ name: editData.name, phone: editData.phone });
-      setIsEditing(false);
-      toast.success('Profile updated successfully!');
+      try {
+        // TODO: server-side teacher-profile update endpoint, then re-enable location/bio/experience/qualifications/subjects/isAvailable fields
+        await updateAccount({ name: editData.name, phone: editData.phone });
+        setIsEditing(false);
+        toast.success('Name and phone updated successfully!');
+      } catch (error) {
+        console.error('Failed to update profile:', error);
+        toast.error('Failed to save profile changes');
+      }
     }
   };
 
@@ -172,8 +177,30 @@ export function TeacherDashboard() {
   // subscription is now a plain Subscription | null from AuthContext
   const subscriptionData = subscription;
   const availablePlans: any[] = [];
-  const subscriptionStats: any = null;
   const subscriptionLoading = false;
+
+  // Build a SubscriptionUsageStats-compatible object for child components
+  const subscriptionStats: any = subscription
+    ? {
+        isExpired: subscription.status === 'expired',
+        isExpiringSoon: false,
+        daysRemaining: 0,
+        browseCount: {
+          used: subscription.browseCount,
+          allowed: subscription.browseCountLimit,
+          remaining: Math.max(0, subscription.browseCountLimit - subscription.browseCount),
+          percentage: subscription.browseCountLimit > 0 ? (subscription.browseCount / subscription.browseCountLimit) * 100 : 0,
+          limitReached: subscription.browseCountLimit > 0 && subscription.browseCount >= subscription.browseCountLimit,
+        },
+        jobPostsCount: {
+          used: subscription.jobPostsUsed ?? 0,
+          allowed: subscription.jobPostsLimit ?? 0,
+          remaining: (subscription.jobPostsLimit ?? 0) > 0 ? Math.max(0, (subscription.jobPostsLimit ?? 0) - (subscription.jobPostsUsed ?? 0)) : 999,
+          percentage: (subscription.jobPostsLimit ?? 0) > 0 ? ((subscription.jobPostsUsed ?? 0) / (subscription.jobPostsLimit ?? 0)) * 100 : 0,
+          limitReached: (subscription.jobPostsLimit ?? 0) > 0 && (subscription.jobPostsUsed ?? 0) >= (subscription.jobPostsLimit ?? 0),
+        },
+      }
+    : null;
 
   // Loading state while checking auth or loading data
   if (!user || appsLoading || subscriptionLoading) {
@@ -205,8 +232,8 @@ export function TeacherDashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           <div className="lg:col-span-2">
             <SubscriptionAlert
-              subscription={null}
-              stats={null}
+              subscription={subscription as any}
+              stats={subscriptionStats}
             />
           </div>
           <div className="lg:col-span-1">
@@ -282,28 +309,31 @@ export function TeacherDashboard() {
                 </div>
               </CardHeader>
               <CardContent className="space-y-6">
-                {/* Searchability Toggle */}
+                {/* Searchability Toggle — read-only; contact support to change */}
+                {/* TODO: server-side teacher-profile update endpoint, then re-enable this field */}
                 <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg border border-border">
                   <div className="flex items-center gap-3">
-                    <div className={`p-2 rounded-full ${editData.isAvailable ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
-                      {editData.isAvailable ? <SearchCheck className="h-5 w-5" /> : <SearchX className="h-5 w-5" />}
+                    <div className={`p-2 rounded-full ${teacherProfile?.isAvailable ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
+                      {teacherProfile?.isAvailable ? <SearchCheck className="h-5 w-5" /> : <SearchX className="h-5 w-5" />}
                     </div>
                     <div>
                       <p className="font-semibold">Institute Searchability</p>
                       <p className="text-sm text-muted-foreground">
-                        {editData.isAvailable 
-                          ? 'Your profile is visible to institutes looking for teachers' 
+                        {teacherProfile?.isAvailable
+                          ? 'Your profile is visible to institutes looking for teachers'
                           : 'Your profile is hidden from institute searches'}
                       </p>
+                      {isEditing && (
+                        <p className="text-xs text-amber-600 mt-1">Contact support to change searchability</p>
+                      )}
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <Label htmlFor="isAvailable" className="sr-only">Toggle Searchability</Label>
                     <Switch
                       id="isAvailable"
-                      checked={editData.isAvailable}
-                      onCheckedChange={(checked) => setEditData({ ...editData, isAvailable: checked })}
-                      disabled={!isEditing}
+                      checked={teacherProfile?.isAvailable ?? true}
+                      disabled
                     />
                   </div>
                 </div>
@@ -331,37 +361,17 @@ export function TeacherDashboard() {
                         <span>{user.phone || 'Not provided'}</span>
                       </div>
                     )}
-                    {isEditing ? (
-                      <div>
-                        <Label htmlFor="location">Location</Label>
-                        <Input
-                          id="location"
-                          value={editData.location}
-                          onChange={(e) => setEditData({ ...editData, location: e.target.value })}
-                        />
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-2">
-                        <MapPin className="h-4 w-4 text-muted-foreground" />
-                        <span>{teacherProfile?.location || 'Not provided'}</span>
-                      </div>
-                    )}
+                    {/* Location — read-only; contact support to edit */}
+                    {/* TODO: server-side teacher-profile update endpoint, then re-enable these fields */}
+                    <div className="flex items-center gap-2">
+                      <MapPin className="h-4 w-4 text-muted-foreground" />
+                      <span>{teacherProfile?.location || 'Not provided'}</span>
+                      {isEditing && <span className="text-xs text-muted-foreground">(contact support to edit)</span>}
+                    </div>
                     <div className="flex items-center gap-2 text-muted-foreground">
                       <Briefcase className="h-4 w-4" />
-                      {isEditing ? (
-                        <div className="flex items-center gap-2">
-                          <Input
-                            type="number"
-                            min="0"
-                            value={editData.experience}
-                            onChange={(e) => setEditData({ ...editData, experience: parseInt(e.target.value) || 0 })}
-                            className="w-20"
-                          />
-                          <span>years experience</span>
-                        </div>
-                      ) : (
-                        <span>{teacherProfile?.experience || 0} years experience</span>
-                      )}
+                      <span>{teacherProfile?.experience || 0} years experience</span>
+                      {isEditing && <span className="text-xs text-muted-foreground">(contact support to edit)</span>}
                     </div>
                   </div>
                 </div>
@@ -372,39 +382,17 @@ export function TeacherDashboard() {
                     <Award className="h-5 w-5" />
                     Qualifications
                   </h3>
-                  {isEditing ? (
-                    <>
-                      <div className="flex flex-wrap gap-2">
-                        {editData.qualifications?.map((qual) => (
-                          <Badge key={qual} variant="secondary" className="flex items-center gap-1">
-                            {qual}
-                            <button onClick={() => removeQualification(qual)} className="ml-1 text-red-500 hover:text-red-700">
-                              <X className="h-3 w-3" />
-                            </button>
-                          </Badge>
-                        ))}
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Input
-                          placeholder="Add new qualification"
-                          value={newQual}
-                          onChange={(e) => setNewQual(e.target.value)}
-                          onKeyDown={(e) => e.key === 'Enter' && addQualification()}
-                          className="max-w-sm"
-                        />
-                        <Button onClick={addQualification} size="sm">Add</Button>
-                      </div>
-                    </>
-                  ) : (
-                    <div className="flex flex-wrap gap-2">
-                      {teacherProfile?.qualifications?.map((qual) => (
-                        <Badge key={qual} variant="secondary">
-                          {qual}
-                        </Badge>
-                      ))}
-                      {(teacherProfile?.qualifications?.length ?? 0) === 0 && <p className="text-muted-foreground">No qualifications added yet</p>}
-                    </div>
-                  )}
+                  {/* Qualifications — read-only; contact support to edit */}
+                  {/* TODO: server-side teacher-profile update endpoint, then re-enable these fields */}
+                  <div className="flex flex-wrap gap-2">
+                    {teacherProfile?.qualifications?.map((qual) => (
+                      <Badge key={qual} variant="secondary">
+                        {qual}
+                      </Badge>
+                    ))}
+                    {(teacherProfile?.qualifications?.length ?? 0) === 0 && <p className="text-muted-foreground">No qualifications added yet</p>}
+                  </div>
+                  {isEditing && <p className="text-xs text-muted-foreground">Contact support to update qualifications</p>}
                 </div>
 
                 {/* Subjects */}
@@ -413,53 +401,26 @@ export function TeacherDashboard() {
                     <BookOpen className="h-5 w-5" />
                     Subjects
                   </h3>
-                  {isEditing ? (
-                    <>
-                      <div className="flex flex-wrap gap-2">
-                        {editData.subjects?.map((subj) => (
-                          <Badge key={subj} variant="outline" className="flex items-center gap-1">
-                            {subj}
-                            <button onClick={() => removeSubject(subj)} className="ml-1 text-red-500 hover:text-red-700">
-                              <X className="h-3 w-3" />
-                            </button>
-                          </Badge>
-                        ))}
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Input
-                          placeholder="Add new subject"
-                          value={newSubject}
-                          onChange={(e) => setNewSubject(e.target.value)}
-                          onKeyDown={(e) => e.key === 'Enter' && addSubject()}
-                          className="max-w-sm"
-                        />
-                        <Button onClick={addSubject} size="sm">Add</Button>
-                      </div>
-                    </>
-                  ) : (
-                    <div className="flex flex-wrap gap-2">
-                      {teacherProfile?.subjects?.map((subj) => (
-                        <Badge key={subj} variant="outline">
-                          {subj}
-                        </Badge>
-                      ))}
-                      {(teacherProfile?.subjects?.length ?? 0) === 0 && <p className="text-muted-foreground">No subjects added yet</p>}
-                    </div>
-                  )}
+                  {/* Subjects — read-only; contact support to edit */}
+                  {/* TODO: server-side teacher-profile update endpoint, then re-enable these fields */}
+                  <div className="flex flex-wrap gap-2">
+                    {teacherProfile?.subjects?.map((subj) => (
+                      <Badge key={subj} variant="outline">
+                        {subj}
+                      </Badge>
+                    ))}
+                    {(teacherProfile?.subjects?.length ?? 0) === 0 && <p className="text-muted-foreground">No subjects added yet</p>}
+                  </div>
+                  {isEditing && <p className="text-xs text-muted-foreground">Contact support to update subjects</p>}
                 </div>
 
                 {/* Bio */}
                 <div className="space-y-2">
                   <h3 className="text-lg font-semibold">Bio</h3>
-                  {isEditing ? (
-                    <Textarea
-                      value={editData.bio}
-                      onChange={(e) => setEditData({ ...editData, bio: e.target.value })}
-                      rows={4}
-                    />
-                  ) : (
-                    <p className="text-muted-foreground">{teacherProfile?.bio || 'No bio added yet'}</p>
-                  )}
+                  {/* Bio — read-only; contact support to edit */}
+                  {/* TODO: server-side teacher-profile update endpoint, then re-enable these fields */}
+                  <p className="text-muted-foreground">{teacherProfile?.bio || 'No bio added yet'}</p>
+                  {isEditing && <p className="text-xs text-muted-foreground">Contact support to update bio</p>}
                 </div>
 
                 {isEditing && (
@@ -512,7 +473,7 @@ export function TeacherDashboard() {
                       <div className="space-y-3">
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
                           <Calendar className="h-4 w-4" />
-                          Applied on {new Date(app.appliedDate).toLocaleDateString()}
+                          Applied on {(() => { const dateStr = app.appliedAt || app.appliedDate; return dateStr ? new Date(dateStr).toLocaleDateString() : '—'; })()}
                         </div>
 
                         {app.interviewScheduled && (

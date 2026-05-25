@@ -53,6 +53,59 @@ export interface TeacherFilters {
   pageSize?: number;
 }
 
+// Response shape returned by the new /api/teachers endpoint
+interface TeacherSearchItem {
+  profile: {
+    experience?: number;
+    qualifications?: string[];
+    subjects?: string[];
+    bio?: string;
+    location?: string;
+    isAvailable?: boolean;
+  };
+  account: {
+    id?: string;
+    _id?: string;
+    name?: string;
+    email?: string;
+    phone?: string;
+    avatar?: string;
+    createdAt?: string;
+    status?: 'active' | 'inactive';
+  };
+}
+
+interface TeacherSearchResponse {
+  items: TeacherSearchItem[];
+  total: number;
+  page: number;
+  pageSize: number;
+  hasMore: boolean;
+}
+
+/**
+ * Map a { profile, account } item from /api/teachers into the flat Teacher shape
+ * expected by all existing callers.
+ */
+function mapTeacherItem(item: TeacherSearchItem): Teacher {
+  return {
+    id: item.account.id || item.account._id,
+    _id: item.account._id || item.account.id,
+    name: item.account.name || '',
+    email: item.account.email || '',
+    phone: item.account.phone || '',
+    location: item.profile.location || '',
+    experience: item.profile.experience ?? 0,
+    qualifications: item.profile.qualifications || [],
+    subjects: item.profile.subjects || [],
+    bio: item.profile.bio || '',
+    avatar: item.account.avatar || '',
+    isAvailable: item.profile.isAvailable ?? true,
+    createdAt: item.account.createdAt,
+    status: item.account.status,
+  };
+}
+
 /**
  * Get all teachers with optional filters
  */
@@ -61,28 +114,41 @@ export async function getTeachers(
 ): Promise<ApiResponse<PaginatedResponse<Teacher>>> {
   try {
     const queryParams = new URLSearchParams();
-    queryParams.append('role', 'teacher'); // Filter users by teacher role
-    
+
     if (filters) {
-      Object.entries(filters).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-          if (Array.isArray(value)) {
-            queryParams.append(key, value.join(','));
-          } else {
-            queryParams.append(key, String(value));
-          }
-        }
-      });
+      if (filters.subjects && filters.subjects.length > 0) {
+        queryParams.append('subject', filters.subjects.join(','));
+      }
+      if (filters.experienceMin !== undefined) {
+        queryParams.append('minExperience', String(filters.experienceMin));
+      }
+      if (filters.location) {
+        queryParams.append('location', filters.location);
+      }
+      if (filters.page !== undefined) {
+        queryParams.append('page', String(filters.page));
+      }
+      if (filters.pageSize !== undefined) {
+        queryParams.append('pageSize', String(filters.pageSize));
+      }
     }
-    
+
     const queryString = queryParams.toString();
-    const endpoint = `/users?${queryString}`; // Teachers are users with role='teacher'
-    
-    const data = await apiClient.get<PaginatedResponse<Teacher>>(endpoint, { requiresAuth: false });
-    
+    const endpoint = `/teachers${queryString ? `?${queryString}` : ''}`;
+
+    const raw = await apiClient.get<TeacherSearchResponse>(endpoint);
+
+    const mapped: PaginatedResponse<Teacher> = {
+      items: (raw.items || []).map(mapTeacherItem),
+      total: raw.total ?? 0,
+      page: raw.page ?? 1,
+      pageSize: raw.pageSize ?? 20,
+      hasMore: raw.hasMore ?? false,
+    };
+
     return {
       success: true,
-      data,
+      data: mapped,
       timestamp: new Date().toISOString()
     };
   } catch (error) {

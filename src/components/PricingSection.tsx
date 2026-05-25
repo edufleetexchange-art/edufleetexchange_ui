@@ -118,7 +118,7 @@ function PricingCardGrid({ plans, loading, onSelectPlan }: PricingCardGridProps)
                   {plan.price === 0 ? 'Free' : `₹${plan.price.toLocaleString()}`}
                 </span>
                 {plan.price > 0 && (
-                  <span className="ml-1 text-muted-foreground font-medium">/{plan.billingPeriod === 'monthly' ? 'mo' : 'yr'}</span>
+                  <span className="ml-1 text-muted-foreground font-medium">/{(plan.duration ?? 0) <= 31 ? 'mo' : 'yr'}</span>
                 )}
               </div>
             </CardHeader>

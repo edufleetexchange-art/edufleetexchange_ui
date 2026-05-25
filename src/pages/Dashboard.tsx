@@ -88,14 +88,17 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
   const fetchRecentApplications = async () => {
     try {
       setLoadingRecentApps(true);
+      // TODO: server-side scoping for /jobs/applications/list — currently returns all applications
+      // accessible to the authenticated institute via auth cookie; pass jobId filter when known.
       const response = await api.jobs.getApplications();
       if (response.success && response.data) {
         const apps = Array.isArray(response.data) ? response.data : (response.data as any).items || [];
-        // Sort by date (mock sorting) and take top 5
+        // Sort by date and take top 5
         setRecentApplications(apps.slice(0, 5));
       }
     } catch (error) {
       console.error('Failed to fetch recent apps:', error);
+      toast.error('Failed to load recent applications');
     } finally {
       setLoadingRecentApps(false);
     }
@@ -193,7 +196,7 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
     totalListings: userListings.length,
     activeListings: userListings.filter(v => v.status === 'approved').length,
     pendingApprovals: userListings.filter(v => v.status === 'pending').length,
-    totalViews: userListings.reduce((acc, _) => acc + Math.floor(Math.random() * 500), 0),
+    totalViews: 0, // TODO: real view counts from analytics endpoint
     totalJobs: userJobs.length,
     activeJobs: userJobs.filter(j => j.status === 'approved').length,
     totalApplicants: userJobs.reduce((acc, j) => acc + (j.applicants || 0), 0),
@@ -403,11 +406,12 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
             <>
               <Card className="p-6 col-span-2">
                 <p className="text-sm text-muted-foreground mb-2">Profile Views</p>
-                <div className="text-3xl font-bold text-primary">{Math.floor(Math.random() * 1000)}</div>
+                {/* TODO: real view/contact counts from analytics endpoint */}
+                <div className="text-3xl font-bold text-primary">—</div>
               </Card>
               <Card className="p-6 col-span-2">
                 <p className="text-sm text-muted-foreground mb-2">Contact Requests</p>
-                <div className="text-3xl font-bold text-secondary">{Math.floor(Math.random() * 50)}</div>
+                <div className="text-3xl font-bold text-secondary">—</div>
               </Card>
               <Card className="p-6 col-span-3">
                 <p className="text-sm text-muted-foreground mb-2">Current Plan</p>
@@ -825,7 +829,8 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
                                 {vehicle.status.charAt(0).toUpperCase() + vehicle.status.slice(1)}
                               </span>
                             </TableCell>
-                            <TableCell>245</TableCell>
+                            {/* TODO: real per-listing view counts from analytics endpoint */}
+                            <TableCell>{(vehicle as any).views ?? '—'}</TableCell>
                             <TableCell className="text-right">
                               <div className="flex justify-end gap-2">
                                 <Button

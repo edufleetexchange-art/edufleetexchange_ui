@@ -66,7 +66,7 @@ export function Header() {
   const isCompanyUser = user?.role === 'admin' || isSales || isMarketing;
   // Check if user is vendor to hide specific links
   const isVendor = user?.role === 'vendor';
-  const shouldShowInstituteNav = user?.role === 'institute' || (!user?.role && user);
+  const shouldShowInstituteNav = user?.role === 'institute';
   const showPromoLinks = !(user?.role === 'institute' || user?.role === 'teacher' || isCompanyUser);
 
   const handleHeaderSearch = (e: React.KeyboardEvent) => {
@@ -97,7 +97,7 @@ export function Header() {
       src="/logo.jpeg"
 
       alt="EduFleet Exchange"
-      className="h-full w-full object-contain transition-transform group-hover:scale-105"
+      className="h-full w-full object-cover transition-transform group-hover:scale-105"
     />
   </div>
 </Link>
@@ -226,7 +226,8 @@ export function Header() {
                           {subscription?.planId && (
                             <Badge variant="outline" className="text-[10px] h-5 bg-primary/5 text-primary border-primary/20 px-1.5 flex items-center gap-1 border-beam">
                               <Crown className="w-2.5 h-2.5" />
-                              {(subscription.planId as any).displayName ?? subscription.planId}
+                              {/* TODO: show plan display name once /plans/:id is wired in UI */}
+                              {subscription?.status === 'active' ? 'Active' : 'Free'}
                             </Badge>
                           )}
                         </div>

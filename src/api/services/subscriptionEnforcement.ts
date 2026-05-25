@@ -39,20 +39,17 @@ export const checkBrowseLimit = async (): Promise<ApiResponse<BrowseCheckResult>
       timestamp: new Date().toISOString(),
     };
   } catch (error: any) {
-    // Mock fallback
-    const current = getMockBrowseCount();
-    const limit = 50;
-
+    // Fail closed: when the backend is unreachable we must not silently allow browsing.
     return {
-      success: true,
+      success: false,
       data: {
-        allowed: current < limit,
-        remaining: Math.max(0, limit - current),
-        limitReached: current >= limit,
+        allowed: false,
+        remaining: 0,
+        limitReached: true,
         subscription: null,
-        message: current >= limit ? 'Browse limit reached (Mock)' : 'Allowed (Mock)',
+        message: 'Unable to verify browse limit — please try again.',
       },
-      message: 'Mock browse limit check',
+      message: 'check_failed',
       timestamp: new Date().toISOString(),
     };
   }
@@ -94,21 +91,17 @@ export const checkListingLimit = async (): Promise<ApiResponse<ListingCheckResul
       timestamp: new Date().toISOString(),
     };
   } catch (error: any) {
-    // Mock fallback
-    const mockListingCount = localStorage.getItem('mock_listing_count');
-    const current = mockListingCount ? parseInt(mockListingCount, 10) : 0;
-    const limit = 5;
-
+    // Fail closed: when the backend is unreachable we must not silently allow listings.
     return {
-      success: true,
+      success: false,
       data: {
-        allowed: current < limit,
-        remaining: Math.max(0, limit - current),
-        limitReached: current >= limit,
+        allowed: false,
+        remaining: 0,
+        limitReached: true,
         subscription: null,
-        message: current >= limit ? 'Listing limit reached (Mock)' : 'Allowed (Mock)',
+        message: 'Unable to verify listing limit — please try again.',
       },
-      message: 'Mock listing limit check',
+      message: 'check_failed',
       timestamp: new Date().toISOString(),
     };
   }
@@ -175,21 +168,17 @@ export const checkJobPostLimit = async (): Promise<ApiResponse<JobPostCheckResul
       timestamp: new Date().toISOString(),
     };
   } catch (error: any) {
-    // Mock fallback
-    const mockJobCount = localStorage.getItem('mock_job_count');
-    const current = mockJobCount ? parseInt(mockJobCount, 10) : 0;
-    const limit = 10;
-
+    // Fail closed: when the backend is unreachable we must not silently allow job posts.
     return {
-      success: true,
+      success: false,
       data: {
-        allowed: current < limit,
-        remaining: Math.max(0, limit - current),
-        limitReached: current >= limit,
+        allowed: false,
+        remaining: 0,
+        limitReached: true,
         subscription: null,
-        message: current >= limit ? 'Job post limit reached (Mock)' : 'Allowed (Mock)',
+        message: 'Unable to verify job post limit — please try again.',
       },
-      message: 'Mock job post limit check',
+      message: 'check_failed',
       timestamp: new Date().toISOString(),
     };
   }
@@ -258,16 +247,16 @@ export const checkListingVisibility = async (
       timestamp: new Date().toISOString(),
     };
   } catch (error: any) {
-    // Mock fallback - assume visible
+    // Fail closed: when the backend is unreachable treat listing as not yet visible.
     return {
-      success: true,
+      success: false,
       data: {
-        visible: true,
+        visible: false,
         delayHours: 0,
         availableAt: new Date().toISOString(),
         subscription: null,
       },
-      message: 'Mock visibility check',
+      message: 'check_failed',
       timestamp: new Date().toISOString(),
     };
   }

@@ -82,7 +82,7 @@ export function SubscriptionUsageCard({ stats, loading }: SubscriptionUsageCardP
             value={browsePercentage}
             className={`h-2 ${browseWarning ? 'bg-amber-100' : ''}`}
           />
-          <p className="text-xs text-muted">
+          <p className="text-xs text-muted-foreground">
             {stats.browseCount.remaining} view{stats.browseCount.remaining !== 1 ? 's' : ''} remaining
           </p>
         </div>
@@ -122,7 +122,7 @@ export function SubscriptionUsageCard({ stats, loading }: SubscriptionUsageCardP
               value={listingPercentage}
               className={`h-2 ${listingWarning ? 'bg-amber-100' : ''}`}
             />
-            <p className="text-xs text-muted">
+            <p className="text-xs text-muted-foreground">
               {stats.listingCount.remaining} listing{stats.listingCount.remaining !== 1 ? 's' : ''} remaining
             </p>
           </div>
@@ -149,7 +149,7 @@ export function SubscriptionUsageCard({ stats, loading }: SubscriptionUsageCardP
               value={jobPostsPercentage}
               className={`h-2 ${jobPostsWarning ? 'bg-amber-100' : ''}`}
             />
-            <p className="text-xs text-muted">
+            <p className="text-xs text-muted-foreground">
               {stats.jobPostsCount!.remaining} post{stats.jobPostsCount!.remaining !== 1 ? 's' : ''} remaining
             </p>
           </div>
@@ -176,7 +176,7 @@ export function SubscriptionUsageCard({ stats, loading }: SubscriptionUsageCardP
               value={jobPostsPercentage}
               className={`h-2 ${jobPostsWarning ? 'bg-amber-100' : ''}`}
             />
-            <p className="text-xs text-muted">
+            <p className="text-xs text-muted-foreground">
               {stats.jobPostsCount!.remaining} application{stats.jobPostsCount!.remaining !== 1 ? 's' : ''} remaining
             </p>
           </div>

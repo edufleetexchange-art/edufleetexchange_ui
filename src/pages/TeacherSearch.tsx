@@ -100,13 +100,12 @@ export function TeacherSearch() {
     setShowContactDialog(true);
   };
 
+  // TODO: Wire sendInterviewInvitation to a backend endpoint once an interview-invite API exists.
+  // TeacherSearch is a cold-outreach flow (no prior application), so there is no applicationId
+  // to pass to rescheduleInterview() or updateApplicationStatus(). The dialog is disabled until
+  // a dedicated POST /interviews (or similar) endpoint is available.
   const sendInterviewInvitation = () => {
-    if (!interviewData.date || !interviewData.time) {
-      toast.error('Please fill in all required fields');
-      return;
-    }
-
-    toast.success(`Interview invitation sent to ${selectedTeacher.name}`);
+    toast.error('Interview invitations are not yet available. Please contact the teacher directly using the contact details shown.');
     setShowContactDialog(false);
     setInterviewData({ date: '', time: '', message: '' });
     setSelectedTeacher(null);
