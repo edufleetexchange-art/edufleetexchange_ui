@@ -5,6 +5,18 @@ import { AdPlacement, Ad } from '../../types/adTypes';
 import { cn } from '../../lib/utils';
 import { Skeleton } from '../ui/skeleton';
 
+function pickWeighted(ads: Ad[]): Ad | null {
+  if (!ads.length) return null;
+  const weights = ads.map(a => Math.max(1, a.priority ?? 1));
+  const total = weights.reduce((s, w) => s + w, 0);
+  let r = Math.random() * total;
+  for (let i = 0; i < ads.length; i++) {
+    r -= weights[i];
+    if (r <= 0) return ads[i];
+  }
+  return ads[ads.length - 1];
+}
+
 interface AdSlotProps {
   placement: AdPlacement;
   className?: string;
@@ -28,9 +40,7 @@ export const AdSlot: React.FC<AdSlotProps> = ({ placement, className, variant = 
         
         if (isMounted) {
           if (ads && ads.length > 0) {
-            // Simple rotation or priority pick
-            const randomAd = ads[Math.floor(Math.random() * ads.length)];
-            setCurrentAd(randomAd);
+            setCurrentAd(pickWeighted(ads));
           } else {
             setCurrentAd(null);
           }
