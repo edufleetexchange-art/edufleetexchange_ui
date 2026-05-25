@@ -421,7 +421,7 @@ export default function MarketingDashboard() {
               <div className="flex items-center gap-6 pb-6 border-b">
                 <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-primary/10">
                   <img 
-                    src={user?.avatar || `https://ui-avatars.com/api/?name=${user?.name}&background=random`} 
+                    src={user?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name ?? '')}&background=random`}
                     alt={user?.name} 
                     className="w-full h-full object-cover" 
                   />

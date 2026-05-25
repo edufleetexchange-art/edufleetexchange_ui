@@ -135,8 +135,10 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
       // TODO: updateAccount only supports name/phone/avatar; institute-specific fields (instituteName, contactPerson, location) require a separate profile endpoint
       await updateAccount({ name: profileData.name, phone: profileData.phone });
       setIsEditingProfile(false);
+      toast.success('Profile updated');
     } catch (error) {
       console.error('Failed to update profile:', error);
+      toast.error('Failed to update profile');
     }
   };
 
@@ -317,7 +319,9 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
     );
   }
 
-  if (listingsLoading || jobsLoading || subscriptionLoading || loadingRecentApps) {
+  // loadingRecentApps is intentionally excluded here so the full dashboard renders while
+  // recent applications load in the background (see the listings tab section below).
+  if (listingsLoading || jobsLoading || subscriptionLoading) {
     return (
       <div className="min-h-screen bg-background py-8">
         <div className="container mx-auto px-4">
@@ -676,7 +680,11 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
           </div>
         ) : activeTab === 'listings' ? (
           <div className="space-y-8">
-            {isInstitute && recentApplications.length > 0 && (
+            {isInstitute && loadingRecentApps && (
+              <Skeleton className="w-full h-48 rounded-lg" />
+            )}
+
+            {isInstitute && !loadingRecentApps && recentApplications.length > 0 && (
               <Card className="border-primary/10 shadow-sm overflow-hidden">
                 <CardHeader className="bg-primary/5 pb-4">
                   <div className="flex items-center justify-between">

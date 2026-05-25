@@ -58,16 +58,19 @@ const formatExperience = (experience: any): string => {
   return String(experience);
 };
 
+const PAGE_SIZE = 20;
+
 export function TeacherJobBrowse() {
   const [searchTerm, setSearchTerm] = useState('');
   const [typeFilter, setTypeFilter] = useState<string>('all');
   const [locationFilter, setLocationFilter] = useState<string>('all');
+  const [subjectFilter, setSubjectFilter] = useState<string>('');
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadJobs();
-  }, [searchTerm, typeFilter, locationFilter]);
+  }, [searchTerm, typeFilter, locationFilter, subjectFilter]);
 
   const loadJobs = async () => {
     try {
@@ -76,7 +79,10 @@ export function TeacherJobBrowse() {
         searchTerm: searchTerm || undefined,
         type: typeFilter !== 'all' ? typeFilter as any : undefined,
         location: locationFilter !== 'all' ? locationFilter : undefined,
-        status: 'open'
+        department: subjectFilter || undefined,
+        status: 'open',
+        page: 1,
+        pageSize: PAGE_SIZE,
       });
       setJobs(response.data.items);
     } catch (error) {
@@ -132,6 +138,17 @@ export function TeacherJobBrowse() {
                 </div>
               </div>
 
+              {/* Subject / Department Filter */}
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Subject / Department..."
+                  value={subjectFilter}
+                  onChange={(e) => setSubjectFilter(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+
               {/* Type Filter */}
               <Select value={typeFilter} onValueChange={setTypeFilter}>
                 <SelectTrigger>
@@ -174,6 +191,7 @@ export function TeacherJobBrowse() {
             setSearchTerm('');
             setTypeFilter('all');
             setLocationFilter('all');
+            setSubjectFilter('');
           }}>
             Clear Filters
           </Button>

@@ -279,11 +279,12 @@ export function InstituteTeacherSearch() {
                         )}
                       </div>
 
-                      {/* Footer Actions Overlay */}
-                      <div className="absolute inset-x-0 bottom-0 p-3 translate-y-full group-hover:translate-y-0 transition-transform bg-background/95 backdrop-blur-sm border-t flex gap-2 z-10">
-                        <Button 
-                          variant="default" 
-                          size="sm" 
+                      {/* Footer Actions Overlay — visible by default on mobile, hover-reveal on desktop (issue 48) */}
+                      {/* TODO: Add a "Connect" / send-contact-request button once a backend endpoint exists (issue 40) */}
+                      <div className="absolute inset-x-0 bottom-0 p-3 translate-y-0 sm:translate-y-full sm:group-hover:translate-y-0 transition-transform bg-background/95 backdrop-blur-sm border-t flex gap-2 z-10">
+                        <Button
+                          variant="default"
+                          size="sm"
                           className="flex-1 text-xs h-7"
                           onClick={(e) => {
                             e.stopPropagation();
@@ -292,18 +293,6 @@ export function InstituteTeacherSearch() {
                           }}
                         >
                           View Profile
-                        </Button>
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="flex-1 text-xs h-7"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedTeacher(teacher);
-                            setIsConnectDialogOpen(true);
-                          }}
-                        >
-                          Connect
                         </Button>
                       </div>
                     </Card>
@@ -468,12 +457,7 @@ export function InstituteTeacherSearch() {
                 <Button variant="ghost" onClick={() => setIsConnectDialogOpen(false)}>
                   Close
                 </Button>
-                <Button onClick={() => {
-                  toast.success(`Connection request sent to ${selectedTeacher.name}`);
-                  setIsConnectDialogOpen(false);
-                }}>
-                  Send Connection Request
-                </Button>
+                {/* TODO: Wire "Send Connection Request" once backend endpoint is available (issue 40) */}
               </DialogFooter>
             </>
           ) : (
