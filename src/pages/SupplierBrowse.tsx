@@ -29,7 +29,7 @@ export function SupplierBrowse() {
     isVerified: undefined
   });
   const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null);
-  const [debounceTimer, setDebounceTimer] = useState<NodeJS.Timeout | null>(null);
+  const [debounceTimer, setDebounceTimer] = useState<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     // Clear previous timer if exists
@@ -222,7 +222,7 @@ export function SupplierBrowse() {
             {/* Loading & Results */}
             {loading ? (
               <div className="flex justify-center items-center py-20">
-                <Spinner size="lg" />
+                <Spinner className="size-8" />
               </div>
             ) : suppliers.length === 0 ? (
               <div className="text-center py-16 bg-muted/30 rounded-xl border border-dashed border-border">
@@ -278,7 +278,7 @@ export function SupplierBrowse() {
                     <div className="flex items-center gap-2">
                       {selectedSupplier.name}
                       {selectedSupplier.isVerified && (
-                        <CheckCircle className="w-5 h-5 text-green-500" title="Verified" />
+                        <span title="Verified"><CheckCircle className="w-5 h-5 text-green-500" /></span>
                       )}
                     </div>
                     <Badge variant="outline" className="text-xs mt-1">

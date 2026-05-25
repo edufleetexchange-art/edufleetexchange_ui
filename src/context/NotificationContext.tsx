@@ -169,7 +169,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
       const result = await deleteNotificationApi(notificationId);
       
       if (!result.success) {
-        throw new Error(result.error || 'Failed to delete notification');
+        throw new Error(result.message || 'Failed to delete notification');
       }
       console.log(`[NotificationContext] Successfully deleted notification ${notificationId}`);
     } catch (err: any) {

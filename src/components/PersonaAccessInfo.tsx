@@ -67,7 +67,7 @@ export function PersonaAccessInfo({ showDetails = true, compact = false }: Perso
       } else if (account?.role === 'teacher') {
         const jobAppAccess = await checkJobApplicationAccess();
         specific.jobApplication = jobAppAccess.data;
-      } else if (account?.role === 'vendor' || account?.role === 'supplier') {
+      } else if (account?.role === 'vendor') {
         const productAccess = await checkProductListingAccess();
         specific.product = productAccess.data;
       }

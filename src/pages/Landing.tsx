@@ -182,11 +182,11 @@ export function Landing() {
 
             {/* Search Button */}
             <div className="md:w-44 flex items-center">
-              <Button 
+              <Button
                 onClick={handleSearch}
-                variant="accent"
+                variant="default"
                 size="lg"
-                className="w-full font-bold text-base rounded-xl flex items-center justify-center gap-2 min-h-[58px] shadow-lg hover:shadow-accent/30 transition-all active:scale-95"
+                className="w-full font-bold text-base rounded-xl flex items-center justify-center gap-2 min-h-[58px] shadow-lg hover:shadow-accent/30 transition-all active:scale-95 bg-accent hover:bg-accent/90 text-accent-foreground"
               >
                 Search
                 <ArrowRight className="w-5 h-5" />

@@ -307,12 +307,14 @@ export default function MarketingDashboard() {
                             <div className="text-xs text-muted-foreground">{lead.phone}</div>
                           </TableCell>
                           <TableCell>
-                            <Badge variant={
-                              lead.status === 'closed' ? 'success' : 
-                              lead.status === 'lost' ? 'destructive' : 
-                              lead.status === 'new' ? 'secondary' :
-                              'outline'
-                            }>
+                            <Badge
+                              variant={
+                                lead.status === 'lost' ? 'destructive' :
+                                lead.status === 'new' ? 'secondary' :
+                                'outline'
+                              }
+                              className={lead.status === 'closed' ? 'bg-green-100 text-green-800' : ''}
+                            >
                               {lead.status.toUpperCase()}
                             </Badge>
                           </TableCell>

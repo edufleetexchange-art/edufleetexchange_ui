@@ -21,7 +21,7 @@ export function SupplierForm({ onSubmit, isLoading, initialData }: SupplierFormP
   const supplierCategoryLabels = getCategoryLabelsByType('supplier');
   const [formData, setFormData] = useState<CreateSupplierDto>({
     name: '',
-    category: '',
+    category: '' as CreateSupplierDto['category'],
     description: '',
     services: [],
     contactPerson: '',
@@ -44,7 +44,7 @@ export function SupplierForm({ onSubmit, isLoading, initialData }: SupplierFormP
     if (initialData) {
       setFormData({
         name: initialData.name || '',
-        category: initialData.category || '',
+        category: (initialData.category || '') as CreateSupplierDto['category'],
         description: initialData.description || '',
         services: initialData.services || [],
         contactPerson: initialData.contactPerson || '',
@@ -72,7 +72,7 @@ export function SupplierForm({ onSubmit, isLoading, initialData }: SupplierFormP
       if (categoryKeys.length > 0) {
         setFormData(prev => {
           if (prev.category) return prev; // already set, skip
-          return { ...prev, category: categoryKeys[0] };
+          return { ...prev, category: categoryKeys[0] as CreateSupplierDto['category'] };
         });
       }
     }

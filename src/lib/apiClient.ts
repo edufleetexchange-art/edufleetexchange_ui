@@ -2,6 +2,7 @@ import { API_CONFIG } from '../api/config';
 
 interface RequestOptions extends RequestInit {
   requiresAuth?: boolean;
+  params?: Record<string, string | number | boolean | undefined>;
 }
 
 export class APIError extends Error {

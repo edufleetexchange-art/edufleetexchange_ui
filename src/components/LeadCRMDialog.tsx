@@ -123,7 +123,10 @@ export function LeadCRMDialog({ lead, isOpen, onClose }: LeadCRMDialogProps) {
                 {lead?.instituteName || 'Individual Lead'} • {lead?.email} • {lead?.phone}
               </DialogDescription>
             </div>
-            <Badge variant={lead?.status === 'closed' ? 'success' : 'outline'}>
+            <Badge
+              variant="outline"
+              className={lead?.status === 'closed' ? 'bg-green-100 text-green-800' : ''}
+            >
               {lead?.status?.toUpperCase()}
             </Badge>
           </div>

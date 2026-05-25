@@ -1,4 +1,4 @@
-import { Vehicle } from '@/api/services/vehicleService';
+import { Vehicle } from '@/api/types';
 import { useAuth } from '@/context/AuthContext';
 import { useConfig } from '@/context/ConfigContext';
 import { useNavigate } from 'react-router-dom';

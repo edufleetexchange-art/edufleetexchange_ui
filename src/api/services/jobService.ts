@@ -23,6 +23,7 @@ export interface Job {
   benefits?: string[];
   postedDate?: string;
   postedAt?: string;
+  createdAt?: string;
   deadline?: string;
   status?: 'open' | 'closed';
   isPriority?: boolean;
@@ -172,6 +173,7 @@ export async function deleteJob(id: string): Promise<ApiResponse<void>> {
     await apiClient.delete(`/jobs/${id}`);
     return {
       success: true,
+      data: undefined as unknown as void,
       message: 'Job deleted successfully',
       timestamp: new Date().toISOString(),
     };
