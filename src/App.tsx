@@ -14,6 +14,7 @@ import { Login } from '@/pages/Login';
 import { Signup } from '@/pages/Signup';
 import { Dashboard } from '@/pages/Dashboard';
 import { TeacherSignup } from '@/pages/TeacherSignup';
+import { VendorSignup } from '@/pages/VendorSignup';
 import { TeacherDashboard } from '@/pages/TeacherDashboard';
 import { TeacherJobBrowse } from '@/pages/TeacherJobBrowse';
 import { TeacherJobDetails } from '@/pages/TeacherJobDetails';
@@ -83,6 +84,7 @@ function App() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/teacher/signup" element={<TeacherSignup />} />
+                <Route path="/vendor/signup" element={<VendorSignup />} />
                 <Route path="/teacher/jobs" element={<TeacherJobBrowse />} />
                 <Route path="/teacher/job/:id" element={<TeacherJobDetails />} />
                 <Route path="/advertise" element={<Advertise />} />

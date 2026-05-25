@@ -15,9 +15,11 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Search, MapPin, BookOpen, Briefcase, Mail, Phone, GraduationCap, Award } from 'lucide-react';
+import { Search, MapPin, BookOpen, Briefcase, Mail, Phone, GraduationCap, Award, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { getTeachers, type TeacherFilters, type Teacher } from '@/api/services/teacherService';
+import { checkBrowseLimit, incrementBrowseCount } from '@/api/services/subscriptionEnforcement';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 export function InstituteTeacherSearch() {
   const { account } = useAuth();
@@ -33,12 +35,33 @@ export function InstituteTeacherSearch() {
   
   const [selectedTeacher, setSelectedTeacher] = useState<Teacher | null>(null);
   const [isConnectDialogOpen, setIsConnectDialogOpen] = useState(false);
+  const [browseLimitReached, setBrowseLimitReached] = useState(false);
 
-  // Fetch teachers on mount
+  // sessionStorage deduplication helpers
+  const SESSION_KEY = 'browsed-teachers';
+  function alreadyBrowsed(id: string): boolean {
+    const set = new Set<string>(JSON.parse(sessionStorage.getItem(SESSION_KEY) ?? '[]'));
+    return set.has(id);
+  }
+  function markBrowsed(id: string) {
+    const set = new Set<string>(JSON.parse(sessionStorage.getItem(SESSION_KEY) ?? '[]'));
+    set.add(id);
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify([...set]));
+  }
+
+  // Fetch teachers on mount (guarded by browse limit check)
   useEffect(() => {
     const fetchTeachers = async () => {
       try {
         setLoading(true);
+
+        // Enforce quota before fetching
+        const limitCheck = await checkBrowseLimit();
+        if (limitCheck.data?.allowed === false) {
+          setBrowseLimitReached(true);
+          return;
+        }
+
         const response = await getTeachers({ role: 'teacher' } as TeacherFilters);
         
         if (response.success && response.data) {
@@ -137,6 +160,23 @@ export function InstituteTeacherSearch() {
             Find and connect with qualified teachers who have enabled searchability
           </p>
         </div>
+
+        {/* Browse quota banner */}
+        {browseLimitReached && (
+          <Alert variant="destructive" className="mb-6">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Monthly browse limit reached</AlertTitle>
+            <AlertDescription className="flex flex-col sm:flex-row sm:items-center gap-3 mt-1">
+              <span>You've reached your monthly browse limit. Upgrade your plan to see more teachers.</span>
+              <a
+                href="/#pricing"
+                className="inline-flex items-center justify-center rounded-md bg-destructive-foreground text-destructive px-4 py-1.5 text-sm font-semibold hover:opacity-90 transition-opacity whitespace-nowrap"
+              >
+                Upgrade Plan
+              </a>
+            </AlertDescription>
+          </Alert>
+        )}
 
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Sidebar Filters */}
@@ -288,6 +328,11 @@ export function InstituteTeacherSearch() {
                           className="flex-1 text-xs h-7"
                           onClick={(e) => {
                             e.stopPropagation();
+                            const teacherId = teacher._id || teacher.id || '';
+                            if (teacherId && !alreadyBrowsed(teacherId)) {
+                              markBrowsed(teacherId);
+                              incrementBrowseCount();
+                            }
                             setSelectedTeacher(teacher);
                             setIsConnectDialogOpen(true);
                           }}
