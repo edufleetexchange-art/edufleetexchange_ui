@@ -58,6 +58,7 @@ export default function MarketingDashboard() {
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<any>(null);
   const [leads, setLeads] = useState<any[]>([]);
+  const [leadSearch, setLeadSearch] = useState('');
   const [auditLogs, setAuditLogs] = useState<any[]>([]);
   const [isLeadDialogOpen, setIsLeadDialogOpen] = useState(false);
   const [isCRMDialogOpen, setIsCRMDialogOpen] = useState(false);
@@ -262,16 +263,36 @@ export default function MarketingDashboard() {
 
       {/* Tab Content */}
       <div className="space-y-6">
-        {activeTab === 'leads' && (
+        {activeTab === 'leads' && (() => {
+          const q = leadSearch.trim().toLowerCase();
+          const filteredLeads = q
+            ? leads.filter((lead) =>
+                [lead.name, lead.email, lead.phone, lead.instituteName, lead.type, lead.status]
+                  .filter(Boolean)
+                  .some((v: any) => String(v).toLowerCase().includes(q))
+              )
+            : leads;
+          return (
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
                 <CardTitle>Generated Leads</CardTitle>
                 <CardDescription>All potential customers you've identified. Sales team will pick these up to close deals.</CardDescription>
               </div>
-              <Badge variant="outline" className="h-fit">Total: {leads.length}</Badge>
+              <Badge variant="outline" className="h-fit">
+                Total: {q ? `${filteredLeads.length} / ${leads.length}` : leads.length}
+              </Badge>
             </CardHeader>
             <CardContent>
+              <div className="mb-4">
+                <Input
+                  type="search"
+                  placeholder="Search leads by name, email, phone, institute, type, or status…"
+                  value={leadSearch}
+                  onChange={(e) => setLeadSearch(e.target.value)}
+                  aria-label="Search leads"
+                />
+              </div>
               <div className="rounded-md border">
                 <Table>
                   <TableHeader>
@@ -285,8 +306,8 @@ export default function MarketingDashboard() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {leads.length > 0 ? (
-                      leads.map((lead) => (
+                    {filteredLeads.length > 0 ? (
+                      filteredLeads.map((lead) => (
                         <TableRow key={lead._id} className="hover:bg-muted/50 transition-colors">
                           <TableCell>
                             <div className="font-semibold text-foreground">{lead.name}</div>
@@ -352,7 +373,8 @@ export default function MarketingDashboard() {
               </div>
             </CardContent>
           </Card>
-        )}
+          );
+        })()}
 
         {activeTab === 'audit' && (
           <Card>
