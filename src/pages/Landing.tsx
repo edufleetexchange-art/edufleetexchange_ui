@@ -243,9 +243,9 @@ export function Landing() {
         <AdSlot placement="LP_TOP_BANNER" variant="banner" />
       </div>
 
-          {/* Feature Section 1: Vehicles - Hidden for Teachers */}
-          {!isTeacher && (
-            <motion.section 
+          {/* Feature Section 1: Vehicles - Hidden for Teachers + hidden when no listings */}
+          {!isTeacher && (priorityLoading || priorityListings.length > 0) && (
+            <motion.section
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-100px" }}
@@ -295,8 +295,9 @@ export function Landing() {
             </motion.section>
           )}
 
-          {/* Feature Section 2: Jobs */}
-          <motion.section 
+          {/* Feature Section 2: Jobs — hidden when no jobs */}
+          {(jobsLoading || featuredJobs.length > 0) && (
+          <motion.section
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
@@ -348,9 +349,10 @@ export function Landing() {
               </div>
             </div>
           </motion.section>
+          )}
 
-          {/* Feature Section 3: Suppliers - Hidden for Teachers */}
-          {!isTeacher && (
+          {/* Feature Section 3: Suppliers - Hidden for Teachers + hidden when no suppliers */}
+          {!isTeacher && (suppliersLoading || featuredSuppliers.length > 0) && (
             <motion.section 
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
