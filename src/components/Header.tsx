@@ -13,7 +13,7 @@ import { NotificationBell } from '@/components/NotificationBell';
 import { Badge } from '@/components/ui/badge';
 
 export function Header() {
-  const { user, logout } = useAuth();
+  const { account: user, subscription, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -223,10 +223,10 @@ export function Header() {
                       <div className="px-3 py-2.5 border-b border-border">
                         <div className="flex items-center justify-between mb-1">
                           <div className="text-sm font-semibold text-foreground truncate max-w-[140px]">{user.name}</div>
-                          {user.subscription?.planId?.displayName && (
+                          {subscription?.planId && (
                             <Badge variant="outline" className="text-[10px] h-5 bg-primary/5 text-primary border-primary/20 px-1.5 flex items-center gap-1 border-beam">
                               <Crown className="w-2.5 h-2.5" />
-                              {(user.subscription.planId as any).displayName}
+                              {(subscription.planId as any).displayName ?? subscription.planId}
                             </Badge>
                           )}
                         </div>

@@ -1,12 +1,16 @@
-import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
-import { authService, User } from '@/api/services/authService';
-import { 
-  getUserSubscription, 
-  getActiveSubscriptionPlans, 
-  getSubscriptionUsageStats 
-} from '@/api/services/subscriptionService';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { authService } from '@/api/services/authService';
+import type {
+  Account,
+  Profile,
+  Subscription,
+  InstituteSignupRequest,
+  TeacherSignupRequest,
+  VendorSignupRequest,
+} from '@/api/types';
 import { toast } from 'sonner';
 
+// Back-compat shim type so legacy `TeacherSignupData` consumers keep working.
 export interface TeacherSignupData {
   name: string;
   email: string;
@@ -17,25 +21,38 @@ export interface TeacherSignupData {
   subjects: string[];
   bio?: string;
   location: string;
+  instituteSearchability?: boolean;
+  planId?: string;
 }
 
 interface AuthContextType {
-  user: User | null;
+  account: Account | null;
+  profile: Profile | null;
+  subscription: Subscription | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  subscription: {
-    data: any;
-    plans: any[];
-    stats: any;
-    loading: boolean;
-  };
-  login: (email: string, password: string, otp?: string) => Promise<User>;
-  signup: (name: string, email: string, password: string, instituteName: string, contactPerson: string, instituteCode: string, phone: string, planId?: string) => Promise<void>;
-  signupTeacher: (data: TeacherSignupData & { planId?: string }) => Promise<void>;
-  signupSupplier: (data: any & { planId?: string }) => Promise<void>;
-  updateProfile: (data: Partial<User>) => Promise<void>;
-  refreshProfile: () => Promise<void>;
+  // Methods (new names)
+  login: (email: string, password: string) => Promise<Account>;
+  signupInstitute: (input: InstituteSignupRequest) => Promise<void>;
+  signupTeacher: (input: TeacherSignupRequest | TeacherSignupData) => Promise<void>;
+  signupVendor: (input: VendorSignupRequest) => Promise<void>;
+  updateAccount: (updates: Partial<Pick<Account, 'name' | 'phone' | 'avatar'>>) => Promise<void>;
   logout: () => Promise<void>;
+  refresh: () => Promise<void>;
+  // Back-compat methods (Task 21 cleans up consumer call-sites)
+  signup: (
+    name: string,
+    email: string,
+    password: string,
+    instituteName: string,
+    contactPerson: string,
+    _instituteCode: string,
+    phone: string,
+    _planId?: string,
+  ) => Promise<void>;
+  signupSupplier: (data: VendorSignupRequest & { planId?: string }) => Promise<void>;
+  updateProfile: (data: Partial<Account>) => Promise<void>;
+  refreshProfile: () => Promise<void>;
   getToken: () => string | null;
   refreshToken: () => Promise<void>;
   refreshSubscription: () => Promise<void>;
@@ -45,351 +62,250 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [account, setAccount] = useState<Account | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [subscription, setSubscription] = useState<{
-    data: any;
-    plans: any[];
-    stats: any;
-    loading: boolean;
-    hasLoaded: boolean;
-  }>({
-    data: null,
-    plans: [],
-    stats: null,
-    loading: false,
-    hasLoaded: false
-  });
 
-  const isFetchingSubscription = useRef(false);
+  const applyBundle = useCallback(
+    (b: { account: Account; profile: Profile | null; subscription: Subscription | null } | null) => {
+      setAccount(b?.account ?? null);
+      setProfile(b?.profile ?? null);
+      setSubscription(b?.subscription ?? null);
+    },
+    [],
+  );
 
-  const loadSubscriptionData = useCallback(async (userId: string, force = false, userRole?: string) => {
-    // Guard against undefined/null userId
-    if (!userId) {
-      console.warn('[AuthContext] loadSubscriptionData called with no userId');
-      return;
-    }
-    
-    // Company roles (admin, sales, marketing) don't need subscriptions
-    if (userRole === 'admin' || userRole === 'sales' || userRole === 'marketing') {
-      setSubscription({ data: null, plans: [], stats: null, loading: false, hasLoaded: true });
-      return;
-    }
-    
-    // If already fetching and not forced, don't trigger another fetch
-    if (isFetchingSubscription.current && !force) return;
-    
-    // Use a ref-based check to avoid stale closure issues
-    // We'll use a promise-based pattern to get current state
-    let shouldFetch = force;
-    
-    if (!force) {
-      // Check current state synchronously using a getter pattern
-      await new Promise<void>((resolve) => {
-        setSubscription(prev => {
-          if (prev.hasLoaded) {
-            shouldFetch = false;
-          } else {
-            shouldFetch = true;
-          }
-          resolve();
-          return { ...prev, loading: shouldFetch };
-        });
-      });
-      
-      if (!shouldFetch) return;
-    } else {
-      // Force mode - mark as loading
-      setSubscription(prev => ({ ...prev, loading: true }));
-    }
+  const refresh = useCallback(async () => {
+    const bundle = await authService.me();
+    applyBundle(bundle);
+  }, [applyBundle]);
 
-    try {
-      isFetchingSubscription.current = true;
-      
-      // Determine planType based on user role
-      let planType: 'teacher' | 'institute' | 'vendor' | undefined;
-      if (userRole === 'teacher') {
-        planType = 'teacher';
-      } else if (userRole === 'institute') {
-        planType = 'institute';
-      } else if (userRole === 'vendor') {
-        planType = 'vendor';
-      }
-      
-      // Fetch each piece of data independently to ensure one failure doesn't block others
-      const [subscriptionResponse, plansResponse, statsResponse] = await Promise.allSettled([
-        getUserSubscription(userId),
-        getActiveSubscriptionPlans(force, planType), // Pass planType to filter plans
-        getSubscriptionUsageStats(userId)
-      ]);
-
-      setSubscription({
-        data: subscriptionResponse.status === 'fulfilled' && subscriptionResponse.value.success 
-          ? subscriptionResponse.value.data 
-          : null,
-        plans: plansResponse.status === 'fulfilled' && plansResponse.value.success 
-          ? plansResponse.value.data 
-          : [],
-        stats: statsResponse.status === 'fulfilled' && statsResponse.value.success 
-          ? statsResponse.value.data 
-          : null,
-        loading: false,
-        hasLoaded: true
-      });
-    } catch (error) {
-      console.error('Failed to load subscription data:', error);
-      setSubscription(prev => ({ ...prev, loading: false, hasLoaded: true }));
-    } finally {
-      isFetchingSubscription.current = false;
-    }
-  }, []);
-
-  const refreshSubscription = useCallback(async () => {
-    if (user?.id) {
-      await loadSubscriptionData(user.id, true, user.role);
-    }
-  }, [user?.id, user?.role, loadSubscriptionData]);
-
-  // Initialize auth state on mount
   useEffect(() => {
-    const initAuth = async () => {
+    (async () => {
       try {
-        const storedUser = authService.getStoredUser();
         const token = authService.getStoredToken();
-
         if (token) {
-          try {
-            // Get fresh user data instead of just validating
-            const freshUser = await authService.getCurrentUser();
-            if (freshUser) {
-              setUser(freshUser);
-              // Update local storage with fresh data
-              localStorage.setItem('user', JSON.stringify(freshUser));
-              // Fetch subscription data immediately after restoring session
-              loadSubscriptionData(freshUser.id, true, freshUser.role);
-            } else {
-              throw new Error('No user data returned');
-            }
-          } catch (error) {
-            console.error('Token validation failed:', error);
-            // Token invalid or request failed, clear storage
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
-            setUser(null);
-          }
-        } else {
-          // No token, clear any stale user data
-          setUser(null);
-          localStorage.removeItem('user');
+          const bundle = await authService.me();
+          applyBundle(bundle);
         }
-      } catch (error) {
-        console.error('Failed to restore session:', error);
       } finally {
         setIsLoading(false);
       }
-    };
+    })();
+  }, [applyBundle]);
 
-    initAuth();
-  }, [loadSubscriptionData]);
-
-  const login = async (email: string, password: string, otp?: string) => {
-    try {
+  const login = useCallback(
+    async (email: string, password: string) => {
       setIsLoading(true);
-      // Traditional login (OTP verification can be added later if needed)
-      const response = await authService.login({ email, password });
-      
-      setUser(response.user);
-      // Fetch subscription data after login
-      loadSubscriptionData(response.user.id, true, response.user.role);
-      toast.success('Login successful');
-      return response.user;
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Login failed';
-      toast.error(message);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  };
+      try {
+        const bundle = await authService.login({ email, password });
+        applyBundle(bundle);
+        toast.success('Login successful');
+        return bundle.account;
+      } catch (e) {
+        const message = e instanceof Error ? e.message : 'Login failed';
+        toast.error(message);
+        throw e;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [applyBundle],
+  );
 
-  const signup = async (
-    name: string, 
-    email: string, 
-    password: string, 
-    instituteName: string, 
-    contactPerson: string, 
-    instituteCode: string, 
-    phone: string,
-    planId?: string
-  ) => {
-    try {
+  const signupInstitute = useCallback(
+    async (input: InstituteSignupRequest) => {
       setIsLoading(true);
-      // Traditional signup (OTP verification can be added later if needed)
-      const response = await authService.signup({
+      try {
+        const bundle = await authService.signupInstitute(input);
+        applyBundle(bundle);
+        toast.success('Institute signup successful');
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : 'Signup failed');
+        throw e;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [applyBundle],
+  );
+
+  const signupTeacher = useCallback(
+    async (input: TeacherSignupRequest | TeacherSignupData) => {
+      setIsLoading(true);
+      try {
+        // Normalize: TeacherSignupData (legacy) has `instituteSearchability` and required `location`;
+        // TeacherSignupRequest has optional `location` and no `instituteSearchability`. The server
+        // accepts the request shape; we just drop unknown fields.
+        const req: TeacherSignupRequest = {
+          name: input.name,
+          email: input.email,
+          password: input.password,
+          phone: (input as any).phone,
+          experience: input.experience,
+          qualifications: input.qualifications,
+          subjects: input.subjects,
+          bio: input.bio,
+          location: (input as any).location,
+          preferredLocation: (input as any).preferredLocation,
+          isAvailable: (input as any).isAvailable,
+        };
+        const bundle = await authService.signupTeacher(req);
+        applyBundle(bundle);
+        toast.success('Teacher signup successful');
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : 'Signup failed');
+        throw e;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [applyBundle],
+  );
+
+  const signupVendor = useCallback(
+    async (input: VendorSignupRequest) => {
+      setIsLoading(true);
+      try {
+        const bundle = await authService.signupVendor(input);
+        applyBundle(bundle);
+        toast.success('Vendor signup successful');
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : 'Signup failed');
+        throw e;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [applyBundle],
+  );
+
+  // Back-compat: old signup signature used by `Signup.tsx`
+  const signup = useCallback(
+    async (
+      name: string,
+      email: string,
+      password: string,
+      instituteName: string,
+      contactPerson: string,
+      _instituteCode: string,
+      phone: string,
+      _planId?: string,
+    ) => {
+      await signupInstitute({
         name,
         email,
         password,
-        role: 'institute',
+        phone,
         instituteName,
         contactPerson,
-        instituteCode,
-        phone,
-        planId
+        address: { street: '', city: '', state: '', pincode: '', country: 'India' },
       });
-      
-      setUser(response.user);
-      // Fetch subscription data after signup
-      loadSubscriptionData(response.user.id, true, response.user.role);
-      toast.success('Signup successful');
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Signup failed';
-      toast.error(message);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    },
+    [signupInstitute],
+  );
 
-  const signupTeacher = async (data: TeacherSignupData & { instituteSearchability?: boolean; planId?: string }) => {
-    try {
-      setIsLoading(true);
-      const response = await authService.signupTeacher({
+  const signupSupplier = useCallback(
+    async (data: VendorSignupRequest & { planId?: string }) => {
+      // planId silently dropped — server picks the free vendor plan by default.
+      const { planId: _planId, ...rest } = data;
+      await signupVendor(rest);
+    },
+    [signupVendor],
+  );
+
+  const updateAccount = useCallback(
+    async (updates: Partial<Pick<Account, 'name' | 'phone' | 'avatar'>>) => {
+      const updated = await authService.updateAccount(updates);
+      setAccount(updated);
+      toast.success('Account updated');
+    },
+    [],
+  );
+
+  // Back-compat: old updateProfile signature accepted arbitrary partial-User data
+  const updateProfile = useCallback(
+    async (data: Partial<Account>) => {
+      await updateAccount({
         name: data.name,
-        email: data.email,
-        password: data.password,
         phone: data.phone,
-        qualifications: data.qualifications,
-        experience: data.experience,
-        subjects: data.subjects,
-        bio: data.bio,
-        location: data.location,
-        instituteSearchability: data.instituteSearchability || false,
-        planId: data.planId
+        avatar: data.avatar,
       });
-      setUser(response.user);
-      // Fetch subscription data after teacher signup
-      loadSubscriptionData(response.user.id, true, response.user.role);
-      toast.success('Teacher signup successful');
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Signup failed';
-      toast.error(message);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const signupSupplier = async (data: any & { planId?: string }) => {
-    try {
-      setIsLoading(true);
-      const response = await authService.signup({
-        ...data,
-        role: 'vendor',
-      });
-      setUser(response.user);
-      // Fetch subscription data after signup
-      loadSubscriptionData(response.user.id, true, response.user.role);
-      toast.success('Supplier signup successful');
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Signup failed';
-      toast.error(message);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const updateProfile = async (data: Partial<User>) => {
-    try {
-      if (!user) return;
-      
-      const response = await authService.updateProfile(data);
-      setUser(response);
-      localStorage.setItem('user', JSON.stringify(response));
-      
-      toast.success('Profile updated successfully');
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Update failed';
-      toast.error(message);
-      throw error;
-    }
-  };
+    },
+    [updateAccount],
+  );
 
   const refreshProfile = useCallback(async () => {
+    await refresh();
+  }, [refresh]);
+
+  const logout = useCallback(async () => {
+    setIsLoading(true);
     try {
-      const profile = await authService.getProfile();
-      setUser(profile);
-      localStorage.setItem('user', JSON.stringify(profile));
-    } catch (error) {
-      console.error('Failed to refresh profile:', error);
+      await authService.logout();
+      setAccount(null);
+      setProfile(null);
+      setSubscription(null);
+      toast.success('Logged out');
+    } finally {
+      setIsLoading(false);
     }
   }, []);
 
-  const logout = async () => {
-    try {
-      setIsLoading(true);
-      await authService.logout();
-      setUser(null);
-      setSubscription({ data: null, plans: [], stats: null, loading: false, hasLoaded: false });
-      toast.success('Logged out successfully');
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Logout failed';
-      toast.error(message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const getToken = useCallback(() => authService.getStoredToken(), []);
 
-  const getToken = (): string | null => {
-    return authService.getStoredToken();
-  };
+  const refreshToken = useCallback(async () => {
+    const valid = await authService.validateToken();
+    if (!valid) await logout();
+  }, [logout]);
 
-  const refreshToken = async () => {
-    try {
-      // Validate token instead of refreshing (refresh can be added if backend supports it)
-      const isValid = await authService.validateToken();
-      if (!isValid) {
-        await logout();
-      }
-    } catch (error) {
-      console.error('Token validation failed:', error);
-      await logout();
-    }
-  };
+  const refreshSubscription = useCallback(async () => {
+    const bundle = await authService.me();
+    setSubscription(bundle?.subscription ?? null);
+  }, []);
 
-  const ensureSubscription = useCallback((force?: boolean) => {
-    if (user?.id) {
-      return loadSubscriptionData(user.id, force, user.role);
-    }
-  }, [user?.id, user?.role, loadSubscriptionData]);
+  const ensureSubscription = useCallback(
+    (force?: boolean) => {
+      if (!account?.id) return undefined;
+      if (!force && subscription) return undefined;
+      return refreshSubscription();
+    },
+    [account?.id, subscription, refreshSubscription],
+  );
 
   return (
-    <AuthContext.Provider value={{ 
-      user, 
-      isAuthenticated: !!user, 
-      isLoading,
-      subscription,
-      login, 
-      signup, 
-      signupTeacher, 
-      signupSupplier,
-      updateProfile, 
-      refreshProfile,
-      logout,
-      getToken,
-      refreshToken,
-      refreshSubscription,
-      ensureSubscription
-    }}>
+    <AuthContext.Provider
+      value={{
+        account,
+        profile,
+        subscription,
+        isAuthenticated: !!account,
+        isLoading,
+        login,
+        signupInstitute,
+        signupTeacher,
+        signupVendor,
+        signup,
+        signupSupplier,
+        updateAccount,
+        updateProfile,
+        refreshProfile,
+        logout,
+        refresh,
+        getToken,
+        refreshToken,
+        refreshSubscription,
+        ensureSubscription,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
 };
 
 export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within AuthProvider');
-  }
-  return context;
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error('useAuth must be used within AuthProvider');
+  return ctx;
 };

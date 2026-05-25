@@ -32,10 +32,10 @@ const setMockBrowseCount = (count: number) => {
 
 export const checkBrowseLimit = async (): Promise<ApiResponse<BrowseCheckResult>> => {
   try {
-    const response = await apiClient.get('/subscriptions/check/browse-limit');
+    const response = await apiClient.get<BrowseCheckResult>('/subscriptions/check/browse-limit');
     return {
       success: true,
-      data: response.data,
+      data: response,
       timestamp: new Date().toISOString(),
     };
   } catch (error: any) {
@@ -60,11 +60,11 @@ export const checkBrowseLimit = async (): Promise<ApiResponse<BrowseCheckResult>
 
 export const incrementBrowseCount = async (): Promise<ApiResponse<{ success: boolean }>> => {
   try {
-    const response = await apiClient.post('/subscriptions/increment/browse-count');
+    const response = await apiClient.post<{ success: boolean; message?: string }>('/subscriptions/increment/browse-count');
     return {
       success: true,
-      data: { success: response.data.success },
-      message: response.data.message,
+      data: { success: response.success },
+      message: response.message,
       timestamp: new Date().toISOString(),
     };
   } catch (error: any) {
@@ -87,10 +87,10 @@ export const incrementBrowseCount = async (): Promise<ApiResponse<{ success: boo
 
 export const checkListingLimit = async (): Promise<ApiResponse<ListingCheckResult>> => {
   try {
-    const response = await apiClient.get('/subscriptions/check/listing-limit');
+    const response = await apiClient.get<ListingCheckResult>('/subscriptions/check/listing-limit');
     return {
       success: true,
-      data: response.data,
+      data: response,
       timestamp: new Date().toISOString(),
     };
   } catch (error: any) {
@@ -116,11 +116,11 @@ export const checkListingLimit = async (): Promise<ApiResponse<ListingCheckResul
 
 export const incrementListingCount = async (): Promise<ApiResponse<{ success: boolean }>> => {
   try {
-    const response = await apiClient.post('/subscriptions/increment/listing-count');
+    const response = await apiClient.post<{ success: boolean; message?: string }>('/subscriptions/increment/listing-count');
     return {
       success: true,
-      data: { success: response.data.success },
-      message: response.data.message,
+      data: { success: response.success },
+      message: response.message,
       timestamp: new Date().toISOString(),
     };
   } catch (error: any) {
@@ -140,11 +140,11 @@ export const incrementListingCount = async (): Promise<ApiResponse<{ success: bo
 
 export const decrementListingCount = async (): Promise<ApiResponse<{ success: boolean }>> => {
   try {
-    const response = await apiClient.post('/subscriptions/decrement/listing-count');
+    const response = await apiClient.post<{ success: boolean; message?: string }>('/subscriptions/decrement/listing-count');
     return {
       success: true,
-      data: { success: response.data.success },
-      message: response.data.message,
+      data: { success: response.success },
+      message: response.message,
       timestamp: new Date().toISOString(),
     };
   } catch (error: any) {
@@ -168,10 +168,10 @@ export const decrementListingCount = async (): Promise<ApiResponse<{ success: bo
 
 export const checkJobPostLimit = async (): Promise<ApiResponse<JobPostCheckResult>> => {
   try {
-    const response = await apiClient.get('/subscriptions/check/job-post-limit');
+    const response = await apiClient.get<JobPostCheckResult>('/subscriptions/check/job-post-limit');
     return {
       success: true,
-      data: response.data,
+      data: response,
       timestamp: new Date().toISOString(),
     };
   } catch (error: any) {
@@ -197,11 +197,11 @@ export const checkJobPostLimit = async (): Promise<ApiResponse<JobPostCheckResul
 
 export const incrementJobPostCount = async (): Promise<ApiResponse<{ success: boolean }>> => {
   try {
-    const response = await apiClient.post('/subscriptions/increment/job-post-count');
+    const response = await apiClient.post<{ success: boolean; message?: string }>('/subscriptions/increment/job-post-count');
     return {
       success: true,
-      data: { success: response.data.success },
-      message: response.data.message,
+      data: { success: response.success },
+      message: response.message,
       timestamp: new Date().toISOString(),
     };
   } catch (error: any) {
@@ -221,11 +221,11 @@ export const incrementJobPostCount = async (): Promise<ApiResponse<{ success: bo
 
 export const decrementJobPostCount = async (): Promise<ApiResponse<{ success: boolean }>> => {
   try {
-    const response = await apiClient.post('/subscriptions/decrement/job-post-count');
+    const response = await apiClient.post<{ success: boolean; message?: string }>('/subscriptions/decrement/job-post-count');
     return {
       success: true,
-      data: { success: response.data.success },
-      message: response.data.message,
+      data: { success: response.success },
+      message: response.message,
       timestamp: new Date().toISOString(),
     };
   } catch (error: any) {
@@ -251,10 +251,10 @@ export const checkListingVisibility = async (
   listingId: string
 ): Promise<ApiResponse<VisibilityCheckResult>> => {
   try {
-    const response = await apiClient.get(`/subscriptions/check/listing-visibility/${listingId}`);
+    const response = await apiClient.get<VisibilityCheckResult>(`/subscriptions/check/listing-visibility/${listingId}`);
     return {
       success: true,
-      data: response.data,
+      data: response,
       timestamp: new Date().toISOString(),
     };
   } catch (error: any) {
@@ -263,8 +263,9 @@ export const checkListingVisibility = async (
       success: true,
       data: {
         visible: true,
+        delayHours: 0,
+        availableAt: new Date().toISOString(),
         subscription: null,
-        message: 'Listing is visible (Mock)',
       },
       message: 'Mock visibility check',
       timestamp: new Date().toISOString(),
@@ -284,10 +285,10 @@ export const getSubscriptionStatus = async (): Promise<
   }>
 > => {
   try {
-    const response = await apiClient.get('/subscriptions/status');
+    const response = await apiClient.get<{ plan: string; features: Record<string, any>; expiresAt: string | null }>('/subscriptions/status');
     return {
       success: true,
-      data: response.data,
+      data: response,
       timestamp: new Date().toISOString(),
     };
   } catch (error: any) {
@@ -321,10 +322,10 @@ export const getUsageStats = async (): Promise<
   }>
 > => {
   try {
-    const response = await apiClient.get('/subscriptions/usage-stats');
+    const response = await apiClient.get<{ browse: { used: number; limit: number }; listings: { used: number; limit: number }; jobPosts: { used: number; limit: number } }>('/subscriptions/usage-stats');
     return {
       success: true,
-      data: response.data,
+      data: response,
       timestamp: new Date().toISOString(),
     };
   } catch (error: any) {

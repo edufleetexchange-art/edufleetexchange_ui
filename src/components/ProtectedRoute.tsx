@@ -7,7 +7,7 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) {
-  const { user, isLoading } = useAuth();
+  const { account, isLoading } = useAuth();
 
   // Show loading state while AuthContext is initializing/validating
   if (isLoading) {
@@ -19,14 +19,14 @@ export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) 
   }
 
   // Not authenticated - redirect to login
-  if (!user) {
+  if (!account) {
     return <Navigate to="/login" replace />;
   }
 
   // Check required role
   if (requiredRole) {
     const roles = Array.isArray(requiredRole) ? requiredRole : [requiredRole];
-    if (!roles.includes(user.role)) {
+    if (!roles.includes(account.role)) {
       return <Navigate to="/" replace />;
     }
   }

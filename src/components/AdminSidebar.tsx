@@ -25,9 +25,9 @@ interface AdminSidebarProps {
 
 export function AdminSidebar({ pendingVehicles, pendingSuppliers }: AdminSidebarProps) {
   const location = useLocation();
-  const { user } = useAuth();
+  const { account } = useAuth();
 
-  const isInternalAccount = user?.role === 'admin' || user?.role === 'sales' || user?.role === 'marketing';
+  const isInternalAccount = account?.role === 'admin' || account?.role === 'sales' || account?.role === 'marketing';
 
   const internalNavItems = [
     {
@@ -186,11 +186,11 @@ export function AdminSidebar({ pendingVehicles, pendingSuppliers }: AdminSidebar
       <div className="px-6 py-4 border-b border-border">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
-            {user?.name?.[0] || 'U'}
+            {account?.name?.[0] || 'U'}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold truncate">{user?.name}</p>
-            <p className="text-xs text-muted-foreground truncate uppercase">{user?.role}</p>
+            <p className="text-sm font-semibold truncate">{account?.name}</p>
+            <p className="text-xs text-muted-foreground truncate uppercase">{account?.role}</p>
           </div>
         </div>
       </div>

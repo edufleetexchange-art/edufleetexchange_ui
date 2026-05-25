@@ -20,7 +20,7 @@ import { toast } from 'sonner';
 import { getTeachers, type TeacherFilters, type Teacher } from '@/api/services/teacherService';
 
 export function InstituteTeacherSearch() {
-  const { user } = useAuth();
+  const { account } = useAuth();
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [filteredTeachers, setFilteredTeachers] = useState<Teacher[]>([]);
   const [loading, setLoading] = useState(true);
@@ -112,7 +112,7 @@ export function InstituteTeacherSearch() {
     setFilteredTeachers(filtered);
   }, [teachers, searchTerm, locationFilter, subjectFilter, availabilityFilter]);
 
-  if (!user || user.role !== 'institute') {
+  if (!account || account.role !== 'institute') {
     return (
       <div className="min-h-screen bg-background py-12">
         <div className="container mx-auto px-4">

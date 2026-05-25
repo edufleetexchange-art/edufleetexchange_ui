@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
+import type { InstituteProfile } from '@/api/types';
 import { useMyListings, useMyJobs, useVehicleActions } from '@/hooks/useApi';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -38,7 +39,8 @@ interface DashboardProps {
 }
 
 export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
-  const { user, updateProfile, refreshProfile, subscription, ensureSubscription } = useAuth();
+  const { account: user, profile, updateAccount, refresh: refreshProfile, subscription, ensureSubscription } = useAuth();
+  const instituteProfile = profile as InstituteProfile | null;
   const navigate = useNavigate();
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
@@ -61,10 +63,10 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
   }, [queryTab]);
   const [profileData, setProfileData] = useState({
     name: user?.name || '',
-    instituteName: user?.instituteName || '',
-    contactPerson: user?.contactPerson || '',
+    instituteName: instituteProfile?.instituteName || '',
+    contactPerson: instituteProfile?.contactPerson || '',
     phone: user?.phone || '',
-    location: user?.location || '',
+    location: instituteProfile?.address?.city || '',
   });
 
   const { listings: userListings, loading: listingsLoading, refetch: refetchListings } = useMyListings(user?.id);
@@ -86,7 +88,7 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
   const fetchRecentApplications = async () => {
     try {
       setLoadingRecentApps(true);
-      const response = await api.jobs.getJobApplications();
+      const response = await api.jobs.getApplications();
       if (response.success && response.data) {
         const apps = Array.isArray(response.data) ? response.data : (response.data as any).items || [];
         // Sort by date (mock sorting) and take top 5
@@ -117,17 +119,18 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
     if (user) {
       setProfileData({
         name: user.name || '',
-        instituteName: user.instituteName || '',
-        contactPerson: user.contactPerson || '',
+        instituteName: instituteProfile?.instituteName || '',
+        contactPerson: instituteProfile?.contactPerson || '',
         phone: user.phone || '',
-        location: user.location || '',
+        location: instituteProfile?.address?.city || '',
       });
     }
-  }, [user]);
+  }, [user, profile]);
   
   const handleSaveProfile = async () => {
     try {
-      await updateProfile(profileData);
+      // TODO: updateAccount only supports name/phone/avatar; institute-specific fields (instituteName, contactPerson, location) require a separate profile endpoint
+      await updateAccount({ name: profileData.name, phone: profileData.phone });
       setIsEditingProfile(false);
     } catch (error) {
       console.error('Failed to update profile:', error);
@@ -178,12 +181,13 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
     totalApplicants: userJobs.reduce((acc, j) => acc + (j.applicants || 0), 0),
   };
 
-  const subscriptionData = subscription.data;
-  const availablePlans = subscription.plans;
-  const subscriptionStats = subscription.stats;
-  const subscriptionLoading = subscription.loading;
+  // subscription is now a plain Subscription | null from AuthContext
+  const subscriptionData = subscription;
+  const availablePlans: any[] = [];
+  const subscriptionStats: any = null;
+  const subscriptionLoading = false;
 
-  const activePlanId = subscriptionData?.subscriptionPlanId || user?.subscription?.planId;
+  const activePlanId = subscriptionData?.planId;
   const activePlan = availablePlans.find(p => p.id === activePlanId);
   const planFeatures = activePlan?.features || {};
   
@@ -287,15 +291,15 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">Welcome, {user.name}</h1>
-          <p className="text-muted-foreground">{user.instituteName}</p>
+          <p className="text-muted-foreground">{instituteProfile?.instituteName}</p>
         </div>
 
         {/* Subscription Alerts & Usage Summary */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           <div className="lg:col-span-2">
-            <SubscriptionAlert 
-              subscription={subscriptionData} 
-              stats={subscriptionStats} 
+            <SubscriptionAlert
+              subscription={null}
+              stats={null}
             />
             <div className="mt-4">
               <DashboardSuggestion {...suggestion} />

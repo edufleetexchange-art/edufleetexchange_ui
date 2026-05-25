@@ -16,10 +16,10 @@ interface VehicleCardProps {
 }
 
 export function VehicleCard({ vehicle, isListing = false }: VehicleCardProps) {
-  const { user } = useAuth();
+  const { account } = useAuth();
   const { getCategoryName } = useConfig();
   const navigate = useNavigate();
-  const isUnmasked = !!user;
+  const isUnmasked = !!account;
 
   const handleClick = () => {
     navigate(`/vehicle/${vehicle.id || (vehicle as any)._id}`);
@@ -50,7 +50,7 @@ export function VehicleCard({ vehicle, isListing = false }: VehicleCardProps) {
           )}
           
           {/* Status Badge Overlay for Owners */}
-          {user && (user.id === vehicle.sellerId || (vehicle as any).sellerId === user.id) && vehicle.status !== 'approved' && (
+          {account && (account.id === vehicle.sellerId || (vehicle as any).sellerId === account.id) && vehicle.status !== 'approved' && (
             <div className="absolute top-2 left-2 z-20 flex flex-col gap-2">
               {vehicle.status === 'pending' && (
                 <Badge className="bg-amber-500 hover:bg-amber-600 text-white border-none flex items-center gap-1 shadow-md">

@@ -4,12 +4,12 @@ import { useJobs } from '@/hooks/useApi';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Search, Filter, Briefcase } from 'lucide-react';
+import { Search, Filter, Briefcase, AlertCircle } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useConfig } from '@/context/ConfigContext';
 import { AdSlot } from '@/components/ads/AdSlot';
 import { useAuth } from '@/context/AuthContext';
-import { SubscriptionAlert } from '@/components/SubscriptionAlert';
+import { Alert } from '@/components/ui/alert';
 import {
   Select,
   SelectContent,
@@ -19,7 +19,7 @@ import {
 } from '@/components/ui/select';
 
 export function JobBrowse() {
-  const { user, subscription } = useAuth();
+  const { account: user, subscription } = useAuth();
   const { categories } = useConfig();
   const [searchTerm, setSearchTerm] = useState('');
   const [typeFilter, setTypeFilter] = useState('all');
@@ -50,9 +50,9 @@ export function JobBrowse() {
 
   const hasActiveFilters = searchTerm !== '' || typeFilter !== 'all' || departmentFilter !== 'all';
   
-  // Subscription check
-  const activePlanId = subscription?.data?.subscriptionPlanId || user?.subscription?.planId;
-  const activePlan = subscription?.plans?.find(p => p.id === activePlanId);
+  // Subscription check — subscription is now a plain Subscription | null
+  const activePlanId = subscription?.planId;
+  const activePlan = activePlanId ? { price: 0 } : null;
   const isFreePlan = !user || activePlan?.price === 0;
   const hasDelay = isFreePlan;
 
@@ -88,12 +88,14 @@ export function JobBrowse() {
 
         {hasDelay && (
           <div className="mb-8">
-            <SubscriptionAlert 
-              type={!user ? 'guest' : 'free'} 
-              message={!user 
-                ? "You are browsing as a guest. Login to see newer job openings." 
-                : "You are on a Free plan. You are seeing jobs that are at least 10 days old. Upgrade to Professional for instant access."} 
-            />
+            <Alert variant="default" className="border-amber-200 bg-amber-50">
+              <AlertCircle className="h-4 w-4 text-amber-600" />
+              <div className="ml-4 text-amber-800">
+                {!user
+                  ? "You are browsing as a guest. Login to see newer job openings."
+                  : "You are on a Free plan. You are seeing jobs that are at least 10 days old. Upgrade to Professional for instant access."}
+              </div>
+            </Alert>
           </div>
         )}
 

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
+import type { StaffProfile } from '@/api/types';
 import { adminService } from '@/api/services/adminService';
 import { marketingService } from '@/api/services/marketingService';
 import { Button } from '@/components/ui/button';
@@ -46,7 +47,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { LeadCRMDialog } from '@/components/LeadCRMDialog';
 
 export default function MarketingDashboard() {
-  const { user } = useAuth();
+  const { account: user, profile } = useAuth();
+  const staffProfile = profile as StaffProfile | null;
   const navigate = useNavigate();
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
@@ -394,7 +396,7 @@ export default function MarketingDashboard() {
                   <History className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                   <h3 className="font-semibold text-lg">No Actions Yet</h3>
                   <p className="text-muted-foreground max-w-sm mx-auto mt-2">
-                    All your lead generation actions will be logged here with your Employee ID: <strong>{user?.employeeId}</strong>.
+                    All your lead generation actions will be logged here with your Employee ID: <strong>{staffProfile?.employeeId}</strong>.
                   </p>
                 </div>
               )}
@@ -429,7 +431,7 @@ export default function MarketingDashboard() {
                   <p className="text-muted-foreground">{user?.email}</p>
                   <div className="flex gap-2 mt-2">
                     <Badge className="bg-primary/5 text-primary border-primary/20">MARKETING SPECIALIST</Badge>
-                    <Badge variant="outline">ID: {user?.employeeId}</Badge>
+                    <Badge variant="outline">ID: {staffProfile?.employeeId}</Badge>
                   </div>
                 </div>
               </div>

@@ -26,7 +26,7 @@ interface NotificationContextType {
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
 
 export function NotificationProvider({ children }: { children: React.ReactNode }) {
-  const { user } = useAuth();
+  const { account } = useAuth();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -34,8 +34,8 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
 
   // Get current user ID from session/auth
   const getCurrentUserId = useCallback((): string => {
-    return user?.id || '';
-  }, [user?.id]);
+    return account?.id || '';
+  }, [account?.id]);
 
   const loadNotifications = useCallback(async () => {
     const userId = getCurrentUserId();

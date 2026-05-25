@@ -58,7 +58,7 @@ const getAllowedTransitions = (currentStatus: string): string[] => {
 export function InstituteJobApplications() {
   const { jobId } = useParams();
   const location = useLocation();
-  const { user } = useAuth();
+  const { account } = useAuth();
 
   const [selectedApplication, setSelectedApplication] = useState<any>(null);
   const [showScheduleDialog, setShowScheduleDialog] = useState(false);

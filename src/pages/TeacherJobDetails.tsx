@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
+import type { TeacherProfile } from '@/api/types';
 import { jobService } from '@/api/services/jobService';
 import type { Job } from '@/api/services/jobService';
 import { Button } from '@/components/ui/button';
@@ -86,7 +87,8 @@ const formatDate = (dateValue: string | undefined | null): string => {
 export function TeacherJobDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user, isAuthenticated } = useAuth();
+  const { account: user, profile, isAuthenticated } = useAuth();
+  const teacherProfile = profile as TeacherProfile | null;
   const [showApplyDialog, setShowApplyDialog] = useState(false);
   const [coverLetter, setCoverLetter] = useState('');
   const [job, setJob] = useState<Job | null>(null);
@@ -103,8 +105,8 @@ export function TeacherJobDetails() {
   const loadJob = async () => {
     try {
       setLoading(true);
-      const response = await jobService.getJob(id!);
-      setJob(response);
+      const response = await jobService.getJobById(id!);
+      setJob(response.data);
     } catch (error) {
       toast.error('Failed to load job details');
       console.error(error);
@@ -117,8 +119,8 @@ export function TeacherJobDetails() {
     if (!user || user.role !== 'teacher') return;
     try {
       const response = await jobService.getMyApplications();
-      const applied = response.some(app => (app.jobId === id));
-      setHasApplied(applied);
+      const applied = response.data?.some((app: any) => (app.jobId === id));
+      setHasApplied(applied ?? false);
     } catch (error) {
       console.error('Failed to check application status', error);
     }
@@ -336,7 +338,7 @@ export function TeacherJobDetails() {
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Posted:</span>
                         <span className="font-semibold">
-                         {formatDate(job.postedDate || job.postedAt || job.createdAt)}
+                         {formatDate(job.postedDate || job.postedAt || (job as any).createdAt)}
                         </span>
                       </div>
                     )}
@@ -373,21 +375,21 @@ export function TeacherJobDetails() {
                 <CardTitle>Contact Information</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                {(job.contactEmail || job.instituteEmail || job.instituteId?.email || job.contactPhone || job.institutePhone || job.instituteId?.phone) ? (
+                {(job.contactEmail || job.instituteEmail || (job as any).institute?.email || job.contactPhone || job.institutePhone || (job as any).institute?.phone) ? (
                   <div className="space-y-2 text-sm">
-                   {(job.contactEmail || job.instituteEmail || job.instituteId?.email) && (
+                   {(job.contactEmail || job.instituteEmail || (job as any).institute?.email) && (
                       <div className="flex items-center gap-2 text-muted-foreground">
                         <Mail className="h-4 w-4" />
-                        <a href={`mailto:${job.contactEmail || job.instituteEmail || job.instituteId?.email}`} className="hover:text-primary">
-                          {job.contactEmail || job.instituteEmail || job.instituteId?.email}
+                        <a href={`mailto:${job.contactEmail || job.instituteEmail || (job as any).institute?.email}`} className="hover:text-primary">
+                          {job.contactEmail || job.instituteEmail || (job as any).institute?.email}
                         </a>
                       </div>
                     )}
-                     {(job.contactPhone || job.institutePhone || job.instituteId?.phone) && (
+                     {(job.contactPhone || job.institutePhone || (job as any).institute?.phone) && (
                       <div className="flex items-center gap-2 text-muted-foreground">
                         <Phone className="h-4 w-4" />
-                       <a href={`tel:${job.contactPhone || job.institutePhone || job.instituteId?.phone}`} className="hover:text-primary">
-                          {job.contactPhone || job.institutePhone || job.instituteId?.phone}
+                       <a href={`tel:${job.contactPhone || job.institutePhone || (job as any).institute?.phone}`} className="hover:text-primary">
+                          {job.contactPhone || job.institutePhone || (job as any).institute?.phone}
                         </a>
                       </div>
                     )}
@@ -434,8 +436,8 @@ export function TeacherJobDetails() {
                   <li>Name: {user?.name}</li>
                   <li>Email: {user?.email}</li>
                   <li>Phone: {user?.phone}</li>
-                  <li>Qualifications: {user?.qualifications?.join(', ')}</li>
-                  <li>Experience: {user?.experience} years</li>
+                  <li>Qualifications: {teacherProfile?.qualifications?.join(', ')}</li>
+                  <li>Experience: {teacherProfile?.experience} years</li>
                 </ul>
               </div>
               <div className="flex gap-3">

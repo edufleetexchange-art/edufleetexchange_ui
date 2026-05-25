@@ -1,250 +1,96 @@
 import { apiClient } from '@/lib/apiClient';
-import type { ApiResponse } from '../types';
-import { API_CONFIG } from '../config';
+import type {
+  AuthBundle,
+  InstituteSignupRequest,
+  TeacherSignupRequest,
+  VendorSignupRequest,
+  LoginRequest,
+  Account,
+} from '@/api/types';
 
-export interface User {
-  id: string;
-  email: string;
-  name: string;
-  role: 'institute' | 'admin' | 'teacher' | 'vendor' | 'marketing' | 'sales';
-  employeeId?: string;
-  avatar?: string;
-  instituteName?: string;
-  contactPerson?: string;
-  instituteCode?: string;
-  phone?: string;
-  subscriptionId?: string;
-  subscription?: {
-    planId?: {
-      _id: string;
-      name: string;
-      displayName: string;
-      price: number;
-      duration: number;
-      features: {
-        maxListings: number;
-        maxJobPosts: number;
-        maxBrowsesPerMonth: number;
-        teacherDataDelayDays: number;
-        canAdvertiseVehicles: boolean;
-        priorityListings: boolean;
-      };
-    };
-    status: 'active' | 'inactive' | 'suspended' | 'expired';
-    paymentStatus: 'pending' | 'completed' | 'failed';
-    startDate: string;
-    endDate: string;
-    listingsUsed: number;
-    listingsLimit: number;
-    jobPostsUsed: number;
-    jobPostsLimit: number;
-    browseCount: number;
-    browseCountLimit: number;
-  };
-  isActive?: boolean;
-  qualifications?: string[];
-  experience?: number;
-  subjects?: string[];
-  bio?: string;
-  location?: string;
-  isAvailable?: boolean;
-  instituteSearchability?: boolean;
-  createdAt?: string;
-  updatedAt?: string;
-}
+const TOKEN_KEY = 'token';
+const USER_KEY = 'user'; // legacy key name; stores the Account now
 
-export interface LoginRequest {
-  email: string;
-  password: string;
-}
+// The server may return { token, account, profile, subscription } or the token
+// may already have been stored by the apiClient layer.  We accept either shape.
+type BundleWithToken = AuthBundle & { token?: string };
 
-export interface SignupRequest {
-  name: string;
-  email: string;
-  password: string;
-  instituteName?: string;
-  contactPerson?: string;
-  instituteCode?: string;
-  phone: string;
-  role?: 'institute' | 'teacher' | 'vendor';
-  planId?: string;
-}
-
-export interface TeacherSignupRequest {
-  name: string;
-  email: string;
-  password: string;
-  phone: string;
-  qualifications: string[];
-  experience: number;
-  subjects: string[];
-  bio?: string;
-  location: string;
-  instituteSearchability?: boolean;
-  planId?: string;
-}
-
-export interface AuthResponse {
-  user: User;
-  token: string;
+function persist(bundle: BundleWithToken) {
+  if (bundle.token) localStorage.setItem(TOKEN_KEY, bundle.token);
+  localStorage.setItem(USER_KEY, JSON.stringify(bundle.account));
 }
 
 export const authService = {
-  /**
-   * Login user
-   */
-  async login(data: LoginRequest): Promise<AuthResponse> {
-    try {
-      const response = await apiClient.post<AuthResponse>(API_CONFIG.ENDPOINTS.LOGIN, data);
-      
-      // Store token and user
-      if (response.token) {
-        localStorage.setItem('token', response.token);
-      }
-      if (response.user) {
-        localStorage.setItem('user', JSON.stringify(response.user));
-      }
-
-      return response;
-    } catch (error: any) {
-      throw new Error(error.message || 'Login failed');
-    }
+  async signupInstitute(input: InstituteSignupRequest): Promise<AuthBundle> {
+    const result = await apiClient.post<BundleWithToken>('/auth/institute/signup', input);
+    persist(result);
+    return result;
   },
-
-  /**
-   * Signup institute
-   */
-  async signup(data: SignupRequest): Promise<AuthResponse> {
-    try {
-      const response = await apiClient.post<AuthResponse>(API_CONFIG.ENDPOINTS.SIGNUP, {
-        ...data,
-        role: 'institute',
-      });
-
-      // Store token and user
-      if (response.token) {
-        localStorage.setItem('token', response.token);
-      }
-      if (response.user) {
-        localStorage.setItem('user', JSON.stringify(response.user));
-      }
-
-      return response;
-    } catch (error: any) {
-      throw new Error(error.message || 'Signup failed');
-    }
+  async signupTeacher(input: TeacherSignupRequest): Promise<AuthBundle> {
+    const result = await apiClient.post<BundleWithToken>('/auth/teacher/signup', input);
+    persist(result);
+    return result;
   },
-
-  /**
-   * Signup teacher
-   */
-  async signupTeacher(data: TeacherSignupRequest): Promise<AuthResponse> {
-    try {
-      const response = await apiClient.post<AuthResponse>(API_CONFIG.ENDPOINTS.SIGNUP, {
-        ...data,
-        role: 'teacher',
-      });
-
-      // Store token and user
-      if (response.token) {
-        localStorage.setItem('token', response.token);
-      }
-      if (response.user) {
-        localStorage.setItem('user', JSON.stringify(response.user));
-      }
-
-      return response;
-    } catch (error: any) {
-      throw new Error(error.message || 'Teacher signup failed');
-    }
+  async signupVendor(input: VendorSignupRequest): Promise<AuthBundle> {
+    const result = await apiClient.post<BundleWithToken>('/auth/vendor/signup', input);
+    persist(result);
+    return result;
   },
-
-  /**
-   * Logout user
-   */
-  async logout(): Promise<void> {
-    try {
-      await apiClient.post(API_CONFIG.ENDPOINTS.LOGOUT, {});
-    } catch (error) {
-      // Continue with logout even if API call fails
-      console.error('Logout error:', error);
-    } finally {
-      // Clear local storage
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-    }
+  async login(input: LoginRequest): Promise<AuthBundle> {
+    const result = await apiClient.post<BundleWithToken>('/auth/login', input);
+    persist(result);
+    return result;
   },
-
-  /**
-   * Get current user
-   */
-  async getCurrentUser(): Promise<User> {
+  async me(): Promise<AuthBundle | null> {
     try {
-      return await apiClient.get<User>(API_CONFIG.ENDPOINTS.ME);
-    } catch (error: any) {
-      throw new Error(error.message || 'Failed to fetch user');
-    }
-  },
-
-  /**
-   * Get current user profile
-   */
-  async getProfile(): Promise<User> {
-    try {
-      return await apiClient.get<User>(API_CONFIG.ENDPOINTS.PROFILE);
-    } catch (error: any) {
-      throw new Error(error.message || 'Failed to fetch profile');
-    }
-  },
-
-  /**
-   * Update user profile
-   */
-  async updateProfile(data: Partial<User>): Promise<User> {
-    try {
-      const response = await apiClient.put<User>(API_CONFIG.ENDPOINTS.PROFILE, data);
-      
-      // Update stored user if it's the current user's profile
-      const storedUser = this.getStoredUser();
-      if (storedUser) {
-        localStorage.setItem('user', JSON.stringify({ ...storedUser, ...response }));
-      }
-      
-      return response;
-    } catch (error: any) {
-      throw new Error(error.message || 'Failed to update profile');
-    }
-  },
-
-  /**
-   * Validate current token
-   */
-  async validateToken(): Promise<boolean> {
-    try {
-      await this.getCurrentUser();
-      return true;
-    } catch (error) {
-      return false;
-    }
-  },
-
-  /**
-   * Get stored token
-   */
-  getStoredToken(): string | null {
-    return localStorage.getItem('token');
-  },
-
-  /**
-   * Get stored user
-   */
-  getStoredUser(): User | null {
-    const userStr = localStorage.getItem('user');
-    if (!userStr) return null;
-    try {
-      return JSON.parse(userStr);
+      return await apiClient.get<AuthBundle>('/auth/me');
     } catch {
       return null;
     }
   },
+  async logout(): Promise<void> {
+    try {
+      await apiClient.post('/auth/logout');
+    } finally {
+      localStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem(USER_KEY);
+    }
+  },
+  async validateToken(): Promise<boolean> {
+    try {
+      const result = await apiClient.get<{ valid?: boolean }>('/auth/validate');
+      return Boolean(result?.valid);
+    } catch {
+      return false;
+    }
+  },
+  async updateAccount(updates: Partial<Pick<Account, 'name' | 'phone' | 'avatar'>>): Promise<Account> {
+    return apiClient.put<Account>('/accounts/me', updates);
+  },
+  /** @deprecated Use me() instead. */
+  async getCurrentUser(): Promise<AuthBundle | null> {
+    return this.me();
+  },
+  /** @deprecated Use updateAccount() instead. */
+  async updateProfile(updates: Partial<Account>): Promise<Account> {
+    return this.updateAccount(updates as Partial<Pick<Account, 'name' | 'phone' | 'avatar'>>);
+  },
+  /** @deprecated No dedicated profile endpoint in new API. */
+  async getProfile(): Promise<AuthBundle | null> {
+    return this.me();
+  },
+  getStoredToken(): string | null {
+    return localStorage.getItem(TOKEN_KEY);
+  },
+  getStoredUser(): Account | null {
+    const s = localStorage.getItem(USER_KEY);
+    return s ? (JSON.parse(s) as Account) : null;
+  },
+  /** @deprecated Use signupTeacher/signupVendor/signupInstitute instead. */
+  async signup(input: any): Promise<AuthBundle> {
+    if (input?.role === 'vendor')  return this.signupVendor(input);
+    if (input?.role === 'teacher') return this.signupTeacher(input);
+    return this.signupInstitute(input);
+  },
 };
+

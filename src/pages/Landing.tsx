@@ -19,8 +19,8 @@ import { useAuth } from '@/context/AuthContext';
 
 export function Landing() {
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const isTeacher = user?.role === 'teacher';
+  const { account } = useAuth();
+  const isTeacher = account?.role === 'teacher';
   const { listings: priorityListings = [], loading: priorityLoading } = usePriorityListings();
   
   // Handle hash scroll

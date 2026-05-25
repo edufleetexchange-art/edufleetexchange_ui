@@ -75,10 +75,10 @@ interface JobCardProps {
 }
 
 export function JobCard({ job, isListing = false, className, style }: JobCardProps) {
-  const { user } = useAuth();
+  const { account } = useAuth();
   const { getCategoryName } = useConfig();
   const navigate = useNavigate();
-  const isUnmasked = !!user;
+  const isUnmasked = !!account;
 
   const handleClick = () => {
     navigate(`/job/${job.id || (job as any)._id}`);

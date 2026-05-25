@@ -50,13 +50,15 @@ export function SubscriptionStatus({
   isLoading: propIsLoading,
   loading: propLoading
 }: SubscriptionStatusProps = {}) {
-  const { user, subscription: authSubscription, ensureSubscription } = useAuth();
-  
-  // Use props if provided, otherwise use data from AuthContext
-  const subscription = propSubscription !== undefined ? propSubscription : authSubscription.data;
-  const stats = propStats !== undefined ? propStats : authSubscription.stats;
-  const plans = propPlans !== undefined && propPlans.length > 0 ? propPlans : authSubscription.plans;
-  const loading = propIsLoading ?? propLoading ?? authSubscription.loading;
+  const { account, subscription: authSubscription, ensureSubscription } = useAuth();
+  // Alias for readability inside this component
+  const user = account;
+
+  // Use props if provided, otherwise fall back to AuthContext subscription
+  const subscription = propSubscription !== undefined ? propSubscription : authSubscription;
+  const stats = propStats !== undefined ? propStats : null;
+  const plans = propPlans !== undefined && propPlans.length > 0 ? propPlans : [];
+  const loading = propIsLoading ?? propLoading ?? false;
 
   const [requests, setRequests] = useState<SubscriptionRequest[]>([]);
   const [continuing, setContinuing] = useState(false);
@@ -99,11 +101,11 @@ export function SubscriptionStatus({
   }, [propIsLoading, propLoading]);
 
   useEffect(() => {
-    if (user?.id) {
+    if (account?.id) {
       ensureSubscription();
       loadRequests();
     }
-  }, [user?.id, ensureSubscription]);
+  }, [account?.id, ensureSubscription]);
 
   const loadRequests = async () => {
     try {

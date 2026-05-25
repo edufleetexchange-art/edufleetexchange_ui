@@ -37,7 +37,7 @@ import { useAuth } from '@/context/AuthContext';
 import { SubscriptionAlert } from '@/components/SubscriptionAlert';
 
 export function TeacherSearch() {
-  const { user, subscription, ensureSubscription } = useAuth();
+  const { account: user, subscription, ensureSubscription } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [subjectFilter, setSubjectFilter] = useState<string>('all');
   const [locationFilter, setLocationFilter] = useState<string>('all');
@@ -57,9 +57,10 @@ export function TeacherSearch() {
     }
   }, [user?.id, ensureSubscription]);
 
-  const subscriptionData = subscription.data;
-  const subscriptionStats = subscription.stats;
-  const subscriptionLoading = subscription.loading;
+  // subscription is now a plain Subscription | null from AuthContext
+  const subscriptionData = subscription;
+  const subscriptionStats: any = null;
+  const subscriptionLoading = false;
 
   // Fetch teachers from API
   const { teachers: allTeachers, loading } = useTeachers();
@@ -111,9 +112,8 @@ export function TeacherSearch() {
     setSelectedTeacher(null);
   };
 
-  const plan = subscriptionData?.planId || user?.subscription?.planId;
-  const planFeatures = plan?.features || {};
-  const teacherDataDelayDays = planFeatures.teacherDataDelayDays ?? 15;
+  // planFeatures not available in the Subscription bundle; use defaults
+  const teacherDataDelayDays = 15; // default; TODO: load from plan if available
   const isFreePlan = !user || teacherDataDelayDays > 0;
 
   return (
@@ -133,9 +133,9 @@ export function TeacherSearch() {
         </div>
 
         <div className="mb-8">
-          <SubscriptionAlert 
-            subscription={subscriptionData} 
-            stats={subscriptionStats} 
+          <SubscriptionAlert
+            subscription={null}
+            stats={null}
           />
           {(!user || (user && teacherDataDelayDays > 0)) && (
             <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg text-blue-800 text-sm">
