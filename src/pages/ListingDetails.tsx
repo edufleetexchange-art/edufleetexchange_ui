@@ -37,17 +37,31 @@ export function ListingDetails() {
   const isAdmin = user?.role === 'admin';
   const canSeeStatus = isOwner || isAssistant || isAdmin;
 
-  // Check and increment browse count when user views details
+  // Check and increment browse count when user views details.
+  // Uses sessionStorage to dedupe across navigations so pressing Back and
+  // returning to the same listing does not double-count (issue 44).
+  const SESSION_KEY = 'browsed-listings';
   useEffect(() => {
     const checkAndIncrementBrowse = async () => {
-      if (!user?.id || browseChecked || !isUnmasked) return;
-      
+      if (!user?.id || browseChecked || !isUnmasked || !vehicle?.id) return;
+
+      // Dedupe across sessions: only count once per listing per browser session.
+      const browsed = new Set<string>(
+        JSON.parse(sessionStorage.getItem(SESSION_KEY) ?? '[]')
+      );
+      if (browsed.has(vehicle.id)) {
+        setBrowseChecked(true);
+        return;
+      }
+
       try {
         const checkResult = await checkBrowseLimit();
 
         if (checkResult.success && checkResult.data.allowed) {
           // User is allowed - increment counter
           await incrementBrowseCount();
+          browsed.add(vehicle.id);
+          sessionStorage.setItem(SESSION_KEY, JSON.stringify([...browsed]));
           setBrowseChecked(true);
         } else if (checkResult.data.limitReached) {
           // Browse limit reached
@@ -61,7 +75,7 @@ export function ListingDetails() {
     };
 
     checkAndIncrementBrowse();
-  }, [user?.id, isUnmasked, browseChecked]);
+  }, [user?.id, isUnmasked, browseChecked, vehicle?.id]);
 
   if (loading) {
     return (

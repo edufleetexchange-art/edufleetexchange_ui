@@ -274,7 +274,6 @@ export function JobListingForm({ initialInstituteId, onSuccess }: JobListingForm
         instituteId: (user.role === 'admin' || user.role === 'sales') ? formData.instituteId : undefined,
       };
 
-      console.log('Submitting job data:', jobData); // Debug log
       const response = await createJob(jobData);
       
       if (response.success || response.data) {
@@ -345,7 +344,7 @@ export function JobListingForm({ initialInstituteId, onSuccess }: JobListingForm
             </p>
           </div>
         </Alert>
-      ) : jobLimitResult && jobLimitResult.remaining <= 1 ? (
+      ) : jobLimitResult && jobLimitResult.remaining <= 2 ? (
         <Alert className="mb-6 border-amber-200 bg-amber-50">
           <AlertCircle className="h-4 w-4 text-amber-600" />
           <div className="ml-4">

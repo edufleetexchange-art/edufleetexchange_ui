@@ -4,7 +4,7 @@ import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
-import { Mail, Lock, Building2, User, Send, MapPin } from 'lucide-react';
+import { Mail, Lock, Building2, User, Send, MapPin, Store } from 'lucide-react';
 import { AdSlot } from '@/components/ads/AdSlot';
 
 export function Signup() {
@@ -105,27 +105,37 @@ export function Signup() {
           <AdSlot placement="LP_TOP_BANNER" variant="banner" />
         </div>
         {/* Logo */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-4">
           <h1 className="text-3xl font-bold mb-2">
             EduFleet<span className="text-primary">Exchange</span>
           </h1>
           <p className="text-muted-foreground">
             Create your institution account
           </p>
-           <Link
-                  to="/signup"
-                  className="flex flex-col items-center p-3 rounded-xl border border-border/50 bg-muted/30 hover:bg-primary/5 hover:border-primary/20 transition-all group"
-                >
-                  <span className="text-xs font-bold text-primary group-hover:scale-110 transition-transform">INSTITUTE</span>
-                  <span className="text-[10px] text-muted-foreground mt-0.5">Register School</span>
-                </Link>
-                <Link
-                  to="/teacher/signup"
-                  className="flex flex-col items-center p-3 rounded-xl border border-border/50 bg-muted/30 hover:bg-secondary/5 hover:border-secondary/20 transition-all group"
-                >
-                  <span className="text-xs font-bold text-secondary group-hover:scale-110 transition-transform">TEACHER</span>
-                  <span className="text-[10px] text-muted-foreground mt-0.5">Individual Account</span>
-                </Link>
+        </div>
+        <div className="flex flex-col sm:flex-row gap-3 justify-center mb-8">
+          <Link
+            to="/signup"
+            className="flex flex-col items-center p-3 rounded-xl border border-border/50 bg-muted/30 hover:bg-primary/5 hover:border-primary/20 transition-all group flex-1 sm:flex-none"
+          >
+            <span className="text-xs font-bold text-primary group-hover:scale-110 transition-transform">INSTITUTE</span>
+            <span className="text-[10px] text-muted-foreground mt-0.5">Register School</span>
+          </Link>
+          <Link
+            to="/teacher/signup"
+            className="flex flex-col items-center p-3 rounded-xl border border-border/50 bg-muted/30 hover:bg-secondary/5 hover:border-secondary/20 transition-all group flex-1 sm:flex-none"
+          >
+            <span className="text-xs font-bold text-secondary group-hover:scale-110 transition-transform">TEACHER</span>
+            <span className="text-[10px] text-muted-foreground mt-0.5">Individual Account</span>
+          </Link>
+          <Link
+            to="/vendor/signup"
+            className="flex flex-col items-center p-3 rounded-xl border border-border/50 bg-muted/30 hover:bg-orange-500/5 hover:border-orange-500/20 transition-all group flex-1 sm:flex-none"
+          >
+            <Store className="w-3 h-3 mb-0.5 text-orange-500 group-hover:scale-110 transition-transform" />
+            <span className="text-xs font-bold text-orange-500 group-hover:scale-110 transition-transform">VENDOR</span>
+            <span className="text-[10px] text-muted-foreground mt-0.5">Supplier / Business</span>
+          </Link>
         </div>
 
         <Card className="p-8 border-border">

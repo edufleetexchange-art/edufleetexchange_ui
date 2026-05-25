@@ -558,7 +558,8 @@ function ApplicationsList({
                 <Badge className={`${
                   application.status === 'accepted' ? 'bg-green-500' :
                   application.status === 'shortlisted' ? 'bg-purple-500' :
-                  application.status === 'reviewed' ? 'bg-blue-500' :
+                  application.status === 'interview_scheduled' ? 'bg-blue-600' :
+                  application.status === 'reviewed' ? 'bg-blue-400' :
                   application.status === 'rejected' ? 'bg-red-500' :
                   'bg-yellow-500'
                 } text-white`}>

@@ -16,7 +16,8 @@ import { useConfig } from '@/context/ConfigContext';
 import type { Vehicle } from '@/api/types';
 import { AdSlot } from '@/components/ads/AdSlot';
 import { useAuth } from '@/context/AuthContext';
-import { Alert } from '@/components/ui/alert';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { checkBrowseLimit } from '@/api/services/subscriptionEnforcement';
 
 const ALL_FILTER = '__all__';
 
@@ -32,6 +33,7 @@ export function Browse() {
     }
   }, [user, navigate]);
 
+  const [browseLimitReached, setBrowseLimitReached] = useState(false);
   const [activeTab, setActiveTab] = useState('vehicles');
   
   // Vehicle filters
@@ -40,6 +42,15 @@ export function Browse() {
   const [manufacturerFilter, setManufacturerFilter] = useState<string>(ALL_FILTER);
   const [yearFilter, setYearFilter] = useState<string>(ALL_FILTER);
   const [conditionFilter, setConditionFilter] = useState<string>(ALL_FILTER);
+
+  // Enforce browse quota on mount
+  useEffect(() => {
+    checkBrowseLimit().then((result) => {
+      if (result.data?.allowed === false) {
+        setBrowseLimitReached(true);
+      }
+    });
+  }, []);
 
   // Fetch vehicles
   const { vehicles: allVehicles, loading: vehiclesLoading, error: vehiclesError } = useVehicles({
@@ -118,6 +129,24 @@ export function Browse() {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
+            {browseLimitReached && (
+              <div className="mb-8">
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>Monthly browse limit reached</AlertTitle>
+                  <AlertDescription className="flex flex-col sm:flex-row sm:items-center gap-3 mt-1">
+                    <span>You've reached your monthly browse limit. Upgrade your plan to see more listings.</span>
+                    <a
+                      href="/#pricing"
+                      className="inline-flex items-center justify-center rounded-md bg-destructive-foreground text-destructive px-4 py-1.5 text-sm font-semibold hover:opacity-90 transition-opacity whitespace-nowrap"
+                    >
+                      Upgrade Plan
+                    </a>
+                  </AlertDescription>
+                </Alert>
+              </div>
+            )}
+
             {hasDelay && (
               <div className="mb-8">
                 <Alert variant="default" className="border-amber-200 bg-amber-50">

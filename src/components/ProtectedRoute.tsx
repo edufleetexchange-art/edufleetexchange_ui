@@ -1,5 +1,6 @@
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
+import { toast } from 'sonner';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -28,7 +29,17 @@ export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) 
   if (requiredRole) {
     const roles = Array.isArray(requiredRole) ? requiredRole : [requiredRole];
     if (!roles.includes(account.role)) {
-      return <Navigate to="/" replace />;
+      toast.error("You don't have permission to view that page");
+      const dashboardByRole: Record<string, string> = {
+        admin: '/admin',
+        teacher: '/teacher/dashboard',
+        institute: '/dashboard',
+        vendor: '/dashboard',
+        marketing: '/marketing/dashboard',
+        sales: '/sales/dashboard',
+      };
+      const redirectTo = dashboardByRole[account.role] ?? '/';
+      return <Navigate to={redirectTo} replace />;
     }
   }
 
