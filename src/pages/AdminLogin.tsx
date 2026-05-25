@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Mail, Lock, LogIn, ShieldCheck } from 'lucide-react';
 import { AdSlot } from '@/components/ads/AdSlot';
+import { toast } from 'sonner';
 
 export function AdminLogin() {
   const [email, setEmail] = useState('');
@@ -13,7 +14,7 @@ export function AdminLogin() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const { login } = useAuth();
+  const { login, logout } = useAuth();
   const navigate = useNavigate();
 
   const handleAdminLogin = async (e: React.FormEvent) => {
@@ -28,7 +29,13 @@ export function AdminLogin() {
     }
 
     try {
-      await login(email, password);
+      const account = await login(email, password);
+      if (account.role !== 'admin') {
+        await logout();
+        toast.error('Admins only');
+        setLoading(false);
+        return;
+      }
       navigate('/admin');
     } catch (err) {
       setError('Invalid email or password. Please check your credentials.');
@@ -118,24 +125,26 @@ export function AdminLogin() {
             </Button>
           </form>
 
-          {/* Demo Credentials */}
-          <div className="mt-6 space-y-4">
-            <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-700">
-              <p className="font-medium mb-1">Internal Admin Account:</p>
-              <div className="space-y-1 font-mono text-xs">
-                <p>Email: <span className="text-amber-900">admin@edufleet.com</span></p>
-                <p>Password: <span className="text-amber-900">admin123</span></p>
+          {/* Demo Credentials — dev only */}
+          {import.meta.env.DEV && (
+            <div className="mt-6 space-y-4">
+              <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-700">
+                <p className="font-medium mb-1">Internal Admin Account (dev seed):</p>
+                <div className="space-y-1 font-mono text-xs">
+                  <p>Email: <span className="text-amber-900">admin@edufleet.test</span></p>
+                  <p>Password: <span className="text-amber-900">password123</span></p>
+                </div>
+              </div>
+
+              <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-700">
+                <p className="font-medium mb-1">Subscribed Partner (Institute, dev seed):</p>
+                <div className="space-y-1 font-mono text-xs">
+                  <p>Email: <span className="text-blue-900">institute1@edufleet.test</span></p>
+                  <p>Password: <span className="text-blue-900">password123</span></p>
+                </div>
               </div>
             </div>
-            
-            <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-700">
-              <p className="font-medium mb-1">Subscribed Partner (Institute):</p>
-              <div className="space-y-1 font-mono text-xs">
-                <p>Email: <span className="text-blue-900">institute@demo.com</span></p>
-                <p>Password: <span className="text-blue-900">password123</span></p>
-              </div>
-            </div>
-          </div>
+          )}
 
           {/* Divider */}
           <div className="relative my-6">

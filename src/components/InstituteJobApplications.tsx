@@ -546,7 +546,7 @@ function ApplicationsList({
                 <div className="flex items-start gap-4">
                   <Avatar className="h-16 w-16">
                     <AvatarImage src={teacher?.avatar} />
-                    <AvatarFallback>{application.teacherName.charAt(0)}</AvatarFallback>
+                    <AvatarFallback>{(application.teacherName?.[0] ?? '?').toUpperCase()}</AvatarFallback>
                   </Avatar>
                   <div>
                     <CardTitle className="text-xl">{application.teacherName}</CardTitle>

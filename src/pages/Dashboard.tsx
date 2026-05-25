@@ -170,6 +170,24 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
       }
     }
   };
+
+  const handleEditJob = (jobId: string) => {
+    // TODO: build job edit page
+    toast.info('Editing not yet implemented');
+  };
+
+  const handleDeleteJob = async (jobId: string) => {
+    if (window.confirm('Are you sure you want to delete this job posting? This action cannot be undone.')) {
+      try {
+        await api.jobs.deleteJob(jobId);
+        toast.success('Job deleted successfully');
+        refetchJobs();
+      } catch (error) {
+        console.error('Failed to delete job:', error);
+        toast.error('Failed to delete job');
+      }
+    }
+  };
   
   const stats = {
     totalListings: userListings.length,
@@ -184,19 +202,52 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
   // subscription is now a plain Subscription | null from AuthContext
   const subscriptionData = subscription;
   const availablePlans: any[] = [];
-  const subscriptionStats: any = null;
   const subscriptionLoading = false;
 
   const activePlanId = subscriptionData?.planId;
   const activePlan = availablePlans.find(p => p.id === activePlanId);
   const planFeatures = activePlan?.features || {};
-  
-  const maxListings = subscriptionStats?.listingCount?.allowed ?? planFeatures.maxListings ?? 0;
-  const maxJobs = subscriptionStats?.jobPostsCount?.allowed ?? planFeatures.maxJobPosts ?? 1;
-  const canAdvertise = planFeatures.canAdvertiseVehicles ?? false;
 
-  const listingLimitReached = subscriptionStats?.listingCount?.limitReached ?? (maxListings !== -1 && userListings.length >= maxListings);
-  const jobLimitReached = subscriptionStats?.jobPostsCount?.limitReached ?? (maxJobs !== -1 && userJobs.length >= maxJobs);
+  // Derive quota values from the real subscription object
+  const listingsUsed = subscription?.listingsUsed ?? 0;
+  const maxListings = subscription?.listingsLimit ?? 0;
+  const jobPostsUsed = subscription?.jobPostsUsed ?? 0;
+  const maxJobs = subscription?.jobPostsLimit ?? 0;
+  const canAdvertise = subscription?.status === 'active';
+
+  // When limit is 0, treat as unlimited (server semantics) — so NOT reached
+  const listingLimitReached = maxListings > 0 && listingsUsed >= maxListings;
+  const jobLimitReached = maxJobs > 0 && jobPostsUsed >= maxJobs;
+
+  // Build a SubscriptionUsageStats-compatible object for child components, derived from subscription
+  const subscriptionStats: any = subscription
+    ? {
+        isExpired: subscription.status === 'expired',
+        isExpiringSoon: false,
+        daysRemaining: 0,
+        browseCount: {
+          used: subscription.browseCount,
+          allowed: subscription.browseCountLimit,
+          remaining: Math.max(0, subscription.browseCountLimit - subscription.browseCount),
+          percentage: subscription.browseCountLimit > 0 ? (subscription.browseCount / subscription.browseCountLimit) * 100 : 0,
+          limitReached: subscription.browseCountLimit > 0 && subscription.browseCount >= subscription.browseCountLimit,
+        },
+        listingCount: {
+          used: listingsUsed,
+          allowed: maxListings,
+          remaining: maxListings > 0 ? Math.max(0, maxListings - listingsUsed) : 999,
+          percentage: maxListings > 0 ? (listingsUsed / maxListings) * 100 : 0,
+          limitReached: listingLimitReached,
+        },
+        jobPostsCount: {
+          used: jobPostsUsed,
+          allowed: maxJobs,
+          remaining: maxJobs > 0 ? Math.max(0, maxJobs - jobPostsUsed) : 999,
+          percentage: maxJobs > 0 ? (jobPostsUsed / maxJobs) * 100 : 0,
+          limitReached: jobLimitReached,
+        },
+      }
+    : null;
 
   const getSuggestedAction = () => {
     if (isVendor) {
@@ -298,8 +349,8 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           <div className="lg:col-span-2">
             <SubscriptionAlert
-              subscription={null}
-              stats={null}
+              subscription={subscription as any}
+              stats={subscriptionStats}
             />
             <div className="mt-4">
               <DashboardSuggestion {...suggestion} />
@@ -567,10 +618,21 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
                                 >
                                   <Plus className="w-4 h-4" />
                                 </Button>
-                                <Button variant="ghost" size="sm" title="Edit">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  title="Edit"
+                                  onClick={() => handleEditJob(job.id || (job as any)._id)}
+                                >
                                   <Edit2 className="w-4 h-4" />
                                 </Button>
-                                <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700" title="Delete">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="text-red-600 hover:text-red-700"
+                                  title="Delete"
+                                  onClick={() => handleDeleteJob(job.id || (job as any)._id)}
+                                >
                                   <Trash2 className="w-4 h-4" />
                                 </Button>
                               </div>

@@ -29,6 +29,7 @@ export function TeacherSignup() {
   const [subjects, setSubjects] = useState<string[]>([]);
   const [currentSubject, setCurrentSubject] = useState('');
   const [instituteSearchability, setInstituteSearchability] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({
@@ -59,7 +60,7 @@ export function TeacherSignup() {
     setSubjects(subjects.filter(s => s !== subj));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!formData.name || !formData.email || !formData.password || !formData.phone || !formData.location) {
@@ -77,21 +78,27 @@ export function TeacherSignup() {
       return;
     }
 
-    signupTeacher({
-      name: formData.name,
-      email: formData.email,
-      password: formData.password,
-      phone: formData.phone,
-      qualifications,
-      experience: parseInt(formData.experience) || 0,
-      subjects,
-      bio: formData.bio,
-      location: formData.location,
-      instituteSearchability,
-    });
-
-    toast.success('Teacher account created successfully!');
-    navigate('/teacher/dashboard');
+    setSubmitting(true);
+    try {
+      await signupTeacher({
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        phone: formData.phone,
+        qualifications,
+        experience: parseInt(formData.experience) || 0,
+        subjects,
+        bio: formData.bio,
+        location: formData.location,
+        instituteSearchability,
+      });
+      toast.success('Teacher account created successfully!');
+      navigate('/teacher/dashboard');
+    } catch {
+      // AuthContext already toasted the error; leave the user on the form to retry
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -296,8 +303,8 @@ export function TeacherSignup() {
               </div>
 
               <div className="flex gap-4">
-                <Button type="submit" className="flex-1">
-                  Create Profile
+                <Button type="submit" className="flex-1" disabled={submitting}>
+                  {submitting ? 'Creating Profile...' : 'Create Profile'}
                 </Button>
                 <Button type="button" variant="outline" onClick={() => navigate('/login')}>
                   Already have an account?
