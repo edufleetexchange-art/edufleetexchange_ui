@@ -26,3 +26,8 @@ dist-ssr
 node_modules/
 dist/
 .vercel/
+
+# Playwright
+playwright/.cache/
+test-results/
+playwright-report/
