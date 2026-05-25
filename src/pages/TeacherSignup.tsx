@@ -28,7 +28,7 @@ export function TeacherSignup() {
   const [currentQualification, setCurrentQualification] = useState('');
   const [subjects, setSubjects] = useState<string[]>([]);
   const [currentSubject, setCurrentSubject] = useState('');
-  const [instituteSearchability, setInstituteSearchability] = useState(false);
+  const [isAvailable, setIsAvailable] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -90,7 +90,7 @@ export function TeacherSignup() {
         subjects,
         bio: formData.bio,
         location: formData.location,
-        instituteSearchability,
+        isAvailable,
       });
       toast.success('Teacher account created successfully!');
       navigate('/teacher/dashboard');
@@ -281,19 +281,19 @@ export function TeacherSignup() {
                 </div>
               </div>
 
-              {/* Searchability Preference */}
+              {/* Availability Preference */}
               <div className="space-y-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <h3 className="text-lg font-semibold text-blue-900">Institute Searchability</h3>
                 <div className="flex items-start gap-3">
                   <Checkbox
-                    id="instituteSearchability"
-                    checked={instituteSearchability}
-                    onCheckedChange={(checked) => setInstituteSearchability(checked === true)}
+                    id="isAvailable"
+                    checked={isAvailable}
+                    onCheckedChange={(checked) => setIsAvailable(checked === true)}
                     className="mt-1"
                   />
                   <div className="flex-1">
-                    <Label htmlFor="instituteSearchability" className="text-base cursor-pointer font-medium">
-                      Allow institutes to search and view my profile
+                    <Label htmlFor="isAvailable" className="text-base cursor-pointer font-medium">
+                      Available for institute searches
                     </Label>
                     <p className="text-sm text-blue-700 mt-1">
                       By enabling this, institutes can discover and contact you directly for job opportunities. Your profile will be visible in institute searches.

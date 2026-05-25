@@ -25,14 +25,16 @@ export function Landing() {
   
   // Handle hash scroll
   useEffect(() => {
-    const hash = window.location.hash;
-    if (hash === '#pricing') {
-      const element = document.getElementById('pricing');
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
-      }
-    }
-  }, [window.location.hash]);
+    const scrollToHash = () => {
+      const hash = window.location.hash.slice(1);
+      if (!hash) return;
+      const el = document.getElementById(hash);
+      el?.scrollIntoView({ behavior: 'smooth' });
+    };
+    scrollToHash(); // on mount
+    window.addEventListener('hashchange', scrollToHash);
+    return () => window.removeEventListener('hashchange', scrollToHash);
+  }, []);
 
   // State for jobs and suppliers from API
   const [featuredJobs, setFeaturedJobs] = useState<any[]>([]);

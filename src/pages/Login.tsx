@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,6 +15,8 @@ export function Login() {
 
   const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = (location.state as { from?: string } | null)?.from;
 
   const handlePasswordLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,7 +31,9 @@ export function Login() {
 
     try {
       const user = await login(email, password);
-      if (user.role === 'admin') {
+      if (from) {
+        navigate(from, { replace: true });
+      } else if (user.role === 'admin') {
         navigate('/admin');
       } else if (user.role === 'teacher') {
         navigate('/teacher/dashboard');
@@ -41,7 +45,7 @@ export function Login() {
         navigate('/dashboard');
       }
     } catch (err) {
-      setError('Invalid email or password. Please try again.');
+      setError(err instanceof Error ? err.message : 'Login failed');
     } finally {
       setLoading(false);
     }
