@@ -119,7 +119,7 @@ export function TeacherJobDetails() {
     if (!user || user.role !== 'teacher') return;
     try {
       const response = await jobService.getMyApplications();
-      const applied = response.data?.some((app: any) => (app.jobId === id));
+      const applied = response.data?.some((app: any) => app.jobId === id || app.jobId?._id === id || String(app.jobId?._id) === id);
       setHasApplied(applied ?? false);
     } catch (error) {
       console.error('Failed to check application status', error);

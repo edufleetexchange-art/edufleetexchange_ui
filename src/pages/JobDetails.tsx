@@ -73,6 +73,15 @@ const formatDate = (dateValue: string | undefined | null): string => {
   }
 };
 
+const formatSalary = (salary: any): string => {
+  if (!salary) return 'Not disclosed';
+  if (typeof salary === 'string') return salary;
+  const { min, max, currency = 'INR' } = salary;
+  if (min == null && max == null) return 'Not disclosed';
+  if (min != null && max != null) return `${currency} ${Number(min).toLocaleString()} - ${Number(max).toLocaleString()}`;
+  return `${currency} ${Number(min ?? max ?? 0).toLocaleString()}`;
+};
+
 export function JobDetails() {
   const { id } = useParams<{ id: string }>();
   const { account: user, profile } = useAuth();
@@ -238,16 +247,16 @@ export function JobDetails() {
                 </div>
                 {isUnmasked ? (
                   <div className="text-2xl font-bold text-primary">
-                    {job.salary.currency}{(job.salary.min / 1000).toFixed(0)}k - {job.salary.currency}{(job.salary.max / 1000).toFixed(0)}k
+                    {formatSalary(job.salary)}
                     <span className="text-sm font-normal text-muted-foreground ml-2">/month</span>
                   </div>
                 ) : (
-                  <MaskedContent 
-                    variant="text" 
-                    label="Login to view salary" 
+                  <MaskedContent
+                    variant="text"
+                    label="Login to view salary"
                     className="text-2xl font-bold text-primary"
                   >
-                    {job.salary.currency}{(job.salary.min / 1000).toFixed(0)}k - {job.salary.currency}{(job.salary.max / 1000).toFixed(0)}k
+                    {formatSalary(job.salary)}
                   </MaskedContent>
                 )}
               </div>
