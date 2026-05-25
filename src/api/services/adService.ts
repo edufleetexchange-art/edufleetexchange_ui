@@ -61,9 +61,6 @@ const mapId = <T extends { id: string }>(item: any): T => {
 
 // ============ PUBLIC AD ENDPOINTS ============
 
-// Fallback mock data for ads when API fails
-
-
 /**
  * Get ads by placement (public)
  */
@@ -73,10 +70,9 @@ export const getAdsByPlacement = async (placement: AdPlacement): Promise<Ad[]> =
       API_CONFIG.ENDPOINTS.ADS_BY_PLACEMENT(placement)
     );
     return response.map(item => mapId<Ad>(item));
-  } catch (error) {
-    console.warn(`[AdService] API failed for ${placement}, using fallback data:`, error);
-    // Return relevant mock ads for this placement
-    return MOCK_ADS.filter(ad => ad.placement === placement);
+  } catch (err) {
+    console.error('[adService] getAdsByPlacement failed', err);
+    return [];
   }
 };
 
@@ -131,16 +127,16 @@ export const getAllAds = async (params?: {
         pages: 1
       }
     };
-  } catch (error) {
-    console.warn('[AdService] Admin fetch failed, using fallback data:', error);
+  } catch (err) {
+    console.error('[adService] getAllAds failed', err);
     return {
-      success: true,
-      data: MOCK_ADS,
+      success: false,
+      data: [],
       pagination: {
-        page: 1,
-        limit: 10,
-        total: MOCK_ADS.length,
-        pages: 1
+        page: params?.page || 1,
+        limit: params?.limit || 10,
+        total: 0,
+        pages: 0
       }
     };
   }

@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import DOMPurify from 'dompurify';
 import { useAds } from '../../context/AdContext';
 import { AdPlacement, Ad } from '../../types/adTypes';
 import { cn } from '../../lib/utils';
@@ -144,8 +145,13 @@ export const AdSlot: React.FC<AdSlotProps> = ({ placement, className, variant = 
       )}
 
       {currentAd.type === 'html' && currentAd.htmlContent && (
-        <div 
-          dangerouslySetInnerHTML={{ __html: currentAd.htmlContent }} 
+        <div
+          dangerouslySetInnerHTML={{
+            __html: DOMPurify.sanitize(currentAd.htmlContent ?? '', {
+              FORBID_TAGS: ['script', 'iframe', 'object', 'embed', 'form'],
+              FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover', 'onfocus', 'onblur', 'onsubmit'],
+            }),
+          }}
           className="w-full h-full bg-background"
         />
       )}
