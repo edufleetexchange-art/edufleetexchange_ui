@@ -11,34 +11,60 @@ import { Alert } from '@/components/ui/alert';
 import { useNavigate } from 'react-router-dom';
 import { useConfig } from '@/context/ConfigContext';
 
+export interface JobFormValues {
+  title: string;
+  department: string;
+  city: string;
+  state: string;
+  employmentType: 'full-time' | 'part-time' | 'contract' | 'temporary';
+  experienceMin: string;
+  experienceMax: string;
+  salaryMin: string;
+  salaryMax: string;
+  description: string;
+  deadline: string;
+  instituteId: string;
+  requirements: string[];
+  responsibilities: string[];
+  benefits: string[];
+  subjects: string[];
+  qualifications: string[];
+}
+
 interface JobListingFormProps {
   initialInstituteId?: string;
   onSuccess?: () => void;
+  /** Pre-fill form in edit mode */
+  initialValues?: Partial<JobFormValues>;
+  /** 'create' (default) or 'edit' — changes button label and skips limit check in edit mode */
+  mode?: 'create' | 'edit';
+  /** If provided, called with validated payload instead of creating the job directly */
+  onSubmit?: (payload: any) => Promise<void>;
 }
 
-export function JobListingForm({ initialInstituteId, onSuccess }: JobListingFormProps) {
+export function JobListingForm({ initialInstituteId, onSuccess, initialValues, mode = 'create', onSubmit: externalOnSubmit }: JobListingFormProps) {
   const navigate = useNavigate();
   const { account: user, refreshSubscription } = useAuth();
   const { categories, getCategoryName } = useConfig();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [checkingLimit, setCheckingLimit] = useState(true);
+  const [checkingLimit, setCheckingLimit] = useState(mode === 'create');
   const [jobLimitResult, setJobLimitResult] = useState<any>(null);
   const [institutes, setInstitutes] = useState<any[]>([]);
   const [loadingInstitutes, setLoadingInstitutes] = useState(false);
 
   const [formData, setFormData] = useState({
-    title: '',
-    department: '',
-    city: '',
-    state: '',
-    employmentType: 'full-time' as 'full-time' | 'part-time' | 'contract' | 'temporary',
-    experienceMin: '',
-    experienceMax: '',
-    salaryMin: '',
-    salaryMax: '',
-    description: '',
-    deadline: '',
-    instituteId: initialInstituteId || '',
+    title: initialValues?.title || '',
+    department: initialValues?.department || '',
+    city: initialValues?.city || '',
+    state: initialValues?.state || '',
+    employmentType: (initialValues?.employmentType || 'full-time') as 'full-time' | 'part-time' | 'contract' | 'temporary',
+    experienceMin: initialValues?.experienceMin || '',
+    experienceMax: initialValues?.experienceMax || '',
+    salaryMin: initialValues?.salaryMin || '',
+    salaryMax: initialValues?.salaryMax || '',
+    description: initialValues?.description || '',
+    deadline: initialValues?.deadline || '',
+    instituteId: initialInstituteId || initialValues?.instituteId || '',
   });
 
   useEffect(() => {
@@ -47,7 +73,7 @@ export function JobListingForm({ initialInstituteId, onSuccess }: JobListingForm
     }
   }, [initialInstituteId]);
 
-  // Set default department
+  // Set default department only in create mode when no department provided
   useEffect(() => {
     if (!formData.department) {
       const jobCats = categories.filter(c => c.type === 'job');
@@ -57,13 +83,28 @@ export function JobListingForm({ initialInstituteId, onSuccess }: JobListingForm
     }
   }, [categories, formData.department]);
 
-  const [requirements, setRequirements] = useState<string[]>(['']);
-  const [responsibilities, setResponsibilities] = useState<string[]>(['']);
-  const [benefits, setBenefits] = useState<string[]>(['']);
-  const [subjects, setSubjects] = useState<string[]>(['']);
-  const [qualifications, setQualifications] = useState<string[]>(['']);
+  const [requirements, setRequirements] = useState<string[]>(
+    initialValues?.requirements?.length ? initialValues.requirements : ['']
+  );
+  const [responsibilities, setResponsibilities] = useState<string[]>(
+    initialValues?.responsibilities?.length ? initialValues.responsibilities : ['']
+  );
+  const [benefits, setBenefits] = useState<string[]>(
+    initialValues?.benefits?.length ? initialValues.benefits : ['']
+  );
+  const [subjects, setSubjects] = useState<string[]>(
+    initialValues?.subjects?.length ? initialValues.subjects : ['']
+  );
+  const [qualifications, setQualifications] = useState<string[]>(
+    initialValues?.qualifications?.length ? initialValues.qualifications : ['']
+  );
 
   useEffect(() => {
+    // Skip limit check in edit mode — institute is editing an existing post, not creating a new one
+    if (mode === 'edit') {
+      setCheckingLimit(false);
+      return;
+    }
     const checkLimit = async () => {
       // Use user.id or fallback to _id if needed, though checkJobPostLimit uses token
       const userId = user?.id || (user as any)?._id;
@@ -81,7 +122,7 @@ export function JobListingForm({ initialInstituteId, onSuccess }: JobListingForm
       }
     };
     checkLimit();
-  }, [user?.id]);
+  }, [user?.id, mode]);
 
   // Load institutes for admin/sales
   useEffect(() => {
@@ -274,42 +315,47 @@ export function JobListingForm({ initialInstituteId, onSuccess }: JobListingForm
         instituteId: (user.role === 'admin' || user.role === 'sales') ? formData.instituteId : undefined,
       };
 
-      const response = await createJob(jobData);
-      
-      if (response.success || response.data) {
-        toast.success('Job listing created successfully!');
-        await refreshSubscription();
-        
-        // Reset form
-        setFormData({
-          title: '',
-          department: '',
-          city: '',
-          state: '',
-          employmentType: 'full-time',
-          experienceMin: '',
-          experienceMax: '',
-          salaryMin: '',
-          salaryMax: '',
-          description: '',
-          deadline: '',
-          instituteId: '',
-        });
-        setRequirements(['']);
-        setResponsibilities(['']);
-        setBenefits(['']);
-        setSubjects(['']);
-        setQualifications(['']);
-        
-        if (onSuccess) {
-          onSuccess();
+      if (externalOnSubmit) {
+        // Parent handles the API call (e.g., edit mode)
+        await externalOnSubmit(jobData);
+      } else {
+        const response = await createJob(jobData);
+
+        if (response.success || response.data) {
+          toast.success('Job listing created successfully!');
+          await refreshSubscription();
+
+          // Reset form
+          setFormData({
+            title: '',
+            department: '',
+            city: '',
+            state: '',
+            employmentType: 'full-time',
+            experienceMin: '',
+            experienceMax: '',
+            salaryMin: '',
+            salaryMax: '',
+            description: '',
+            deadline: '',
+            instituteId: '',
+          });
+          setRequirements(['']);
+          setResponsibilities(['']);
+          setBenefits(['']);
+          setSubjects(['']);
+          setQualifications(['']);
+
+          if (onSuccess) {
+            onSuccess();
+          }
         }
       }
     } catch (error: any) {
       console.error('Job creation error:', error);
-      
+
       // Extract detailed error message
-      let errorMsg = 'Failed to create job listing';
+      let errorMsg = mode === 'edit' ? 'Failed to update job listing' : 'Failed to create job listing';
       if (error?.error) {
         errorMsg = error.error;
       } else if (error?.message) {
@@ -317,7 +363,7 @@ export function JobListingForm({ initialInstituteId, onSuccess }: JobListingForm
       } else if (error?.response?.data?.error) {
         errorMsg = error.response.data.error;
       }
-      
+
       toast.error(errorMsg);
     } finally {
       setIsSubmitting(false);
@@ -326,7 +372,7 @@ export function JobListingForm({ initialInstituteId, onSuccess }: JobListingForm
 
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-6">Create New Job Opening</h2>
+      <h2 className="text-2xl font-bold mb-6">{mode === 'edit' ? 'Edit Job Opening' : 'Create New Job Opening'}</h2>
 
       {/* Job Limit Alert */}
       {checkingLimit ? (
@@ -751,10 +797,10 @@ export function JobListingForm({ initialInstituteId, onSuccess }: JobListingForm
                 {isSubmitting ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Creating...
+                    {mode === 'edit' ? 'Saving...' : 'Creating...'}
                   </>
                 ) : (
-                  'Create Job Listing'
+                  mode === 'edit' ? 'Save Changes' : 'Create Job Listing'
                 )}
               </Button>
             </div>

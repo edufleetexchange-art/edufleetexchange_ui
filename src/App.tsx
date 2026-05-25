@@ -30,6 +30,7 @@ import MarketingDashboard from '@/pages/MarketingDashboard';
 import SalesDashboard from '@/pages/SalesDashboard';
 import { ForgotPassword } from '@/pages/ForgotPassword';
 import { ResetPassword } from '@/pages/ResetPassword';
+import { JobEdit } from '@/pages/JobEdit';
 
 // Admin imports
 import { AdminLogin } from '@/pages/AdminLogin';
@@ -119,6 +120,14 @@ function App() {
                   element={
                     <ProtectedRoute requiredRole="institute">
                       <Dashboard initialTab="create" />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/dashboard/edit-job/:jobId"
+                  element={
+                    <ProtectedRoute requiredRole="institute">
+                      <JobEdit />
                     </ProtectedRoute>
                   }
                 />
