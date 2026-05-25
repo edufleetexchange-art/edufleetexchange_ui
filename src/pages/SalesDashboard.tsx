@@ -525,10 +525,10 @@ export default function SalesDashboard() {
                         <div className="flex-1">
                           <div className="flex justify-between">
                             <h4 className="font-semibold">{task.title}</h4>
-                            <Badge variant={
-                              task.priority === 'high' ? 'destructive' : 
-                              task.priority === 'medium' ? 'warning' : 'outline'
-                            } className="text-[10px] h-5">
+                            <Badge
+                              variant={task.priority === 'high' ? 'destructive' : 'outline'}
+                              className={`text-[10px] h-5${task.priority === 'medium' ? ' bg-amber-100 text-amber-800' : ''}`}
+                            >
                               {task.priority.toUpperCase()}
                             </Badge>
                           </div>
@@ -641,11 +641,10 @@ export default function SalesDashboard() {
                           <div className="text-xs text-muted-foreground">{lead.phone}</div>
                         </TableCell>
                         <TableCell>
-                          <Badge variant={
-                            lead.status === 'closed' ? 'success' : 
-                            lead.status === 'lost' ? 'destructive' : 
-                            'outline'
-                          }>
+                          <Badge
+                            variant={lead.status === 'lost' ? 'destructive' : 'outline'}
+                            className={lead.status === 'closed' ? 'bg-green-100 text-green-800' : ''}
+                          >
                             {lead.status.toUpperCase()}
                           </Badge>
                         </TableCell>
@@ -731,11 +730,10 @@ export default function SalesDashboard() {
                           ₹{request.requestedPlanId?.price.toLocaleString()}
                         </TableCell>
                         <TableCell>
-                          <Badge variant={
-                            request.status === 'approved' ? 'success' : 
-                            request.status === 'rejected' ? 'destructive' : 
-                            'secondary'
-                          }>
+                          <Badge
+                            variant={request.status === 'rejected' ? 'destructive' : 'secondary'}
+                            className={request.status === 'approved' ? 'bg-green-100 text-green-800' : ''}
+                          >
                             {request.status.toUpperCase()}
                           </Badge>
                         </TableCell>

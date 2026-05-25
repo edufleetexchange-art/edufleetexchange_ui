@@ -84,6 +84,7 @@ export interface CreateVehicleDto {
   title: string;
   manufacturer: string;
   vehicleModel: string;
+  sellerId?: string;
   year: number;
   type: 'bus' | 'school-bus' | 'minibus' | 'van' | 'truck';
   price: number;

@@ -28,6 +28,9 @@ import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { Toaster } from '@/components/ui/sonner';
 import MarketingDashboard from '@/pages/MarketingDashboard';
 import SalesDashboard from '@/pages/SalesDashboard';
+import { ForgotPassword } from '@/pages/ForgotPassword';
+import { ResetPassword } from '@/pages/ResetPassword';
+import { JobEdit } from '@/pages/JobEdit';
 
 // Admin imports
 import { AdminLogin } from '@/pages/AdminLogin';
@@ -90,6 +93,8 @@ function App() {
                 <Route path="/advertise" element={<Advertise />} />
                 <Route path="/notifications" element={<NotificationsPage />} />
                 <Route path="/admin/login" element={<AdminLogin />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
 
                 {/* Support Routes */}
                 <Route path="/support/help" element={<HelpCenter />} />
@@ -115,6 +120,14 @@ function App() {
                   element={
                     <ProtectedRoute requiredRole="institute">
                       <Dashboard initialTab="create" />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/dashboard/edit-job/:jobId"
+                  element={
+                    <ProtectedRoute requiredRole="institute">
+                      <JobEdit />
                     </ProtectedRoute>
                   }
                 />

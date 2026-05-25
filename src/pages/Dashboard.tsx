@@ -32,7 +32,7 @@ import { Badge } from '@/components/ui/badge';
 import { api } from '@/api';
 
 import { AdSlot } from '@/components/ads/AdSlot';
-import { JobApplicationsTab } from '@/components/JobApplicationsTab';
+import { ApplicantsList } from '@/components/ApplicantsList';
 
 interface DashboardProps {
   initialTab?: string;
@@ -177,8 +177,7 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
   };
 
   const handleEditJob = (jobId: string) => {
-    // TODO: build job edit page
-    toast.info('Editing not yet implemented');
+    navigate(`/dashboard/edit-job/${jobId}`);
   };
 
   const handleDeleteJob = async (jobId: string) => {
@@ -200,7 +199,7 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
     pendingApprovals: userListings.filter(v => v.status === 'pending').length,
     totalViews: 0, // TODO: real view counts from analytics endpoint
     totalJobs: userJobs.length,
-    activeJobs: userJobs.filter(j => j.status === 'approved').length,
+    activeJobs: userJobs.filter(j => (j.status as string) === 'approved').length,
     totalApplicants: userJobs.reduce((acc, j) => acc + (j.applicants || 0), 0),
   };
 
@@ -536,7 +535,7 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
 
         {/* Tab Content */}
         {activeTab === 'applications' && isInstitute ? (
-          <JobApplicationsTab />
+          <ApplicantsList />
         ) : activeTab === 'subscription' ? (
           <div className="space-y-6">
             <div className="flex justify-between items-center mb-6">
@@ -597,14 +596,14 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
                             <TableCell>
                               <span
                                 className={`text-xs font-medium px-2 py-1 rounded-full ${
-                                  job.status === 'approved'
+                                  (job.status as string) === 'approved'
                                     ? 'bg-green-100 text-green-700'
-                                    : job.status === 'pending'
+                                    : (job.status as string) === 'pending'
                                     ? 'bg-yellow-100 text-yellow-700'
                                     : 'bg-red-100 text-red-700'
                                 }`}
                               >
-                                {job.status.charAt(0).toUpperCase() + job.status.slice(1)}
+                                {job.status?.charAt(0).toUpperCase() + job.status?.slice(1)}
                               </span>
                             </TableCell>
                             <TableCell>{job.applicants || 0}</TableCell>

@@ -75,7 +75,7 @@ export function NotificationsPage() {
 
     // Type filter
     if (filterType !== 'all') {
-      filtered = filtered.filter(n => n.type === filterType);
+      filtered = filtered.filter(n => n.type === (filterType as Notification['type']));
     }
 
     // Priority filter
@@ -180,7 +180,7 @@ export function NotificationsPage() {
     }
   };
 
-  const notificationTypes = [
+  const notificationTypes: Notification['type'][] = [
     'approval',
     'rejection',
     'priority',

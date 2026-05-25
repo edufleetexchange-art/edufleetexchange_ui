@@ -17,6 +17,7 @@ export interface AdRequestPayload {
 export interface CreateAdPayload {
   title: string;
   advertiser: string;
+  rejectionReason?: string;
   type: 'image' | 'video' | 'html';
   mediaUrl?: string;
   htmlContent?: string;
