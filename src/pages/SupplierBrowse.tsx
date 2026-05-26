@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { SupplierCard } from '@/components/SupplierCard';
 import { Card } from '@/components/ui/card';
-import { Search, Building2, Filter, Sliders, CheckCircle, Calendar, Users, Award, Mail, Phone, Globe, MapPin } from 'lucide-react';
+import { Search, Building2, Filter, Sliders, CheckCircle, Calendar, Users, Award, Mail, Phone, Globe, MapPin, AlertCircle } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { getSuppliers } from '@/api/services/supplierService';
 import { Supplier, SupplierFilters } from '@/api/types';
 import { useConfig } from '@/context/ConfigContext';
@@ -18,18 +20,32 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { AdSlot } from '@/components/ads/AdSlot';
+import { useAuth } from '@/context/AuthContext';
+import { checkBrowseLimit } from '@/api/services/subscriptionEnforcement';
 
 export function SupplierBrowse() {
+  const { account } = useAuth();
   const { categoryLabels } = useConfig();
+  const [searchParams] = useSearchParams();
+  const initialQuery = searchParams.get('q') ?? '';
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState<SupplierFilters>({
-    searchTerm: '',
+    searchTerm: initialQuery,
     category: '',
     isVerified: undefined
   });
   const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null);
   const [debounceTimer, setDebounceTimer] = useState<ReturnType<typeof setTimeout> | null>(null);
+  const [browseLimitReached, setBrowseLimitReached] = useState(false);
+
+  // Enforce browse quota on mount — authenticated users only
+  useEffect(() => {
+    if (!account) return;
+    checkBrowseLimit().then((result) => {
+      if (result.data?.allowed === false) setBrowseLimitReached(true);
+    });
+  }, [account]);
 
   useEffect(() => {
     // Clear previous timer if exists
@@ -115,6 +131,24 @@ export function SupplierBrowse() {
       </section>
 
       <div className="container mx-auto px-4 py-8">
+        {browseLimitReached && (
+          <div className="mb-8">
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Monthly browse limit reached</AlertTitle>
+              <AlertDescription className="flex flex-col sm:flex-row sm:items-center gap-3 mt-1">
+                <span>You've reached your monthly browse limit. Upgrade your plan to see more listings.</span>
+                <a
+                  href="/#pricing"
+                  className="inline-flex items-center justify-center rounded-md bg-destructive-foreground text-destructive px-4 py-1.5 text-sm font-semibold hover:opacity-90 transition-opacity whitespace-nowrap"
+                >
+                  Upgrade Plan
+                </a>
+              </AlertDescription>
+            </Alert>
+          </div>
+        )}
+
         {/* Top Ad */}
         <div className="mb-8">
           <AdSlot placement="LP_TOP_BANNER" variant="banner" />

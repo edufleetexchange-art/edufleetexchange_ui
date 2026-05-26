@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { JobCard } from '@/components/JobCard';
 import { useJobs } from '@/hooks/useApi';
 import { Card } from '@/components/ui/card';
@@ -9,7 +10,8 @@ import { Input } from '@/components/ui/input';
 import { useConfig } from '@/context/ConfigContext';
 import { AdSlot } from '@/components/ads/AdSlot';
 import { useAuth } from '@/context/AuthContext';
-import { Alert } from '@/components/ui/alert';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { checkBrowseLimit } from '@/api/services/subscriptionEnforcement';
 import {
   Select,
   SelectContent,
@@ -21,14 +23,32 @@ import {
 export function JobBrowse() {
   const { account: user, subscription } = useAuth();
   const { categories } = useConfig();
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchParams] = useSearchParams();
+  const initialQuery = searchParams.get('q') ?? '';
+  const [searchTerm, setSearchTerm] = useState(initialQuery);
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(initialQuery);
   const [typeFilter, setTypeFilter] = useState('all');
   const [departmentFilter, setDepartmentFilter] = useState('all');
   const [uniqueDepartments, setUniqueDepartments] = useState<string[]>([]);
-  
+  const [browseLimitReached, setBrowseLimitReached] = useState(false);
+
+  // 300ms debounce on text search
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearchTerm(searchTerm), 300);
+    return () => clearTimeout(t);
+  }, [searchTerm]);
+
+  // Enforce browse quota on mount — authenticated users only
+  useEffect(() => {
+    if (!user) return;
+    checkBrowseLimit().then((result) => {
+      if (result.data?.allowed === false) setBrowseLimitReached(true);
+    });
+  }, [user]);
+
   // Use server-side filtering
   const { jobs, loading } = useJobs({
-    searchTerm,
+    searchTerm: debouncedSearchTerm,
     type: typeFilter !== 'all' ? typeFilter : undefined,
     department: departmentFilter !== 'all' ? departmentFilter : undefined,
     pageSize: 100 // Fetch more items since we don't have pagination UI yet
@@ -44,6 +64,7 @@ export function JobBrowse() {
 
   const handleClearFilters = () => {
     setSearchTerm('');
+    setDebouncedSearchTerm('');
     setTypeFilter('all');
     setDepartmentFilter('all');
   };
@@ -80,6 +101,24 @@ export function JobBrowse() {
   return (
     <div className="min-h-screen bg-background py-8">
       <div className="container mx-auto px-4">
+        {browseLimitReached && (
+          <div className="mb-8">
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Monthly browse limit reached</AlertTitle>
+              <AlertDescription className="flex flex-col sm:flex-row sm:items-center gap-3 mt-1">
+                <span>You've reached your monthly browse limit. Upgrade your plan to see more listings.</span>
+                <a
+                  href="/#pricing"
+                  className="inline-flex items-center justify-center rounded-md bg-destructive-foreground text-destructive px-4 py-1.5 text-sm font-semibold hover:opacity-90 transition-opacity whitespace-nowrap"
+                >
+                  Upgrade Plan
+                </a>
+              </AlertDescription>
+            </Alert>
+          </div>
+        )}
+
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">Browse Job Openings</h1>

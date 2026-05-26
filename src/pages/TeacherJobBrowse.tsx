@@ -1,21 +1,25 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { jobService } from '@/api/services/jobService';
 import type { Job } from '@/api/services/jobService';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
 } from '@/components/ui/select';
-import { Search, MapPin, Briefcase, DollarSign, Calendar, Building } from 'lucide-react';
+import { Search, MapPin, Briefcase, DollarSign, Calendar, Building, AlertCircle } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AdSlot } from '@/components/ads/AdSlot';
 import { toast } from 'sonner';
+import { useAuth } from '@/context/AuthContext';
+import { checkBrowseLimit } from '@/api/services/subscriptionEnforcement';
 
 const formatLocation = (location: any): string => {
   if (!location) return 'Location not specified';
@@ -61,25 +65,56 @@ const formatExperience = (experience: any): string => {
 const PAGE_SIZE = 20;
 
 export function TeacherJobBrowse() {
-  const [searchTerm, setSearchTerm] = useState('');
+  const { account } = useAuth();
+  const [searchParams] = useSearchParams();
+  const initialQuery = searchParams.get('q') ?? '';
+  const [searchTerm, setSearchTerm] = useState(initialQuery);
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(initialQuery);
   const [typeFilter, setTypeFilter] = useState<string>('all');
-  const [locationFilter, setLocationFilter] = useState<string>('all');
+  const [locationFilter, setLocationFilter] = useState<string>('');
+  const [debouncedLocationFilter, setDebouncedLocationFilter] = useState<string>('');
   const [subjectFilter, setSubjectFilter] = useState<string>('');
+  const [debouncedSubjectFilter, setDebouncedSubjectFilter] = useState<string>('');
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
+  const [browseLimitReached, setBrowseLimitReached] = useState(false);
+
+  // 300ms debounce on text inputs
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearchTerm(searchTerm), 300);
+    return () => clearTimeout(t);
+  }, [searchTerm]);
+
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSubjectFilter(subjectFilter), 300);
+    return () => clearTimeout(t);
+  }, [subjectFilter]);
+
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedLocationFilter(locationFilter), 300);
+    return () => clearTimeout(t);
+  }, [locationFilter]);
+
+  // Enforce browse quota on mount — authenticated users only
+  useEffect(() => {
+    if (!account) return;
+    checkBrowseLimit().then((result) => {
+      if (result.data?.allowed === false) setBrowseLimitReached(true);
+    });
+  }, [account]);
 
   useEffect(() => {
     loadJobs();
-  }, [searchTerm, typeFilter, locationFilter, subjectFilter]);
+  }, [debouncedSearchTerm, typeFilter, debouncedLocationFilter, debouncedSubjectFilter]);
 
   const loadJobs = async () => {
     try {
       setLoading(true);
       const response = await jobService.getAllJobs({
-        searchTerm: searchTerm || undefined,
+        searchTerm: debouncedSearchTerm || undefined,
         type: typeFilter !== 'all' ? typeFilter as any : undefined,
-        location: locationFilter !== 'all' ? locationFilter : undefined,
-        department: subjectFilter || undefined,
+        location: debouncedLocationFilter || undefined,
+        department: debouncedSubjectFilter || undefined,
         status: 'open',
         page: 1,
         pageSize: PAGE_SIZE,
@@ -108,6 +143,24 @@ export function TeacherJobBrowse() {
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
+        {browseLimitReached && (
+          <div className="mb-8">
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Monthly browse limit reached</AlertTitle>
+              <AlertDescription className="flex flex-col sm:flex-row sm:items-center gap-3 mt-1">
+                <span>You've reached your monthly browse limit. Upgrade your plan to see more listings.</span>
+                <a
+                  href="/#pricing"
+                  className="inline-flex items-center justify-center rounded-md bg-destructive-foreground text-destructive px-4 py-1.5 text-sm font-semibold hover:opacity-90 transition-opacity whitespace-nowrap"
+                >
+                  Upgrade Plan
+                </a>
+              </AlertDescription>
+            </Alert>
+          </div>
+        )}
+
         {/* Top Ad */}
         <div className="mb-6">
           <AdSlot placement="LP_TOP_BANNER" variant="banner" />
@@ -164,20 +217,15 @@ export function TeacherJobBrowse() {
               </Select>
 
               {/* Location Filter */}
-              <Select value={locationFilter} onValueChange={setLocationFilter}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Location" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Locations</SelectItem>
-                  <SelectItem value="Delhi">Delhi</SelectItem>
-                  <SelectItem value="Mumbai">Mumbai</SelectItem>
-                  <SelectItem value="Bangalore">Bangalore</SelectItem>
-                  <SelectItem value="Pune">Pune</SelectItem>
-                  <SelectItem value="Hyderabad">Hyderabad</SelectItem>
-                  <SelectItem value="Kolkata">Kolkata</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="relative">
+                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Location (city, state...)"
+                  value={locationFilter}
+                  onChange={(e) => setLocationFilter(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -189,9 +237,12 @@ export function TeacherJobBrowse() {
           </p>
           <Button variant="outline" onClick={() => {
             setSearchTerm('');
+            setDebouncedSearchTerm('');
             setTypeFilter('all');
-            setLocationFilter('all');
+            setLocationFilter('');
+            setDebouncedLocationFilter('');
             setSubjectFilter('');
+            setDebouncedSubjectFilter('');
           }}>
             Clear Filters
           </Button>
