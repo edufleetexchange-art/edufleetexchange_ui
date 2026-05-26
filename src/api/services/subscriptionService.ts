@@ -146,6 +146,25 @@ export const getUserSubscription = async (
   };
 };
 
+/**
+ * Fetch the subscription for an arbitrary account (admin use).
+ * Calls GET /subscriptions/user/:accountId — the documented per-account
+ * endpoint — instead of relying on the hidden $lookup the admin user-list
+ * endpoint performs. Returns null on any error so callers can fall back
+ * gracefully.
+ */
+export const getSubscriptionByAccountId = async (
+  accountId: string
+): Promise<import('../types').Subscription | null> => {
+  if (!accountId) return null;
+  try {
+    const data = await apiClient.get<import('../types').Subscription>(`/subscriptions/user/${accountId}`);
+    return data ?? null;
+  } catch {
+    return null;
+  }
+};
+
 export const getAllUserSubscriptions = async (): Promise<ApiResponse<UserSubscription[]>> => {
   const data = await apiClient.get<UserSubscription[]>('/subscriptions/user');
   return {
