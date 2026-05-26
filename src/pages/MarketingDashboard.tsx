@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import type { StaffProfile } from '@/api/types';
@@ -157,6 +157,16 @@ export default function MarketingDashboard() {
     setIsCRMDialogOpen(true);
   };
 
+  const filteredLeads = useMemo(() => {
+    const q = leadSearch.trim().toLowerCase();
+    if (!q) return leads;
+    return leads.filter((lead) =>
+      [lead.name, lead.email, lead.phone, lead.instituteName, lead.type, lead.status]
+        .filter(Boolean)
+        .some((v: any) => String(v).toLowerCase().includes(q))
+    );
+  }, [leads, leadSearch]);
+
   if (loading && !stats) {
     return (
       <div className="p-8">
@@ -263,16 +273,7 @@ export default function MarketingDashboard() {
 
       {/* Tab Content */}
       <div className="space-y-6">
-        {activeTab === 'leads' && (() => {
-          const q = leadSearch.trim().toLowerCase();
-          const filteredLeads = q
-            ? leads.filter((lead) =>
-                [lead.name, lead.email, lead.phone, lead.instituteName, lead.type, lead.status]
-                  .filter(Boolean)
-                  .some((v: any) => String(v).toLowerCase().includes(q))
-              )
-            : leads;
-          return (
+        {activeTab === 'leads' && (
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
@@ -280,7 +281,7 @@ export default function MarketingDashboard() {
                 <CardDescription>All potential customers you've identified. Sales team will pick these up to close deals.</CardDescription>
               </div>
               <Badge variant="outline" className="h-fit">
-                Total: {q ? `${filteredLeads.length} / ${leads.length}` : leads.length}
+                Total: {leadSearch.trim() ? `${filteredLeads.length} / ${leads.length}` : leads.length}
               </Badge>
             </CardHeader>
             <CardContent>
@@ -373,8 +374,7 @@ export default function MarketingDashboard() {
               </div>
             </CardContent>
           </Card>
-          );
-        })()}
+        )}
 
         {activeTab === 'audit' && (
           <Card>

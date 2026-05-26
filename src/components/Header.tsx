@@ -76,12 +76,17 @@ export function Header() {
   };
 
   const performSearch = () => {
-    if (headerSearch.toLowerCase().includes('job')) {
-      navigate('/jobs');
-    } else if (headerSearch.toLowerCase().includes('supplier')) {
-      navigate('/suppliers');
+    const q = headerSearch.trim();
+    const encoded = encodeURIComponent(q);
+    const lower = q.toLowerCase();
+    if (lower.includes('job')) {
+      navigate(`/jobs?q=${encoded}`);
+    } else if (lower.includes('supplier') || lower.includes('vendor')) {
+      navigate(`/suppliers?q=${encoded}`);
+    } else if (lower.includes('teacher')) {
+      navigate(`/browse?q=${encoded}`);
     } else {
-      navigate('/browse');
+      navigate(`/browse?q=${encoded}`);
     }
     setHeaderSearch('');
   }

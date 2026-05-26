@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Vehicle } from '@/api/types';
 import { CheckCircle2, XCircle, Star, Loader2, Megaphone } from 'lucide-react';
 import { toast } from 'sonner';
@@ -27,6 +28,7 @@ export function VehicleManagement() {
   const { approveVehicle, rejectVehicle, togglePriority, loading: actionLoading } = useAdminActions();
   
   const [priorities, setPriorities] = useState<Set<string>>(new Set());
+  const [searchTerm, setSearchTerm] = useState('');
 
   // Update priorities when vehicles load
   useEffect(() => {
@@ -34,7 +36,15 @@ export function VehicleManagement() {
     setPriorities(new Set(priorityIds));
   }, [allVehicles]);
 
-  const displayVehicles = allVehicles;
+  const displayVehicles = (() => {
+    const q = searchTerm.trim().toLowerCase();
+    if (!q) return allVehicles;
+    return allVehicles.filter((v) =>
+      [v.title, v.manufacturer, v.vehicleModel, v.registrationNumber]
+        .filter(Boolean)
+        .some((f: any) => String(f).toLowerCase().includes(q))
+    );
+  })();
 
   const handleApprove = async (id: string) => {
     try {
@@ -163,6 +173,18 @@ export function VehicleManagement() {
             <p className="text-sm text-muted-foreground mb-2">Priority Listings</p>
             <div className="text-3xl font-bold">{priorities.size}</div>
           </Card>
+        </div>
+      )}
+
+      {/* Search */}
+      {!loading && (
+        <div className="mb-4">
+          <Input
+            type="search"
+            placeholder="Search by title, manufacturer, model, registration…"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
         </div>
       )}
 

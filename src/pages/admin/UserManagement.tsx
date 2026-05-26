@@ -197,13 +197,15 @@ export default function UserManagement() {
   };
 
   const filteredUsers = users.filter(user => {
-    const matchesSearch = 
-      user.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.instituteName?.toLowerCase().includes(searchQuery.toLowerCase());
-    
+    const q = searchQuery.trim().toLowerCase();
+    const matchesSearch = q
+      ? [user.name, user.email, user.instituteName, user.employeeId, user.phone, user.role]
+          .filter(Boolean)
+          .some((v: any) => String(v).toLowerCase().includes(q))
+      : true;
+
     const matchesTab = activeTab === 'all' || user.role === activeTab;
-    
+
     return matchesSearch && matchesTab;
   });
 

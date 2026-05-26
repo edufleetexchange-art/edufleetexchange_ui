@@ -79,7 +79,13 @@ export function SubscriptionManagement() {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [planFilter, setPlanFilter] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
-  
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
+
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearchTerm(searchTerm), 300);
+    return () => clearTimeout(t);
+  }, [searchTerm]);
+
   const [actionDialog, setActionDialog] = useState<{
     open: boolean;
     type: 'extend' | 'reset' | 'suspend' | 'reactivate' | 'continue' | 'markPaid' | 'changePlan' | 'approveRequest' | 'rejectRequest' | null;
@@ -109,7 +115,7 @@ export function SubscriptionManagement() {
 
   useEffect(() => {
     loadData();
-  }, [statusFilter, planFilter]);
+  }, [statusFilter, planFilter, debouncedSearchTerm]);
 
   const loadData = async () => {
     try {
@@ -118,7 +124,7 @@ export function SubscriptionManagement() {
       const filters: any = {};
       if (statusFilter !== 'all') filters.status = statusFilter;
       if (planFilter !== 'all') filters.planId = planFilter;
-      if (searchTerm) filters.search = searchTerm;
+      if (debouncedSearchTerm) filters.search = debouncedSearchTerm;
       
       const [subsResponse, plansResponse, statsResponse, requestsResponse] = await Promise.all([
         getFilteredUserSubscriptions(filters),

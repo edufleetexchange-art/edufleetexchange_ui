@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { VehicleCard } from '@/components/VehicleCard';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -25,6 +25,8 @@ export function Browse() {
   const { account: user, subscription } = useAuth();
   const { categories } = useConfig();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const initialQuery = searchParams.get('q') ?? '';
 
   // Redirect vendors away from vehicle browse
   useEffect(() => {
@@ -37,7 +39,7 @@ export function Browse() {
   const [activeTab, setActiveTab] = useState('vehicles');
   
   // Vehicle filters
-  const [vehicleSearchTerm, setVehicleSearchTerm] = useState('');
+  const [vehicleSearchTerm, setVehicleSearchTerm] = useState(initialQuery);
   const [typeFilter, setTypeFilter] = useState<string>(ALL_FILTER);
   const [manufacturerFilter, setManufacturerFilter] = useState<string>(ALL_FILTER);
   const [yearFilter, setYearFilter] = useState<string>(ALL_FILTER);
@@ -97,7 +99,12 @@ export function Browse() {
     });
   }, [allVehicles, vehicleSearchTerm, typeFilter, manufacturerFilter, yearFilter, conditionFilter]);
 
-  const vehicleHasActiveFilters = typeFilter !== ALL_FILTER || manufacturerFilter !== ALL_FILTER || yearFilter !== ALL_FILTER || conditionFilter !== ALL_FILTER;
+  const vehicleHasActiveFilters =
+    vehicleSearchTerm.trim().length > 0 ||
+    typeFilter !== ALL_FILTER ||
+    manufacturerFilter !== ALL_FILTER ||
+    yearFilter !== ALL_FILTER ||
+    conditionFilter !== ALL_FILTER;
 
   const handleClearVehicleFilters = () => {
     setVehicleSearchTerm('');
