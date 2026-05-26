@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Loader2, Megaphone } from 'lucide-react';
 import {
   Table,
@@ -15,9 +16,20 @@ import { useJobs } from '@/hooks/useApi';
 
 export function JobManagement() {
   const navigate = useNavigate();
-  
+  const [searchTerm, setSearchTerm] = useState('');
+
   // Fetch jobs from API
   const { jobs, loading } = useJobs({ pageSize: 100 });
+
+  const displayJobs = (() => {
+    const q = searchTerm.trim().toLowerCase();
+    if (!q) return jobs;
+    return jobs.filter((j: any) =>
+      [j.title, j.instituteName, j.department]
+        .filter(Boolean)
+        .some((f: any) => String(f).toLowerCase().includes(q))
+    );
+  })();
   
   const handlePromoteToAd = (job: any) => {
     navigate('/admin/ads/create', {
@@ -57,9 +69,21 @@ export function JobManagement() {
         </div>
       )}
 
+      {/* Search */}
+      {!loading && (
+        <div className="mb-4">
+          <Input
+            type="search"
+            placeholder="Search by job title, institute, department…"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+      )}
+
       {/* Table */}
       <Card className="overflow-hidden">
-        {jobs.length === 0 && !loading ? (
+        {displayJobs.length === 0 && !loading ? (
           <div className="p-8 text-center">
             <p className="text-muted-foreground mb-2">No jobs found</p>
           </div>
@@ -76,7 +100,7 @@ export function JobManagement() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {jobs.map((job) => (
+                {displayJobs.map((job) => (
                   <TableRow key={job.id || job._id}>
                     <TableCell>
                       <div className="font-medium">{job.title}</div>
