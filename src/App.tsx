@@ -18,7 +18,6 @@ import { VendorSignup } from '@/pages/VendorSignup';
 import { TeacherDashboard } from '@/pages/TeacherDashboard';
 import { TeacherJobBrowse } from '@/pages/TeacherJobBrowse';
 import { TeacherJobDetails } from '@/pages/TeacherJobDetails';
-import { TeacherSearch } from '@/pages/TeacherSearch';
 import { InstituteTeacherSearch } from '@/pages/InstituteTeacherSearch';
 import { InstituteJobApplications } from '@/pages/InstituteJobApplications';
 import { SupplierBrowse } from '@/pages/SupplierBrowse';
