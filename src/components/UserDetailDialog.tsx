@@ -1,8 +1,11 @@
+import { useEffect, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Mail, Phone, MapPin, Building2, User, Calendar, ShieldCheck, CreditCard } from 'lucide-react';
 import { format } from 'date-fns';
+import { getSubscriptionByAccountId } from '@/api/services/subscriptionService';
+import type { Subscription } from '@/api/types';
 
 interface UserDetailDialogProps {
   user: any;
@@ -11,10 +14,32 @@ interface UserDetailDialogProps {
   plans: any[];
 }
 
+const STAFF_ROLES = ['admin', 'marketing', 'sales'];
+
 export function UserDetailDialog({ user, isOpen, onClose, plans }: UserDetailDialogProps) {
+  const [subscription, setSubscription] = useState<Subscription | null>(null);
+  const [subLoading, setSubLoading] = useState(false);
+
+  useEffect(() => {
+    if (!user?.id && !user?._id) return;
+    if (STAFF_ROLES.includes(user.role)) {
+      setSubscription(null);
+      return;
+    }
+    const accountId = user.id ?? user._id;
+    setSubLoading(true);
+    getSubscriptionByAccountId(accountId).then(sub => {
+      // TODO: once admin endpoint stops $lookup-ing subscription onto users,
+      // this fallback can be removed.
+      const resolved = sub ?? (user as any).subscription ?? null;
+      setSubscription(resolved);
+      setSubLoading(false);
+    });
+  }, [user?.id, user?._id, user?.role]);
+
   if (!user) return null;
 
-  const plan = plans.find(p => p._id === user.subscription?.planId);
+  const plan = plans.find(p => p._id === subscription?.planId);
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -90,36 +115,40 @@ export function UserDetailDialog({ user, isOpen, onClose, plans }: UserDetailDia
           </div>
 
           {/* Subscription Info */}
-          {!['admin', 'marketing', 'sales'].includes(user.role) && (
+          {!STAFF_ROLES.includes(user.role) && (
             <div className="space-y-4 md:col-span-2">
               <h3 className="font-semibold text-lg flex items-center gap-2">
                 <CreditCard className="w-4 h-4" /> Subscription & Usage
               </h3>
               <Card className="p-6">
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                  <div>
-                    <p className="text-xs text-muted-foreground uppercase font-bold mb-1">Current Plan</p>
-                    <p className="font-semibold text-primary">{plan?.displayName || 'No Active Plan'}</p>
-                    {user.subscription?.endDate && (
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Expires: {format(new Date(user.subscription.endDate), 'PPP')}
-                      </p>
-                    )}
+                {subLoading ? (
+                  <p className="text-sm text-muted-foreground animate-pulse">Loading subscription…</p>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                    <div>
+                      <p className="text-xs text-muted-foreground uppercase font-bold mb-1">Current Plan</p>
+                      <p className="font-semibold text-primary">{plan?.displayName || 'No Active Plan'}</p>
+                      {subscription?.endDate && (
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Expires: {format(new Date(subscription.endDate), 'PPP')}
+                        </p>
+                      )}
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground uppercase font-bold mb-1">Listings Used</p>
+                      <p className="font-semibold">{subscription?.listingsUsed || 0} / {subscription?.listingsLimit || 0}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground uppercase font-bold mb-1">Job Posts Used</p>
+                      <p className="font-semibold">{subscription?.jobPostsUsed || 0} / {subscription?.jobPostsLimit || 0}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground uppercase font-bold mb-1">Listings Used</p>
-                    <p className="font-semibold">{user.subscription?.listingsUsed || 0} / {user.subscription?.listingsLimit || 0}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground uppercase font-bold mb-1">Job Posts Used</p>
-                    <p className="font-semibold">{user.subscription?.jobPostsUsed || 0} / {user.subscription?.jobPostsLimit || 0}</p>
-                  </div>
-                </div>
+                )}
               </Card>
             </div>
           )}
 
-          {['admin', 'marketing', 'sales'].includes(user.role) && (
+          {STAFF_ROLES.includes(user.role) && (
             <div className="space-y-4 md:col-span-2">
               <h3 className="font-semibold text-lg flex items-center gap-2">
                 <ShieldCheck className="w-4 h-4" /> Company Account
