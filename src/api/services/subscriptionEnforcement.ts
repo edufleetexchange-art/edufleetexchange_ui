@@ -14,24 +14,6 @@ import {
 const isUnauthorized = (err: unknown): boolean =>
   err instanceof APIError && err.statusCode === 401;
 
-// Helper for mock data
-const getMockBrowseCount = () => {
-  try {
-    const stored = localStorage.getItem('mock_browse_count');
-    return stored ? parseInt(stored, 10) : 0;
-  } catch {
-    return 0;
-  }
-};
-
-const setMockBrowseCount = (count: number) => {
-  try {
-    localStorage.setItem('mock_browse_count', count.toString());
-  } catch (e) {
-    console.error('Failed to save mock browse count', e);
-  }
-};
-
 // ==========================================
 // BROWSE LIMIT ENFORCEMENT
 // ==========================================
@@ -78,15 +60,23 @@ export const incrementBrowseCount = async (): Promise<ApiResponse<{ success: boo
       message: response.message,
       timestamp: new Date().toISOString(),
     };
-  } catch (error: any) {
-    // Mock fallback
-    const current = getMockBrowseCount();
-    setMockBrowseCount(current + 1);
-
+  } catch (error: unknown) {
+    // 401 means no active session — guests have no quota state to update.
+    if (isUnauthorized(error)) {
+      return {
+        success: true,
+        data: { success: true },
+        message: 'skipped: no session',
+        timestamp: new Date().toISOString(),
+      };
+    }
+    // Real server/network error — surface it. The server is source of truth;
+    // we must NOT silently mock a successful increment.
+    console.error('[subscriptionEnforcement] mutation failed:', error);
     return {
-      success: true,
-      data: { success: true },
-      message: 'Mock increment successful',
+      success: false,
+      data: { success: false },
+      message: error instanceof Error ? error.message : 'mutation_failed',
       timestamp: new Date().toISOString(),
     };
   }
@@ -137,16 +127,23 @@ export const incrementListingCount = async (): Promise<ApiResponse<{ success: bo
       message: response.message,
       timestamp: new Date().toISOString(),
     };
-  } catch (error: any) {
-    // Mock fallback
-    const mockListingCount = localStorage.getItem('mock_listing_count');
-    const current = mockListingCount ? parseInt(mockListingCount, 10) : 0;
-    localStorage.setItem('mock_listing_count', (current + 1).toString());
-
+  } catch (error: unknown) {
+    // 401 means no active session — guests have no quota state to update.
+    if (isUnauthorized(error)) {
+      return {
+        success: true,
+        data: { success: true },
+        message: 'skipped: no session',
+        timestamp: new Date().toISOString(),
+      };
+    }
+    // Real server/network error — surface it. The server is source of truth;
+    // we must NOT silently mock a successful increment.
+    console.error('[subscriptionEnforcement] mutation failed:', error);
     return {
-      success: true,
-      data: { success: true },
-      message: 'Mock increment successful',
+      success: false,
+      data: { success: false },
+      message: error instanceof Error ? error.message : 'mutation_failed',
       timestamp: new Date().toISOString(),
     };
   }
@@ -161,16 +158,23 @@ export const decrementListingCount = async (): Promise<ApiResponse<{ success: bo
       message: response.message,
       timestamp: new Date().toISOString(),
     };
-  } catch (error: any) {
-    // Mock fallback
-    const mockListingCount = localStorage.getItem('mock_listing_count');
-    const current = mockListingCount ? parseInt(mockListingCount, 10) : 0;
-    localStorage.setItem('mock_listing_count', Math.max(0, current - 1).toString());
-
+  } catch (error: unknown) {
+    // 401 means no active session — guests have no quota state to update.
+    if (isUnauthorized(error)) {
+      return {
+        success: true,
+        data: { success: true },
+        message: 'skipped: no session',
+        timestamp: new Date().toISOString(),
+      };
+    }
+    // Real server/network error — surface it. The server is source of truth;
+    // we must NOT silently mock a successful decrement.
+    console.error('[subscriptionEnforcement] mutation failed:', error);
     return {
-      success: true,
-      data: { success: true },
-      message: 'Mock decrement successful',
+      success: false,
+      data: { success: false },
+      message: error instanceof Error ? error.message : 'mutation_failed',
       timestamp: new Date().toISOString(),
     };
   }
@@ -221,16 +225,23 @@ export const incrementJobPostCount = async (): Promise<ApiResponse<{ success: bo
       message: response.message,
       timestamp: new Date().toISOString(),
     };
-  } catch (error: any) {
-    // Mock fallback
-    const mockJobCount = localStorage.getItem('mock_job_count');
-    const current = mockJobCount ? parseInt(mockJobCount, 10) : 0;
-    localStorage.setItem('mock_job_count', (current + 1).toString());
-
+  } catch (error: unknown) {
+    // 401 means no active session — guests have no quota state to update.
+    if (isUnauthorized(error)) {
+      return {
+        success: true,
+        data: { success: true },
+        message: 'skipped: no session',
+        timestamp: new Date().toISOString(),
+      };
+    }
+    // Real server/network error — surface it. The server is source of truth;
+    // we must NOT silently mock a successful increment.
+    console.error('[subscriptionEnforcement] mutation failed:', error);
     return {
-      success: true,
-      data: { success: true },
-      message: 'Mock job post increment successful',
+      success: false,
+      data: { success: false },
+      message: error instanceof Error ? error.message : 'mutation_failed',
       timestamp: new Date().toISOString(),
     };
   }
@@ -245,16 +256,23 @@ export const decrementJobPostCount = async (): Promise<ApiResponse<{ success: bo
       message: response.message,
       timestamp: new Date().toISOString(),
     };
-  } catch (error: any) {
-    // Mock fallback
-    const mockJobCount = localStorage.getItem('mock_job_count');
-    const current = mockJobCount ? parseInt(mockJobCount, 10) : 0;
-    localStorage.setItem('mock_job_count', Math.max(0, current - 1).toString());
-
+  } catch (error: unknown) {
+    // 401 means no active session — guests have no quota state to update.
+    if (isUnauthorized(error)) {
+      return {
+        success: true,
+        data: { success: true },
+        message: 'skipped: no session',
+        timestamp: new Date().toISOString(),
+      };
+    }
+    // Real server/network error — surface it. The server is source of truth;
+    // we must NOT silently mock a successful decrement.
+    console.error('[subscriptionEnforcement] mutation failed:', error);
     return {
-      success: true,
-      data: { success: true },
-      message: 'Mock job post decrement successful',
+      success: false,
+      data: { success: false },
+      message: error instanceof Error ? error.message : 'mutation_failed',
       timestamp: new Date().toISOString(),
     };
   }
@@ -358,20 +376,28 @@ export const getUsageStats = async (): Promise<
       data: response,
       timestamp: new Date().toISOString(),
     };
-  } catch (error: any) {
-    // Mock fallback
-    const browseCount = getMockBrowseCount();
-    const listingCount = localStorage.getItem('mock_listing_count');
-    const jobCount = localStorage.getItem('mock_job_count');
-
+  } catch (error: unknown) {
+    if (isUnauthorized(error)) {
+      return {
+        success: true,
+        data: {
+          browse: { used: 0, limit: -1 },
+          listings: { used: 0, limit: -1 },
+          jobPosts: { used: 0, limit: -1 },
+        },
+        message: 'skipped: no session',
+        timestamp: new Date().toISOString(),
+      };
+    }
+    console.error('[subscriptionEnforcement] getUsageStats failed:', error);
     return {
-      success: true,
+      success: false,
       data: {
-        browse: { used: browseCount, limit: 50 },
-        listings: { used: parseInt(listingCount || '0', 10), limit: 5 },
-        jobPosts: { used: parseInt(jobCount || '0', 10), limit: 10 },
+        browse: { used: 0, limit: 0 },
+        listings: { used: 0, limit: 0 },
+        jobPosts: { used: 0, limit: 0 },
       },
-      message: 'Mock usage stats',
+      message: error instanceof Error ? error.message : 'fetch_failed',
       timestamp: new Date().toISOString(),
     };
   }
