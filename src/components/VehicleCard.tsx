@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { MapPin, Gauge, Calendar, Lock, Share2, Clock, CheckCircle2, AlertTriangle } from 'lucide-react';
 import { MaskedContent } from '@/components/MaskedContent';
 import { ShareButton } from '@/components/ShareButton';
+import { ReportButton } from '@/components/ReportButton';
 
 interface VehicleCardProps {
   vehicle: Vehicle;
@@ -76,7 +77,7 @@ export function VehicleCard({ vehicle, isListing = false }: VehicleCardProps) {
             </div>
           )}
 
-          <div className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
             <ShareButton
               title={vehicle.title}
               text={`Check out this ${vehicle.manufacturer} ${vehicle.vehicleModel} on EduFleet Exchange!`}
@@ -84,6 +85,11 @@ export function VehicleCard({ vehicle, isListing = false }: VehicleCardProps) {
               variant="secondary"
               size="icon"
               className="h-8 w-8 rounded-full bg-background/80 backdrop-blur-sm border-none shadow-sm hover:bg-background"
+            />
+            <ReportButton
+              targetType="vehicle"
+              targetId={String(vehicle.id || (vehicle as any)._id)}
+              className="h-8 w-8 rounded-full bg-background/80 backdrop-blur-sm"
             />
           </div>
         </div>

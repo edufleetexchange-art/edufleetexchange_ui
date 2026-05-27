@@ -8,6 +8,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { MaskedContent } from '@/components/MaskedContent';
 import { ShareButton } from '@/components/ShareButton';
+import { ReportButton } from '@/components/ReportButton';
 import toast from 'react-hot-toast';
 
 interface SupplierCardProps {
@@ -69,9 +70,13 @@ export function SupplierCard({ supplier, onViewDetails, showStatus = false, disa
               </div>
             )}
           </div>
-          <div className="flex gap-1">
+          <div className="flex gap-1 items-center">
             {supplier.isVerified && <CheckCircle className="w-3.5 h-3.5 text-green-500 fill-white" />}
             {isPaid && <Crown className="w-3.5 h-3.5 text-amber-500 fill-white" />}
+            <ReportButton
+              targetType="supplier"
+              targetId={String(supplier.id || (supplier as any)._id)}
+            />
           </div>
         </div>
 

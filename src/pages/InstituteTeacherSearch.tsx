@@ -19,6 +19,7 @@ import { Search, MapPin, BookOpen, Briefcase, Mail, Phone, GraduationCap, Award,
 import { toast } from 'sonner';
 import { getTeachers, type TeacherFilters, type Teacher } from '@/api/services/teacherService';
 import { checkBrowseLimit, incrementBrowseCount } from '@/api/services/subscriptionEnforcement';
+import { ReportButton } from '@/components/ReportButton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 export function InstituteTeacherSearch() {
@@ -502,6 +503,10 @@ export function InstituteTeacherSearch() {
                 <Button variant="ghost" onClick={() => setIsConnectDialogOpen(false)}>
                   Close
                 </Button>
+                <ReportButton
+                  targetType="account"
+                  targetId={String(selectedTeacher.id || selectedTeacher._id || '')}
+                />
                 {/* TODO: Wire "Send Connection Request" once backend endpoint is available (issue 40) */}
               </DialogFooter>
             </>
