@@ -72,6 +72,17 @@ export const apiClient = {
   },
 
   /**
+   * Make a PATCH request
+   */
+  async patch<T>(endpoint: string, data?: unknown, options: RequestOptions = {}): Promise<T> {
+    return this.request(endpoint, {
+      ...options,
+      method: 'PATCH',
+      body: data ? JSON.stringify(data) : undefined,
+    }) as Promise<T>;
+  },
+
+  /**
    * Make a request with proper headers and error handling
    */
   async request<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {

@@ -2,6 +2,7 @@ import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { Button } from './ui/button';
 import { Card } from './ui/card';
 import { AlertCircle, RefreshCcw, Home } from 'lucide-react';
+import { Sentry } from '@/lib/sentry';
 
 interface Props {
   children: ReactNode;
@@ -38,12 +39,7 @@ export class ErrorBoundary extends Component<Props, State> {
       errorInfo,
     });
 
-    // Log to error reporting service if available
-    if (typeof window !== 'undefined' && (window as any).errorReporter) {
-      (window as any).errorReporter.captureException(error, {
-        extra: { componentStack: errorInfo.componentStack },
-      });
-    }
+    Sentry.captureException(error, { extra: { componentStack: errorInfo.componentStack } });
   }
 
   handleReset = () => {

@@ -1,8 +1,8 @@
 import { Link, useLocation } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  Car, 
-  Building2, 
+import {
+  LayoutDashboard,
+  Car,
+  Building2,
   Megaphone,
   Settings,
   Clock,
@@ -12,7 +12,8 @@ import {
   Users,
   UserPlus,
   History,
-  Handshake
+  Handshake,
+  Flag
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
@@ -88,6 +89,11 @@ export function AdminSidebar({ pendingVehicles, pendingSuppliers }: AdminSidebar
       title: 'Audit Logs',
       icon: History,
       path: '/admin/audit-logs'
+    },
+    {
+      title: 'Reports',
+      icon: Flag,
+      path: '/admin/reports'
     },
     {
       title: 'Suppliers',

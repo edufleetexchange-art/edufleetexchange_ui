@@ -56,6 +56,7 @@
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.4.2",
     "@rolldown/pluginutils": "^1.0.0-beta.58",
+    "@sentry/react": "^10.54.0",
     "@types/dompurify": "^3.2.0",
     "axios": "^1.13.2",
     "class-variance-authority": "^0.7.1",

@@ -9,6 +9,7 @@ import { MapPin, Briefcase, Building2, Clock, DollarSign } from 'lucide-react';
 import { MaskedContent } from '@/components/MaskedContent';
 import { Badge } from '@/components/ui/badge';
 import { ShareButton } from '@/components/ShareButton';
+import { ReportButton } from '@/components/ReportButton';
 
 // Helper function to safely format dates
 const formatDate = (dateValue: string | undefined | null): string => {
@@ -96,7 +97,7 @@ export function JobCard({ job, isListing = false, className, style }: JobCardPro
           <div className="bg-primary/10 p-1.5 rounded-md">
             <Briefcase className="w-4 h-4 text-primary" />
           </div>
-          <div className="flex flex-col items-end">
+          <div className="flex flex-col items-end gap-0.5">
             <Badge variant="secondary" className="text-[8px] h-4 px-1 leading-none">
               {getCategoryName(job.department || 'other', 'job')}
             </Badge>
@@ -105,6 +106,10 @@ export function JobCard({ job, isListing = false, className, style }: JobCardPro
                 <PriorityBadge />
               </div>
             )}
+            <ReportButton
+              targetType="job"
+              targetId={String(job.id || (job as any)._id)}
+            />
           </div>
         </div>
 
