@@ -1,4 +1,6 @@
-import { Card } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useState, useEffect } from 'react';
 import { api } from '@/api';
 import { useAds } from '@/context/AdContext';
@@ -8,7 +10,185 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useMyListings, useMyJobs } from '@/hooks/useApi';
 import { Button } from '@/components/ui/button';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  Legend,
+  CartesianGrid,
+} from 'recharts';
+import { metricsService, SignupRow, FunnelRow, DauRow } from '@/api/services/metricsService';
 
+// ---------------------------------------------------------------------------
+// Role colours for signup lines
+// ---------------------------------------------------------------------------
+const ROLE_COLOURS: Record<string, string> = {
+  institute: '#6366f1',
+  teacher: '#22c55e',
+  vendor: '#f59e0b',
+  admin: '#ef4444',
+  marketing: '#06b6d4',
+  sales: '#a855f7',
+};
+
+// ---------------------------------------------------------------------------
+// Chart skeleton
+// ---------------------------------------------------------------------------
+function ChartSkeleton() {
+  return (
+    <div className="space-y-2 p-4">
+      <Skeleton className="h-4 w-48" />
+      <Skeleton className="h-[260px] w-full" />
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Per-chart error placeholder
+// ---------------------------------------------------------------------------
+function ChartError({ message }: { message: string }) {
+  return (
+    <div className="flex items-center justify-center h-[260px] text-sm text-muted-foreground">
+      {message}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Format "2026-05-01" → "May 1"
+// ---------------------------------------------------------------------------
+function fmtDate(d: string) {
+  const dt = new Date(d + 'T00:00:00');
+  return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+// ---------------------------------------------------------------------------
+// Signups line chart
+// ---------------------------------------------------------------------------
+function SignupsChart() {
+  const [data, setData] = useState<SignupRow[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    metricsService
+      .signups(30)
+      .then((res) => setData(res.items))
+      .catch(() => setError('Failed to load signup trends.'));
+  }, []);
+
+  if (!data && !error) return <ChartSkeleton />;
+  if (error) return <ChartError message={error} />;
+
+  const formatted = (data ?? []).map((r) => ({ ...r, date: fmtDate(r.date) }));
+
+  return (
+    <ResponsiveContainer width="100%" height={300}>
+      <LineChart data={formatted} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="date" tick={{ fontSize: 11 }} interval="preserveStartEnd" />
+        <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
+        <Tooltip />
+        <Legend />
+        {Object.entries(ROLE_COLOURS).map(([role, colour]) => (
+          <Line
+            key={role}
+            type="monotone"
+            dataKey={role}
+            stroke={colour}
+            dot={false}
+            strokeWidth={2}
+          />
+        ))}
+      </LineChart>
+    </ResponsiveContainer>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Approval funnel bar chart
+// ---------------------------------------------------------------------------
+function ApprovalFunnelChart() {
+  const [data, setData] = useState<FunnelRow[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    metricsService
+      .approvalFunnel(30)
+      .then((res) => setData(res.items))
+      .catch(() => setError('Failed to load approval funnel.'));
+  }, []);
+
+  if (!data && !error) return <ChartSkeleton />;
+  if (error) return <ChartError message={error} />;
+
+  const formatted = (data ?? []).map((r) => ({ ...r, date: fmtDate(r.date) }));
+
+  return (
+    <ResponsiveContainer width="100%" height={300}>
+      <BarChart data={formatted} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="date" tick={{ fontSize: 11 }} interval="preserveStartEnd" />
+        <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
+        <Tooltip />
+        <Legend />
+        <Bar dataKey="vehicleSubmitted" name="Vehicle Submitted" fill="#6366f1" stackId="v" />
+        <Bar dataKey="vehicleApproved" name="Vehicle Approved" fill="#22c55e" stackId="v" />
+        <Bar dataKey="vehicleRejected" name="Vehicle Rejected" fill="#ef4444" stackId="v" />
+        <Bar dataKey="supplierSubmitted" name="Supplier Submitted" fill="#a855f7" stackId="s" />
+        <Bar dataKey="supplierApproved" name="Supplier Approved" fill="#06b6d4" stackId="s" />
+        <Bar dataKey="supplierRejected" name="Supplier Rejected" fill="#f59e0b" stackId="s" />
+      </BarChart>
+    </ResponsiveContainer>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// DAU line chart
+// ---------------------------------------------------------------------------
+function DauChart() {
+  const [data, setData] = useState<DauRow[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    metricsService
+      .activeUsers(7)
+      .then((res) => setData(res.items))
+      .catch(() => setError('Failed to load active user data.'));
+  }, []);
+
+  if (!data && !error) return <ChartSkeleton />;
+  if (error) return <ChartError message={error} />;
+
+  const formatted = (data ?? []).map((r) => ({ ...r, date: fmtDate(r.date) }));
+
+  return (
+    <ResponsiveContainer width="100%" height={300}>
+      <LineChart data={formatted} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="date" tick={{ fontSize: 11 }} />
+        <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
+        <Tooltip />
+        <Line
+          type="monotone"
+          dataKey="activeUsers"
+          name="Active Users"
+          stroke="#6366f1"
+          dot={{ r: 4 }}
+          strokeWidth={2}
+        />
+      </LineChart>
+    </ResponsiveContainer>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Main component
+// ---------------------------------------------------------------------------
 export function AdminOverview() {
   const navigate = useNavigate();
   const { account: user, subscription } = useAuth();
@@ -18,7 +198,7 @@ export function AdminOverview() {
   const [subscriptionStats, setSubscriptionStats] = useState<any>(null);
 
   const isInternalAccount = user?.role === 'admin' || user?.role === 'sales' || user?.role === 'marketing';
-  
+
   // Data for subscribed users
   const { listings: myListings } = useMyListings(user?.role === 'admin' ? undefined : user?.id);
   const { jobs: myJobs } = useMyJobs();
@@ -271,6 +451,45 @@ export function AdminOverview() {
         </Card>
       </div>
 
+      {/* Trends — tabbed to keep scroll manageable */}
+      {user?.role === 'admin' && (
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle>Trends</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Tabs defaultValue="signups">
+              <TabsList className="mb-4">
+                <TabsTrigger value="signups">Signups (30d)</TabsTrigger>
+                <TabsTrigger value="funnel">Approval Funnel (30d)</TabsTrigger>
+                <TabsTrigger value="dau">Active Users (7d)</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="signups">
+                <p className="text-sm text-muted-foreground mb-3">
+                  New account registrations per day, broken down by role.
+                </p>
+                <SignupsChart />
+              </TabsContent>
+
+              <TabsContent value="funnel">
+                <p className="text-sm text-muted-foreground mb-3">
+                  Vehicle and supplier submissions vs approvals/rejections per day.
+                </p>
+                <ApprovalFunnelChart />
+              </TabsContent>
+
+              <TabsContent value="dau">
+                <p className="text-sm text-muted-foreground mb-3">
+                  Distinct accounts that performed at least one audited action per day.
+                </p>
+                <DauChart />
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Quick Actions */}
       <Card className="p-6">
         <h2 className="text-xl font-bold mb-4">Quick Actions</h2>
@@ -283,7 +502,7 @@ export function AdminOverview() {
             <h3 className="font-semibold mb-1">Review Vehicles</h3>
             <p className="text-sm text-muted-foreground">{vehicleStats.pending} pending approval</p>
           </button>
-          
+
           <button
             onClick={() => navigate('/admin/suppliers/pending')}
             className="p-4 border border-border rounded-lg hover:border-secondary hover:bg-secondary/5 transition-all text-left"
@@ -301,7 +520,7 @@ export function AdminOverview() {
             <h3 className="font-semibold mb-1">Manage Users</h3>
             <p className="text-sm text-muted-foreground">View and manage all accounts</p>
           </button>
-          
+
           <button
             onClick={() => navigate('/admin/ads')}
             className="p-4 border border-border rounded-lg hover:border-accent hover:bg-accent/5 transition-all text-left"
