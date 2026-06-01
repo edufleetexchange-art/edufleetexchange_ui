@@ -212,7 +212,7 @@ export function NotificationsPage() {
           <div className="flex items-center gap-4 mb-4">
             <button
               onClick={() => navigate(-1)}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              className="p-3 hover:bg-gray-100 rounded-lg transition-colors"
               title="Go back"
             >
               <ArrowLeft className="w-5 h-5 text-gray-600" />
@@ -423,7 +423,7 @@ export function NotificationsPage() {
                     {/* Delete Button */}
                     <button
                       onClick={e => handleDelete(e, notification.id)}
-                      className="text-gray-400 hover:text-red-600 transition-colors p-2 flex-shrink-0"
+                      className="text-gray-400 hover:text-red-600 transition-colors p-3 flex-shrink-0"
                       title="Delete notification"
                     >
                       <Trash2 className="w-4 h-4" />

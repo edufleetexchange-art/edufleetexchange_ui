@@ -5,6 +5,7 @@ import { useJobs } from '@/hooks/useApi';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Search, Filter, Briefcase, AlertCircle } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useConfig } from '@/context/ConfigContext';
@@ -31,6 +32,7 @@ export function JobBrowse() {
   const [departmentFilter, setDepartmentFilter] = useState('all');
   const [uniqueDepartments, setUniqueDepartments] = useState<string[]>([]);
   const [browseLimitReached, setBrowseLimitReached] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   // 300ms debounce on text search
   useEffect(() => {
@@ -139,8 +141,88 @@ export function JobBrowse() {
         )}
 
         <div className="flex flex-col lg:flex-row gap-8">
-          {/* Sidebar */}
-          <aside className="w-full lg:w-1/4 space-y-6">
+          {/* Mobile filter trigger */}
+          <div className="lg:hidden mb-4">
+            <Sheet open={filtersOpen} onOpenChange={setFiltersOpen}>
+              <SheetTrigger asChild>
+                <Button variant="outline" className="w-full justify-start gap-2">
+                  <Filter className="w-4 h-4" />
+                  Filters
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-80 overflow-y-auto">
+                <SheetHeader>
+                  <SheetTitle>Filters</SheetTitle>
+                </SheetHeader>
+                <div className="mt-4 space-y-6">
+                  {/* Search */}
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                    <Input
+                      type="text"
+                      placeholder="Search jobs..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-9 bg-background"
+                    />
+                  </div>
+                  {/* Filters */}
+                  <Card className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-2">
+                        <Filter className="w-4 h-4 text-primary" />
+                        <h3 className="font-bold">Filters</h3>
+                      </div>
+                      {hasActiveFilters && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={handleClearFilters}
+                          className="h-8 text-xs text-destructive hover:bg-destructive/10"
+                        >
+                          Clear
+                        </Button>
+                      )}
+                    </div>
+                    <div className="space-y-4">
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-semibold text-muted-foreground">Job Type</label>
+                        <Select value={typeFilter} onValueChange={setTypeFilter}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="All Types" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All Types</SelectItem>
+                            <SelectItem value="full-time">Full Time</SelectItem>
+                            <SelectItem value="part-time">Part Time</SelectItem>
+                            <SelectItem value="contract">Contract</SelectItem>
+                            <SelectItem value="internship">Internship</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-semibold text-muted-foreground">Department</label>
+                        <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="All Departments" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All Departments</SelectItem>
+                            {categories.filter(c => c.type === 'job').map(cat => (
+                              <SelectItem key={cat._id} value={cat.slug}>{cat.name}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  </Card>
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
+
+          {/* Sidebar — desktop only */}
+          <aside className="hidden lg:block lg:w-1/4 space-y-6">
             {/* Search */}
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />

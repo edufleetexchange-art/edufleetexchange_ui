@@ -45,6 +45,7 @@ import {
 } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { LeadCRMDialog } from '@/components/LeadCRMDialog';
+import { TableWrapper } from '@/components/ui/table-wrapper';
 
 export default function MarketingDashboard() {
   const { account: user, profile } = useAuth();
@@ -180,10 +181,10 @@ export default function MarketingDashboard() {
   }
 
   return (
-    <div className="p-8 max-w-7xl mx-auto">
-      <div className="flex justify-between items-center mb-8">
+    <div className="p-4 sm:p-8 max-w-7xl mx-auto">
+      <div className="flex flex-col sm:flex-row gap-3 sm:items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-primary flex items-center gap-2">
+          <h1 className="text-2xl sm:text-3xl font-bold text-primary flex items-center gap-2">
             <Target className="w-8 h-8" />
             Marketing Operations
           </h1>
@@ -294,7 +295,7 @@ export default function MarketingDashboard() {
                   aria-label="Search leads"
                 />
               </div>
-              <div className="rounded-md border">
+              <TableWrapper>
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -371,7 +372,7 @@ export default function MarketingDashboard() {
                     )}
                   </TableBody>
                 </Table>
-              </div>
+              </TableWrapper>
             </CardContent>
           </Card>
         )}
@@ -387,7 +388,7 @@ export default function MarketingDashboard() {
             </CardHeader>
             <CardContent>
               {auditLogs.length > 0 ? (
-                <div className="rounded-md border">
+                <TableWrapper>
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -414,7 +415,7 @@ export default function MarketingDashboard() {
                       ))}
                     </TableBody>
                   </Table>
-                </div>
+                </TableWrapper>
               ) : (
                 <div className="bg-muted/30 p-8 rounded-lg border border-dashed text-center">
                   <History className="w-12 h-12 text-muted-foreground mx-auto mb-4" />

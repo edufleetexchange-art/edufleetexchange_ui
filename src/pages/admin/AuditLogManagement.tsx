@@ -25,6 +25,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { format } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { TableWrapper } from '@/components/ui/table-wrapper';
 
 export default function AuditLogManagement() {
   const [logs, setLogs] = useState<AuditLog[]>([]);
@@ -84,7 +85,7 @@ export default function AuditLogManagement() {
   };
 
   return (
-    <div className="p-8">
+    <div className="p-4 sm:p-8">
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-3xl font-bold">Audit Logs</h1>
@@ -181,7 +182,7 @@ export default function AuditLogManagement() {
           </CardContent>
         </Card>
 
-        <div className="bg-card rounded-xl border shadow-sm">
+        <TableWrapper className="bg-card shadow-sm">
           <Table>
             <TableHeader>
               <TableRow>
@@ -244,7 +245,7 @@ export default function AuditLogManagement() {
               )}
             </TableBody>
           </Table>
-        </div>
+        </TableWrapper>
       </div>
     </div>
   );

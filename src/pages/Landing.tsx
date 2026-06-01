@@ -129,7 +129,7 @@ export function Landing() {
           </div>
 
           {/* Professional Main Headline */}
-          <h1 className="text-5xl md:text-6xl lg:text-8xl font-display font-bold text-white mb-8 tracking-tighter leading-[1] animate-in-slide-up">
+          <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-8xl font-display font-bold text-white mb-8 tracking-tighter leading-[1] animate-in-slide-up">
             India's Leading
             <br className="md:hidden" />
             <span className="text-accent italic"> Education </span>
@@ -213,7 +213,7 @@ export function Landing() {
 
           {/* Professional Quick Links Card */}
           <div className="max-w-6xl mx-auto mt-24 md:mt-28 animate-in-slide-up delay-400">
-            <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 p-10 md:p-12 relative hover:shadow-[0_30px_100px_rgba(0,0,0,0.2)] transition-all duration-300">
+            <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 p-6 md:p-12 relative hover:shadow-[0_30px_100px_rgba(0,0,0,0.2)] transition-all duration-300">
               <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-gradient-to-r from-primary via-primary-light to-secondary px-10 py-3.5 rounded-full shadow-xl">
                 <span className="text-sm font-bold text-white tracking-wide uppercase">Explore Everything</span>
               </div>
@@ -224,8 +224,8 @@ export function Landing() {
                     onClick={() => navigate(link.path)}
                     className="flex flex-col items-center gap-3 cursor-pointer group"
                   >
-                    <div className={`w-16 h-16 md:w-20 md:h-20 rounded-2xl ${link.bg} flex items-center justify-center transition-all duration-300 group-hover:-translate-y-3 group-hover:shadow-xl border-2 border-transparent group-hover:border-white shadow-sm`}>
-                      <link.icon className={`w-8 h-8 md:w-10 md:h-10 ${link.color} transition-transform duration-300 group-hover:scale-110`} />
+                    <div className={`w-12 h-12 md:w-20 md:h-20 rounded-2xl ${link.bg} flex items-center justify-center transition-all duration-300 group-hover:-translate-y-3 group-hover:shadow-xl border-2 border-transparent group-hover:border-white shadow-sm`}>
+                      <link.icon className={`w-6 h-6 md:w-10 md:h-10 ${link.color} transition-transform duration-300 group-hover:scale-110`} />
                     </div>
                     <span className="text-xs md:text-sm font-semibold text-gray-700 text-center group-hover:text-primary transition-colors line-clamp-2 leading-tight">
                       {link.label}
@@ -252,7 +252,7 @@ export function Landing() {
               transition={{ duration: 0.8, ease: "easeOut" }}
               className="container mx-auto px-4 py-16"
             >
-              <div className="flex items-center justify-between mb-10 border-b border-gray-100 pb-5">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10 border-b border-gray-100 pb-5">
                 <div className="flex flex-col gap-1">
                   <h2 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
                     <Truck className="w-8 h-8 text-primary" />
@@ -305,7 +305,7 @@ export function Landing() {
             className="bg-slate-50 py-10"
           >
             <div className="container mx-auto px-4">
-              <div className="flex items-center justify-between mb-10 border-b border-gray-200 pb-5">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10 border-b border-gray-200 pb-5">
                 <div className="flex flex-col gap-1">
                   <h2 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
                     <Briefcase className="w-8 h-8 text-orange-600" />
@@ -360,7 +360,7 @@ export function Landing() {
               transition={{ duration: 0.8, ease: "easeOut" }}
               className="container mx-auto px-4 py-10"
             >
-              <div className="flex items-center justify-between mb-10 border-b border-gray-100 pb-5">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10 border-b border-gray-100 pb-5">
                 <div className="flex flex-col gap-1">
                   <h2 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
                     <Building2 className="w-8 h-8 text-green-600" />

@@ -88,7 +88,7 @@ export function JobCard({ job, isListing = false, className, style }: JobCardPro
   return (
     <div 
       onClick={handleClick}
-      className={`cursor-pointer relative group flex-shrink-0 w-[192px] h-[192px] ${className || ''}`}
+      className={`cursor-pointer relative group flex-shrink-0 w-full h-full min-h-[192px] ${className || ''}`}
       style={style}
     >
       <Card className="overflow-hidden border border-border/60 shadow-sm hover:shadow-md transition-all duration-300 rounded-lg w-full h-full flex flex-col p-2 bg-card group-hover:border-primary/40 border-beam">

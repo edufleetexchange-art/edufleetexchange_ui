@@ -89,7 +89,7 @@ export function ReportButton({ targetType, targetId, className }: ReportButtonPr
       <Button
         variant="ghost"
         size="icon"
-        className={`h-7 w-7 text-muted-foreground hover:text-destructive ${className ?? ''}`}
+        className={`h-10 w-10 text-muted-foreground hover:text-destructive ${className ?? ''}`}
         onClick={handleOpen}
         title="Report this content"
         aria-label="Report"

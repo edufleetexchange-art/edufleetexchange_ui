@@ -11,6 +11,7 @@ import { Menu, LogOut, LayoutDashboard, Megaphone, Bell, Search, UserCircle, Cro
 import { useState } from 'react';
 import { NotificationBell } from '@/components/NotificationBell';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 
 export function Header() {
   const { account: user, subscription, logout } = useAuth();
@@ -283,6 +284,23 @@ export function Header() {
         {/* Mobile Menu */}
         {mobileMenuOpen && (
           <nav className="lg:hidden mt-4 pt-4 border-t border-border animate-in slide-in-from-top-2">
+            {location.pathname !== '/' && (
+              <div className="relative mb-4">
+                <Input
+                  placeholder="Search vehicles, jobs, suppliers..."
+                  value={headerSearch}
+                  onChange={(e) => setHeaderSearch(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && performSearch()}
+                  className="pl-10 pr-4"
+                />
+                <button
+                  onClick={performSearch}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors"
+                >
+                  <Search className="w-4 h-4" />
+                </button>
+              </div>
+            )}
             <div className="grid grid-cols-2 gap-2 mb-4">
               {!shouldShowTeacherNav && !isVendor ? (
                 <>

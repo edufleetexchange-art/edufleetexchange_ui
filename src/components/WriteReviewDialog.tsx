@@ -98,7 +98,7 @@ export function WriteReviewDialog({
                   role="radio"
                   aria-checked={rating === n}
                   aria-label={`${n} star${n === 1 ? '' : 's'}`}
-                  className="p-1 hover:scale-110 transition-transform"
+                  className="p-2 hover:scale-110 transition-transform"
                   onClick={() => setRating(n)}
                   onMouseEnter={() => setHover(n)}
                   onMouseLeave={() => setHover(0)}

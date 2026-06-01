@@ -14,11 +14,19 @@ import {
   History,
   Handshake,
   Flag,
-  BadgeCheck
+  BadgeCheck,
+  Menu
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+} from '@/components/ui/sheet';
 import { useAuth } from '@/context/AuthContext';
+import { useState } from 'react';
 
 interface AdminSidebarProps {
   pendingVehicles: number;
@@ -179,7 +187,7 @@ export function AdminSidebar({ pendingVehicles, pendingSuppliers }: AdminSidebar
   };
 
   return (
-    <aside className="w-64 h-screen flex flex-col border-r border-border bg-card">
+    <aside className="hidden lg:flex w-64 h-screen flex-col border-r border-border bg-card">
       {/* Header */}
       <div className="h-16 border-b border-border flex items-center px-6 gap-3">
         <Link to="/" className="flex items-center gap-2">
@@ -270,5 +278,123 @@ export function AdminSidebar({ pendingVehicles, pendingSuppliers }: AdminSidebar
         </div>
       </div>
     </aside>
+  );
+}
+
+export function MobileAdminNav({ pendingVehicles, pendingSuppliers }: AdminSidebarProps) {
+  const location = useLocation();
+  const { account } = useAuth();
+  const [open, setOpen] = useState(false);
+
+  const isInternalAccount = account?.role === 'admin' || account?.role === 'sales' || account?.role === 'marketing';
+
+  type MobileNavItem = { title: string; path: string; icon: React.ElementType; exact?: boolean; badge?: number };
+
+  const internalNavItems: MobileNavItem[] = [
+    { title: 'Overview', path: '/admin', icon: LayoutDashboard, exact: true },
+    { title: 'Vehicles — Pending', path: '/admin/vehicles/pending', icon: Clock, badge: pendingVehicles },
+    { title: 'Vehicles — All', path: '/admin/vehicles/all', icon: CheckCircle },
+    { title: 'Jobs', path: '/admin/jobs', icon: Briefcase },
+    { title: 'Users', path: '/admin/users', icon: Users },
+    { title: 'Sales Team', path: '/admin/sales', icon: Handshake },
+    { title: 'Audit Logs', path: '/admin/audit-logs', icon: History },
+    { title: 'Reports', path: '/admin/reports', icon: Flag },
+    { title: 'Verifications', path: '/admin/verifications', icon: BadgeCheck },
+    { title: 'Suppliers — Pending', path: '/admin/suppliers/pending', icon: Clock, badge: pendingSuppliers },
+    { title: 'Suppliers — All', path: '/admin/suppliers/all', icon: CheckCircle },
+    { title: 'Ads Management', path: '/admin/ads', icon: Megaphone },
+    { title: 'Subscriptions', path: '/admin/subscriptions', icon: CreditCard },
+    { title: 'Settings', path: '/admin/settings', icon: Settings },
+  ];
+
+  const subscribedNavItems: MobileNavItem[] = [
+    { title: 'My Dashboard', path: '/admin', icon: LayoutDashboard, exact: true },
+    { title: 'My Vehicles', path: '/dashboard?tab=listings', icon: Car },
+    { title: 'My Jobs', path: '/dashboard?tab=jobs', icon: Briefcase },
+    { title: 'Subscription', path: '/dashboard?tab=subscription', icon: CreditCard },
+    { title: 'My Ads', path: '/advertise', icon: Megaphone },
+    { title: 'Profile Settings', path: '/dashboard?tab=profile', icon: Settings },
+  ];
+
+  const navItems = isInternalAccount ? internalNavItems : subscribedNavItems;
+
+  const isActive = (path: string, exact?: boolean) => {
+    if (exact) return location.pathname === path;
+    return location.pathname.startsWith(path);
+  };
+
+  return (
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger asChild>
+        <Button variant="ghost" size="icon" className="lg:hidden" aria-label="Open navigation menu">
+          <Menu className="w-5 h-5" />
+        </Button>
+      </SheetTrigger>
+      <SheetContent side="left" className="w-64 p-0 flex flex-col">
+        {/* Header */}
+        <div className="h-16 border-b border-border flex items-center px-6 gap-3">
+          <Link to="/" className="flex items-center gap-2" onClick={() => setOpen(false)}>
+            <img
+              src="https://firebasestorage.googleapis.com/v0/b/blink-451505.firebasestorage.app/o/user-uploads%2FmxwyRYTs2dcnubQCH6xSOA5OSFz2%2Fimage__9a481536.png?alt=media&token=b799bfcc-670d-46cb-9ea9-b9e521be88f2"
+              alt="EduFleet"
+              className="h-8 w-auto"
+            />
+            <h2 className="text-lg font-bold text-primary truncate">
+              {isInternalAccount ? 'Admin' : 'Partner'}
+            </h2>
+          </Link>
+        </div>
+
+        {/* User Info */}
+        <div className="px-6 py-4 border-b border-border">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+              {account?.name?.[0] || 'U'}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold truncate">{account?.name}</p>
+              <p className="text-xs text-muted-foreground truncate uppercase">{account?.role}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Navigation */}
+        <nav className="flex-1 overflow-y-auto p-4">
+          <div className="space-y-1">
+            {navItems.map((item) => (
+              <Link
+                key={item.path}
+                to={item.path}
+                onClick={() => setOpen(false)}
+                className={cn(
+                  "flex items-center justify-between gap-2 px-3 py-2 text-sm rounded-lg transition-colors",
+                  isActive(item.path, item.exact)
+                    ? "bg-primary text-primary-foreground font-medium"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                )}
+              >
+                <div className="flex items-center gap-2">
+                  <item.icon className="w-4 h-4" />
+                  <span>{item.title}</span>
+                </div>
+                {item.badge !== undefined && item.badge > 0 && (
+                  <Badge variant={isActive(item.path, item.exact) ? "secondary" : "default"} className="h-5 min-w-5 px-1.5">
+                    {item.badge}
+                  </Badge>
+                )}
+              </Link>
+            ))}
+          </div>
+        </nav>
+
+        {/* Footer */}
+        <div className="p-4 border-t border-border">
+          <div className="text-xs text-muted-foreground text-center">
+            <p>© 2024 EduFleet</p>
+            <p className="mt-1">Admin Dashboard</p>
+          </div>
+        </div>
+      </SheetContent>
+    </Sheet>
   );
 }

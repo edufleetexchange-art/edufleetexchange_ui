@@ -111,7 +111,7 @@ export function LeadCRMDialog({ lead, isOpen, onClose }: LeadCRMDialogProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col p-0 overflow-hidden">
+      <DialogContent className="w-[95vw] max-w-4xl max-h-[90vh] flex flex-col p-0 overflow-hidden">
         <DialogHeader className="p-6 pb-2 border-b">
           <div className="flex justify-between items-start">
             <div>
@@ -132,9 +132,9 @@ export function LeadCRMDialog({ lead, isOpen, onClose }: LeadCRMDialogProps) {
           </div>
         </DialogHeader>
 
-        <div className="flex-1 flex overflow-hidden">
+        <div className="flex flex-col lg:flex-row flex-1 overflow-hidden">
           {/* Left Side: Activity History */}
-          <div className="w-1/2 border-r flex flex-col">
+          <div className="w-full lg:w-1/2 border-b lg:border-b-0 lg:border-r flex flex-col">
             <div className="p-4 border-b bg-muted/50 font-semibold text-sm flex items-center gap-2">
               <Clock className="w-4 h-4" /> Activity History
             </div>
@@ -178,7 +178,7 @@ export function LeadCRMDialog({ lead, isOpen, onClose }: LeadCRMDialogProps) {
           </div>
 
           {/* Right Side: Actions */}
-          <div className="w-1/2 flex flex-col overflow-hidden">
+          <div className="w-full lg:w-1/2 flex flex-col overflow-hidden">
             <Tabs defaultValue="activity" className="flex-1 flex flex-col overflow-hidden">
               <TabsList className="grid grid-cols-2 rounded-none border-b bg-muted/30">
                 <TabsTrigger value="activity">Log Activity</TabsTrigger>
@@ -187,7 +187,7 @@ export function LeadCRMDialog({ lead, isOpen, onClose }: LeadCRMDialogProps) {
 
               <TabsContent value="activity" className="flex-1 p-4 overflow-y-auto">
                 <form onSubmit={handleCreateActivity} className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label>Activity Type</Label>
                       <Select 
@@ -244,8 +244,8 @@ export function LeadCRMDialog({ lead, isOpen, onClose }: LeadCRMDialogProps) {
                 <form onSubmit={handleCreateTask} className="space-y-4">
                   <div className="space-y-2">
                     <Label>Task Title</Label>
-                    <Input 
-                      placeholder="e.g., Send follow-up quote" 
+                    <Input
+                      placeholder="e.g., Send follow-up quote"
                       value={newTask.title}
                       onChange={(e) => setNewTask({...newTask, title: e.target.value})}
                       required
@@ -253,14 +253,14 @@ export function LeadCRMDialog({ lead, isOpen, onClose }: LeadCRMDialogProps) {
                   </div>
                   <div className="space-y-2">
                     <Label>Description</Label>
-                    <Textarea 
-                      placeholder="Detailed task instructions" 
+                    <Textarea
+                      placeholder="Detailed task instructions"
                       className="h-20"
                       value={newTask.description}
                       onChange={(e) => setNewTask({...newTask, description: e.target.value})}
                     />
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label>Due Date</Label>
                       <Input 

@@ -61,6 +61,7 @@ import { JobListingForm } from '@/components/JobListingForm';
 import { LeadCRMDialog } from '@/components/LeadCRMDialog';
 import { crmService, CRMTask } from '@/api/services/crmService';
 import { SupplierForm } from '@/components/SupplierForm';
+import { TableWrapper } from '@/components/ui/table-wrapper';
 
 export default function SalesDashboard() {
   const { account: user, profile } = useAuth();
@@ -291,16 +292,16 @@ export default function SalesDashboard() {
   }
 
   return (
-    <div className="p-8 max-w-7xl mx-auto space-y-8">
-      <div className="flex justify-between items-center">
+    <div className="p-4 sm:p-8 max-w-7xl mx-auto space-y-8">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold flex items-center gap-2">
+          <h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-2">
             <TrendingUp className="w-8 h-8 text-primary" />
             Sales & Growth Center
           </h1>
           <p className="text-muted-foreground mt-1">Closing deals, onboarding entities, and assisting in listing creation.</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Button onClick={() => setIsOnboardingDialogOpen(true)} variant="outline" className="gap-2">
             <UserPlus className="w-4 h-4" />
             Onboard Entity
@@ -620,7 +621,7 @@ export default function SalesDashboard() {
                 onChange={(e) => setLeadSearch(e.target.value)}
               />
             </div>
-            <div className="rounded-md border">
+            <TableWrapper>
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -708,7 +709,7 @@ export default function SalesDashboard() {
                   })()}
                 </TableBody>
               </Table>
-            </div>
+            </TableWrapper>
           </CardContent>
         </Card>
       ) : (
@@ -718,7 +719,7 @@ export default function SalesDashboard() {
             <CardDescription>Review and manage incoming subscription requests.</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="rounded-md border">
+            <TableWrapper>
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -772,7 +773,7 @@ export default function SalesDashboard() {
                   )}
                 </TableBody>
               </Table>
-            </div>
+            </TableWrapper>
           </CardContent>
         </Card>
       )}
