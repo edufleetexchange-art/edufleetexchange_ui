@@ -246,7 +246,7 @@ export function TeacherDashboard() {
         </div>
 
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Teacher Dashboard</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold mb-2">Teacher Dashboard</h1>
           <p className="text-muted-foreground">Manage your profile, applications, and interviews</p>
         </div>
 
@@ -365,16 +365,18 @@ export function TeacherDashboard() {
         })()}
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="profile">Profile</TabsTrigger>
-            <TabsTrigger value="applications">
-              Applications ({applications.length})
-            </TabsTrigger>
-            <TabsTrigger value="interviews">
-              Interviews ({interviews.length})
-            </TabsTrigger>
-            <TabsTrigger value="subscription">Subscription</TabsTrigger>
-          </TabsList>
+          <div className="w-full overflow-x-auto">
+            <TabsList className="w-max">
+              <TabsTrigger value="profile">Profile</TabsTrigger>
+              <TabsTrigger value="applications">
+                Applications ({applications.length})
+              </TabsTrigger>
+              <TabsTrigger value="interviews">
+                Interviews ({interviews.length})
+              </TabsTrigger>
+              <TabsTrigger value="subscription">Subscription</TabsTrigger>
+            </TabsList>
+          </div>
 
           {/* Subscription Tab */}
           <TabsContent value="subscription">

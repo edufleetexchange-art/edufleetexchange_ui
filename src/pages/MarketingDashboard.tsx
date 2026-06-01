@@ -182,9 +182,9 @@ export default function MarketingDashboard() {
 
   return (
     <div className="p-4 sm:p-8 max-w-7xl mx-auto">
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex flex-col sm:flex-row gap-3 sm:items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-primary flex items-center gap-2">
+          <h1 className="text-2xl sm:text-3xl font-bold text-primary flex items-center gap-2">
             <Target className="w-8 h-8" />
             Marketing Operations
           </h1>

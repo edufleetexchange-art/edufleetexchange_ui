@@ -347,7 +347,7 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
         <div className="container mx-auto px-4">
           <Skeleton className="w-64 h-10 mb-4" />
           <Skeleton className="w-32 h-6 mb-8" />
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-8">
             {[...Array(7)].map((_, i) => (
               <Skeleton key={i} className="h-24" />
             ))}
@@ -368,7 +368,7 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
 
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Welcome, {user.name}</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold mb-2">Welcome, {user.name}</h1>
           <p className="text-muted-foreground">{instituteProfile?.instituteName}</p>
           {/* Verification status */}
           {isInstitute && (() => {
@@ -418,52 +418,52 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-8">
           {isInstitute && (
             <>
-              <Card className="p-6">
+              <Card className="p-4 md:p-6">
                 <p className="text-sm text-muted-foreground mb-2">Total Listings</p>
-                <div className="text-3xl font-bold text-primary">{stats.totalListings}</div>
+                <div className="text-2xl md:text-3xl font-bold text-primary">{stats.totalListings}</div>
               </Card>
-              <Card className="p-6">
+              <Card className="p-4 md:p-6">
                 <p className="text-sm text-muted-foreground mb-2">Active Listings</p>
-                <div className="text-3xl font-bold text-secondary">{stats.activeListings}</div>
+                <div className="text-2xl md:text-3xl font-bold text-secondary">{stats.activeListings}</div>
               </Card>
-              <Card className="p-6">
+              <Card className="p-4 md:p-6">
                 <p className="text-sm text-muted-foreground mb-2">Pending Approval</p>
-                <div className="text-3xl font-bold text-accent">{stats.pendingApprovals}</div>
+                <div className="text-2xl md:text-3xl font-bold text-accent">{stats.pendingApprovals}</div>
               </Card>
-              <Card className="p-6">
+              <Card className="p-4 md:p-6">
                 <p className="text-sm text-muted-foreground mb-2">Total Views</p>
-                <div className="text-3xl font-bold">{stats.totalViews}</div>
+                <div className="text-2xl md:text-3xl font-bold">{stats.totalViews}</div>
               </Card>
-              <Card className="p-6">
+              <Card className="p-4 md:p-6">
                 <p className="text-sm text-muted-foreground mb-2">Job Openings</p>
-                <div className="text-3xl font-bold text-primary">{stats.totalJobs}</div>
+                <div className="text-2xl md:text-3xl font-bold text-primary">{stats.totalJobs}</div>
               </Card>
-              <Card className="p-6">
+              <Card className="p-4 md:p-6">
                 <p className="text-sm text-muted-foreground mb-2">Active Jobs</p>
-                <div className="text-3xl font-bold text-secondary">{stats.activeJobs}</div>
+                <div className="text-2xl md:text-3xl font-bold text-secondary">{stats.activeJobs}</div>
               </Card>
-              <Card className="p-6">
+              <Card className="p-4 md:p-6">
                 <p className="text-sm text-muted-foreground mb-2">Applicants</p>
-                <div className="text-3xl font-bold text-accent">{stats.totalApplicants}</div>
+                <div className="text-2xl md:text-3xl font-bold text-accent">{stats.totalApplicants}</div>
               </Card>
             </>
           )}
           
           {isVendor && (
             <>
-              <Card className="p-6 col-span-2">
+              <Card className="p-4 md:p-6 col-span-2">
                 <p className="text-sm text-muted-foreground mb-2">Profile Views</p>
                 {/* TODO: real view/contact counts from analytics endpoint */}
-                <div className="text-3xl font-bold text-primary">—</div>
+                <div className="text-2xl md:text-3xl font-bold text-primary">—</div>
               </Card>
-              <Card className="p-6 col-span-2">
+              <Card className="p-4 md:p-6 col-span-2">
                 <p className="text-sm text-muted-foreground mb-2">Contact Requests</p>
-                <div className="text-3xl font-bold text-secondary">—</div>
+                <div className="text-2xl md:text-3xl font-bold text-secondary">—</div>
               </Card>
-              <Card className="p-6 col-span-3">
+              <Card className="p-4 md:p-6 col-span-3">
                 <p className="text-sm text-muted-foreground mb-2">Current Plan</p>
                 <div className="text-xl font-bold text-accent">{activePlan?.displayName || 'Basic'}</div>
               </Card>
@@ -472,15 +472,15 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
 
           {user?.role === 'teacher' && (
             <>
-              <Card className="p-6 col-span-2">
+              <Card className="p-4 md:p-6 col-span-2">
                 <p className="text-sm text-muted-foreground mb-2">Applied Jobs</p>
-                <div className="text-3xl font-bold text-primary">{subscriptionStats?.jobPostsCount?.used || 0}</div>
+                <div className="text-2xl md:text-3xl font-bold text-primary">{subscriptionStats?.jobPostsCount?.used || 0}</div>
               </Card>
-              <Card className="p-6 col-span-2">
+              <Card className="p-4 md:p-6 col-span-2">
                 <p className="text-sm text-muted-foreground mb-2">Remaining Applications</p>
-                <div className="text-3xl font-bold text-secondary">{subscriptionStats?.jobPostsCount?.remaining || 0}</div>
+                <div className="text-2xl md:text-3xl font-bold text-secondary">{subscriptionStats?.jobPostsCount?.remaining || 0}</div>
               </Card>
-              <Card className="p-6 col-span-3">
+              <Card className="p-4 md:p-6 col-span-3">
                 <p className="text-sm text-muted-foreground mb-2">Profile Status</p>
                 <div className="text-xl font-bold text-accent capitalize">{planFeatures.profileVisibility || 'Basic'}</div>
               </Card>
@@ -597,7 +597,7 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
           </div>
         ) : activeTab === 'jobs' ? (
           <div>
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-0 mb-6">
               <h2 className="text-2xl font-bold">My Job Openings</h2>
               <Button onClick={() => setActiveTab('create-job')} className="gap-2">
                 <Plus className="w-4 h-4" />
@@ -840,7 +840,7 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
               </Card>
             )}
 
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-0 mb-6">
               <h2 className="text-2xl font-bold">My Listings</h2>
               <Button onClick={() => {
                 setEditingListing(null);
