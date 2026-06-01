@@ -15,7 +15,8 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Search, MapPin, BookOpen, Briefcase, Mail, Phone, GraduationCap, Award, AlertCircle } from 'lucide-react';
+import { Search, MapPin, BookOpen, Briefcase, Mail, Phone, GraduationCap, Award, AlertCircle, Filter } from 'lucide-react';
+import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { toast } from 'sonner';
 import { getTeachers, type TeacherFilters, type Teacher } from '@/api/services/teacherService';
 import { checkBrowseLimit, incrementBrowseCount } from '@/api/services/subscriptionEnforcement';
@@ -37,6 +38,7 @@ export function InstituteTeacherSearch() {
   const [selectedTeacher, setSelectedTeacher] = useState<Teacher | null>(null);
   const [isConnectDialogOpen, setIsConnectDialogOpen] = useState(false);
   const [browseLimitReached, setBrowseLimitReached] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   // sessionStorage deduplication helpers
   const SESSION_KEY = 'browsed-teachers';
@@ -180,8 +182,100 @@ export function InstituteTeacherSearch() {
         )}
 
         <div className="flex flex-col lg:flex-row gap-8">
-          {/* Sidebar Filters */}
-          <aside className="w-full lg:w-80 shrink-0">
+          {/* Mobile filter trigger */}
+          <div className="lg:hidden mb-4">
+            <Sheet open={filtersOpen} onOpenChange={setFiltersOpen}>
+              <SheetTrigger asChild>
+                <Button variant="outline" className="w-full justify-start gap-2">
+                  <Filter className="w-4 h-4" />
+                  Filters
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-80 overflow-y-auto">
+                <SheetHeader>
+                  <SheetTitle>Filter Teachers</SheetTitle>
+                </SheetHeader>
+                <div className="mt-4 space-y-6">
+                  {/* Search by name/email */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Search</label>
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                      <Input
+                        placeholder="Name or email..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="pl-9"
+                      />
+                    </div>
+                  </div>
+                  {/* Location filter */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Location</label>
+                    <Select value={locationFilter} onValueChange={setLocationFilter}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="All Locations" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Locations</SelectItem>
+                        {uniqueLocations.map((location) => (
+                          <SelectItem key={location} value={location}>
+                            {location}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  {/* Subject filter */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Subject</label>
+                    <Select value={subjectFilter} onValueChange={setSubjectFilter}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="All Subjects" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Subjects</SelectItem>
+                        {uniqueSubjects.map((subject) => (
+                          <SelectItem key={subject} value={subject}>
+                            {subject}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  {/* Availability filter */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Availability</label>
+                    <Select value={availabilityFilter} onValueChange={setAvailabilityFilter}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="All" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All</SelectItem>
+                        <SelectItem value="available">Available</SelectItem>
+                        <SelectItem value="unavailable">Unavailable</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => {
+                      setSearchTerm('');
+                      setLocationFilter('');
+                      setSubjectFilter('');
+                      setAvailabilityFilter('all');
+                    }}
+                  >
+                    Reset Filters
+                  </Button>
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
+
+          {/* Sidebar Filters — desktop only */}
+          <aside className="hidden lg:block lg:w-80 shrink-0">
             <Card className="sticky top-24">
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">

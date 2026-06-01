@@ -5,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { SupplierCard } from '@/components/SupplierCard';
 import { Card } from '@/components/ui/card';
 import { Search, Building2, Filter, Sliders, CheckCircle, Calendar, Users, Award, Mail, Phone, Globe, MapPin, AlertCircle } from 'lucide-react';
+import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { getSuppliers } from '@/api/services/supplierService';
 import { Supplier, SupplierFilters } from '@/api/types';
@@ -39,6 +40,7 @@ export function SupplierBrowse() {
   const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null);
   const [debounceTimer, setDebounceTimer] = useState<ReturnType<typeof setTimeout> | null>(null);
   const [browseLimitReached, setBrowseLimitReached] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   // Enforce browse quota on mount — authenticated users only
   useEffect(() => {
@@ -156,8 +158,98 @@ export function SupplierBrowse() {
         </div>
 
         <div className="flex flex-col lg:flex-row gap-8">
-          {/* Sidebar */}
-          <aside className="w-full lg:w-1/4 space-y-6">
+          {/* Mobile filter trigger */}
+          <div className="lg:hidden mb-4">
+            <Sheet open={filtersOpen} onOpenChange={setFiltersOpen}>
+              <SheetTrigger asChild>
+                <Button variant="outline" className="w-full justify-start gap-2">
+                  <Filter className="w-4 h-4" />
+                  Filters
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-80 overflow-y-auto">
+                <SheetHeader>
+                  <SheetTitle>Filters</SheetTitle>
+                </SheetHeader>
+                <div className="mt-4 space-y-6">
+                  {/* Search */}
+                  <div className="relative">
+                    <div className="absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                      <Search className="text-primary w-4 h-4" />
+                    </div>
+                    <Input
+                      placeholder="Search suppliers..."
+                      value={filters.searchTerm}
+                      onChange={e => handleSearch(e.target.value)}
+                      className="pl-9 bg-background"
+                    />
+                  </div>
+                  {/* Filters Card */}
+                  <div className="bg-card p-6 rounded-xl border border-border shadow-sm">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-2">
+                        <Sliders className="w-4 h-4 text-primary" />
+                        <h3 className="font-bold text-foreground">Filters</h3>
+                      </div>
+                      {hasActiveFilters && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={handleClearFilters}
+                          className="h-8 text-xs text-destructive hover:text-destructive hover:bg-destructive/10"
+                        >
+                          Clear
+                        </Button>
+                      )}
+                    </div>
+                    <div className="space-y-4">
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-semibold text-muted-foreground">Category</label>
+                        <Select value={filters.category || 'all'} onValueChange={handleCategoryChange}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="All Categories" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All Categories</SelectItem>
+                            {Object.entries(categoryLabels).map(([value, label]) => (
+                              <SelectItem key={value} value={value}>
+                                {label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-semibold text-muted-foreground">Verification</label>
+                        <Select
+                          value={
+                            filters.isVerified === undefined
+                              ? 'all'
+                              : filters.isVerified
+                              ? 'verified'
+                              : 'unverified'
+                          }
+                          onValueChange={handleVerifiedFilter}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="All Suppliers" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All Suppliers</SelectItem>
+                            <SelectItem value="verified">Verified Only</SelectItem>
+                            <SelectItem value="unverified">Unverified</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
+
+          {/* Sidebar — desktop only */}
+          <aside className="hidden lg:block lg:w-1/4 space-y-6">
             {/* Search */}
             <div className="relative">
               <div className="absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none">

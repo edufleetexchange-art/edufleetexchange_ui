@@ -10,7 +10,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Search, Sliders, Loader2, AlertCircle } from 'lucide-react';
+import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { Search, Sliders, Filter, Loader2, AlertCircle } from 'lucide-react';
 import { useVehicles } from '@/hooks/useApi';
 import { useConfig } from '@/context/ConfigContext';
 import type { Vehicle } from '@/api/types';
@@ -37,6 +38,7 @@ export function Browse() {
 
   const [browseLimitReached, setBrowseLimitReached] = useState(false);
   const [activeTab, setActiveTab] = useState('vehicles');
+  const [filtersOpen, setFiltersOpen] = useState(false);
   
   // Vehicle filters
   const [vehicleSearchTerm, setVehicleSearchTerm] = useState(initialQuery);
@@ -170,8 +172,124 @@ export function Browse() {
             )}
 
             <div className="flex flex-col lg:flex-row gap-8">
-              {/* Vehicles Sidebar */}
-              <aside className="w-full lg:w-1/4 space-y-6">
+              {/* Mobile filter trigger */}
+              <div className="lg:hidden mb-4">
+                <Sheet open={filtersOpen} onOpenChange={setFiltersOpen}>
+                  <SheetTrigger asChild>
+                    <Button variant="outline" className="w-full justify-start gap-2">
+                      <Filter className="w-4 h-4" />
+                      Filters
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent side="left" className="w-80 overflow-y-auto">
+                    <SheetHeader>
+                      <SheetTitle>Filters</SheetTitle>
+                    </SheetHeader>
+                    <div className="mt-4 space-y-6">
+                      {/* Search */}
+                      <div className="relative">
+                        <div className="absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                          <Search className="text-primary w-4 h-4" />
+                        </div>
+                        <Input
+                          placeholder="Search vehicles..."
+                          value={vehicleSearchTerm}
+                          onChange={(e) => setVehicleSearchTerm(e.target.value)}
+                          className="pl-9 bg-background"
+                        />
+                      </div>
+                      {/* Filters Card */}
+                      <div className="bg-card p-6 rounded-xl border border-border shadow-sm">
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center gap-2">
+                            <Sliders className="w-4 h-4 text-primary" />
+                            <h3 className="font-bold text-foreground">Filters</h3>
+                          </div>
+                          {vehicleHasActiveFilters && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={handleClearVehicleFilters}
+                              className="h-8 text-xs text-destructive hover:text-destructive hover:bg-destructive/10"
+                            >
+                              Clear
+                            </Button>
+                          )}
+                        </div>
+                        <div className="space-y-4">
+                          <div className="space-y-1.5">
+                            <label className="text-xs font-semibold text-muted-foreground">Vehicle Type</label>
+                            <Select value={typeFilter} onValueChange={setTypeFilter}>
+                              <SelectTrigger>
+                                <SelectValue placeholder="All Types" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value={ALL_FILTER}>All Types</SelectItem>
+                                {types.map((type) => (
+                                  <SelectItem key={type.slug} value={type.slug}>
+                                    {type.name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="space-y-1.5">
+                            <label className="text-xs font-semibold text-muted-foreground">Manufacturer</label>
+                            <Select value={manufacturerFilter} onValueChange={setManufacturerFilter}>
+                              <SelectTrigger>
+                                <SelectValue placeholder="All Manufacturers" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value={ALL_FILTER}>All Manufacturers</SelectItem>
+                                {manufacturers.map((mfg) => (
+                                  <SelectItem key={mfg} value={mfg}>
+                                    {mfg}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="space-y-1.5">
+                            <label className="text-xs font-semibold text-muted-foreground">Year</label>
+                            <Select value={yearFilter} onValueChange={setYearFilter}>
+                              <SelectTrigger>
+                                <SelectValue placeholder="All Years" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value={ALL_FILTER}>All Years</SelectItem>
+                                {years.map((year) => (
+                                  <SelectItem key={year} value={year.toString()}>
+                                    {year}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="space-y-1.5">
+                            <label className="text-xs font-semibold text-muted-foreground">Condition</label>
+                            <Select value={conditionFilter} onValueChange={setConditionFilter}>
+                              <SelectTrigger>
+                                <SelectValue placeholder="All Conditions" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value={ALL_FILTER}>All Conditions</SelectItem>
+                                {conditions.map((cond) => (
+                                  <SelectItem key={cond} value={cond}>
+                                    {cond.charAt(0).toUpperCase() + cond.slice(1)}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </SheetContent>
+                </Sheet>
+              </div>
+
+              {/* Vehicles Sidebar — desktop only */}
+              <aside className="hidden lg:block lg:w-1/4 space-y-6">
                 {/* Search */}
                 <div className="relative">
                   <div className="absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
