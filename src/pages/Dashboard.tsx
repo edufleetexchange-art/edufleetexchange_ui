@@ -33,6 +33,7 @@ import { api } from '@/api';
 
 import { AdSlot } from '@/components/ads/AdSlot';
 import { ApplicantsList } from '@/components/ApplicantsList';
+import { recommendationService, type TeacherRecommendation } from '@/api/services/recommendationService';
 
 interface DashboardProps {
   initialTab?: string;
@@ -52,6 +53,8 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
   const [editingListing, setEditingListing] = useState<Vehicle | null>(null);
   const [recentApplications, setRecentApplications] = useState<any[]>([]);
   const [loadingRecentApps, setLoadingRecentApps] = useState(false);
+  const [teacherRecs, setTeacherRecs] = useState<TeacherRecommendation[]>([]);
+  const [teacherRecsLoading, setTeacherRecsLoading] = useState(false);
 
   const isVendor = user?.role === 'vendor';
   const isInstitute = user?.role === 'institute';
@@ -84,6 +87,21 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
       }
     }
   }, [user?.id, refreshProfile, ensureSubscription, refetchListings, refetchJobs, isInstitute]);
+
+  // Fetch recommended teachers for most-recent active job
+  useEffect(() => {
+    if (!isInstitute || !userJobs.length) return;
+    const activeJobs = userJobs.filter(j => (j.status as string) === 'active');
+    if (!activeJobs.length) return;
+    // Use the most recently created active job (first in array as they're sorted by createdAt desc)
+    const latestJobId = activeJobs[0].id || (activeJobs[0] as any)._id;
+    if (!latestJobId) return;
+    setTeacherRecsLoading(true);
+    recommendationService.teachersForJob(latestJobId, 6)
+      .then(r => setTeacherRecs(r?.items ?? []))
+      .catch(() => setTeacherRecs([]))
+      .finally(() => setTeacherRecsLoading(false));
+  }, [isInstitute, userJobs]);
 
   const fetchRecentApplications = async () => {
     try {
@@ -735,6 +753,59 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
                         </div>
                       </div>
                     ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Recommended Teachers Section — for most recent active job */}
+            {isInstitute && teacherRecsLoading && (
+              <div className="mb-6">
+                <div className="h-5 w-64 bg-muted animate-pulse rounded mb-3" />
+                <div className="flex gap-4 overflow-x-auto pb-2">
+                  {[...Array(3)].map((_, i) => (
+                    <div key={i} className="min-w-[200px] h-28 bg-muted animate-pulse rounded-lg flex-shrink-0" />
+                  ))}
+                </div>
+              </div>
+            )}
+            {isInstitute && !teacherRecsLoading && teacherRecs.length > 0 && (
+              <Card className="border-primary/10 shadow-sm mb-6">
+                <CardHeader className="bg-primary/5 pb-4">
+                  <div className="flex items-center gap-2">
+                    <Users className="w-5 h-5 text-primary" />
+                    <div>
+                      <CardTitle className="text-lg">Recommended teachers for your most recent posting</CardTitle>
+                      <CardDescription>Top matches by skill, experience and location</CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="pt-4">
+                  <div className="flex gap-4 overflow-x-auto pb-2">
+                    {teacherRecs.map(({ teacher, score }) => {
+                      const teacherId = teacher.id || teacher._id;
+                      return (
+                        <div
+                          key={teacherId}
+                          className="min-w-[200px] flex-shrink-0 border border-border rounded-lg p-4 bg-background"
+                        >
+                          <div className="flex items-start justify-between mb-2">
+                            <p className="font-semibold text-sm line-clamp-1 flex-1 mr-2">
+                              {teacher.location || 'Teacher'}
+                            </p>
+                            <Badge variant="secondary" className="text-xs whitespace-nowrap">
+                              {score}% match
+                            </Badge>
+                          </div>
+                          <p className="text-xs text-muted-foreground line-clamp-1">
+                            {(teacher.subjects ?? []).slice(0, 3).join(', ') || 'No subjects listed'}
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {teacher.experience ?? 0} yrs exp
+                          </p>
+                        </div>
+                      );
+                    })}
                   </div>
                 </CardContent>
               </Card>

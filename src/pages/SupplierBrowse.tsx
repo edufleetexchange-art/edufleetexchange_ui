@@ -22,6 +22,7 @@ import { Button } from '@/components/ui/button';
 import { AdSlot } from '@/components/ads/AdSlot';
 import { useAuth } from '@/context/AuthContext';
 import { checkBrowseLimit } from '@/api/services/subscriptionEnforcement';
+import { ReviewList } from '@/components/ReviewList';
 
 export function SupplierBrowse() {
   const { account } = useAuth();
@@ -448,6 +449,12 @@ export function SupplierBrowse() {
                       Call Now
                     </a>
                   </Button>
+                </div>
+
+                {/* Reviews */}
+                <div className="pt-4 border-t border-border">
+                  <h4 className="font-semibold mb-3">Reviews</h4>
+                  <ReviewList targetType="supplier" targetId={selectedSupplier.id} />
                 </div>
               </div>
             </>

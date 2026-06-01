@@ -39,6 +39,7 @@ import { Switch } from '@/components/ui/switch';
 import { SubscriptionStatus } from '@/components/SubscriptionStatus'; // Assuming this component exists
 import { SubscriptionAlert } from '@/components/SubscriptionAlert';
 import { SubscriptionUsageCard } from '@/components/SubscriptionUsageCard';
+import { recommendationService, type JobRecommendation } from '@/api/services/recommendationService';
 
 export function TeacherDashboard() {
   const { account: user, profile, updateAccount, refresh: refreshProfile, subscription, ensureSubscription } = useAuth();
@@ -62,6 +63,8 @@ export function TeacherDashboard() {
   });
   const [newQual, setNewQual] = useState('');
   const [newSubject, setNewSubject] = useState('');
+  const [recs, setRecs] = useState<JobRecommendation[]>([]);
+  const [recsLoading, setRecsLoading] = useState(false);
 
   // Refresh profile and data when user is available
   useEffect(() => {
@@ -71,6 +74,16 @@ export function TeacherDashboard() {
       refetchApps();
     }
   }, [user?.id, refreshProfile, ensureSubscription, refetchApps]);
+
+  // Fetch job recommendations for this teacher
+  useEffect(() => {
+    if (user?.role !== 'teacher' || !user?.id) return;
+    setRecsLoading(true);
+    recommendationService.jobsForMe(6)
+      .then(r => setRecs(r?.items ?? []))
+      .catch(() => setRecs([]))
+      .finally(() => setRecsLoading(false));
+  }, [user?.id]);
 
   useEffect(() => {
     const tab = queryParams.get('tab');
@@ -243,6 +256,53 @@ export function TeacherDashboard() {
             />
           </div>
         </div>
+
+        {/* Recommended Jobs Section */}
+        {recsLoading && (
+          <div className="mb-8">
+            <div className="h-5 w-48 bg-muted animate-pulse rounded mb-4" />
+            <div className="flex gap-4 overflow-x-auto pb-2">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="min-w-[220px] h-32 bg-muted animate-pulse rounded-lg flex-shrink-0" />
+              ))}
+            </div>
+          </div>
+        )}
+        {!recsLoading && recs.length > 0 && (
+          <div className="mb-8">
+            <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
+              <Search className="h-5 w-5 text-primary" />
+              Recommended for you
+            </h2>
+            <div className="flex gap-4 overflow-x-auto pb-2">
+              {recs.map(({ job, score }) => {
+                const jobId = job.id || job._id;
+                const city = typeof job.location === 'string' ? job.location : job.location?.city ?? '';
+                return (
+                  <Link
+                    key={jobId}
+                    to={`/job/${jobId}`}
+                    className="min-w-[220px] flex-shrink-0 border border-border rounded-lg p-4 hover:border-primary/60 hover:shadow-sm transition-all bg-card"
+                  >
+                    <div className="flex items-start justify-between mb-2">
+                      <p className="font-semibold text-sm line-clamp-2 flex-1 mr-2">{job.title}</p>
+                      <Badge className="bg-primary/10 text-primary border-0 text-xs whitespace-nowrap">
+                        {score}% match
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground line-clamp-1">{job.instituteName}</p>
+                    {city && (
+                      <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
+                        <MapPin className="h-3 w-3" />
+                        {city}
+                      </div>
+                    )}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList>
