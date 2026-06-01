@@ -39,7 +39,7 @@ import { Switch } from '@/components/ui/switch';
 import { SubscriptionStatus } from '@/components/SubscriptionStatus'; // Assuming this component exists
 import { SubscriptionAlert } from '@/components/SubscriptionAlert';
 import { SubscriptionUsageCard } from '@/components/SubscriptionUsageCard';
-import { recommendationService, type JobRecommendation } from '@/api/services/recommendationService';
+import { recommendationService, type JobRecommendation, type CollaborativeRecsResponse } from '@/api/services/recommendationService';
 
 export function TeacherDashboard() {
   const { account: user, profile, updateAccount, refresh: refreshProfile, subscription, ensureSubscription } = useAuth();
@@ -65,6 +65,7 @@ export function TeacherDashboard() {
   const [newSubject, setNewSubject] = useState('');
   const [recs, setRecs] = useState<JobRecommendation[]>([]);
   const [recsLoading, setRecsLoading] = useState(false);
+  const [collab, setCollab] = useState<CollaborativeRecsResponse | null>(null);
 
   // Refresh profile and data when user is available
   useEffect(() => {
@@ -83,6 +84,14 @@ export function TeacherDashboard() {
       .then(r => setRecs(r?.items ?? []))
       .catch(() => setRecs([]))
       .finally(() => setRecsLoading(false));
+  }, [user?.id]);
+
+  // Fetch collaborative recommendations for this teacher
+  useEffect(() => {
+    if (user?.role !== 'teacher' || !user?.id) return;
+    recommendationService.collaborativeJobsForMe(6)
+      .then(data => setCollab(data))
+      .catch(() => setCollab(null));
   }, [user?.id]);
 
   useEffect(() => {
@@ -303,6 +312,57 @@ export function TeacherDashboard() {
             </div>
           </div>
         )}
+
+        {/* Collaborative Recommendations Section */}
+        {(() => {
+          const collabItems = [...(collab?.peers ?? []), ...(collab?.similar ?? [])].slice(0, 6);
+          if (collabItems.length === 0) return null;
+          return (
+            <div className="mb-8">
+              <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                <SearchCheck className="h-5 w-5 text-primary" />
+                Because you applied to similar jobs
+              </h2>
+              <div className="flex gap-4 overflow-x-auto pb-2">
+                {collabItems.map(({ job, score, reason }) => {
+                  const jobId = job.id || job._id;
+                  const city = typeof job.location === 'string' ? job.location : job.location?.city ?? '';
+                  const label = reason === 'peers'
+                    ? `${score} similar teacher${score !== 1 ? 's' : ''} applied`
+                    : 'Similar subjects';
+                  return (
+                    <Link
+                      key={jobId}
+                      to={`/job/${jobId}`}
+                      className="min-w-[220px] flex-shrink-0 border border-border rounded-lg p-4 hover:border-primary/60 hover:shadow-sm transition-all bg-card"
+                    >
+                      <div className="flex items-start justify-between mb-2">
+                        <p className="font-semibold text-sm line-clamp-2 flex-1 mr-2">{job.title}</p>
+                        <Badge className="bg-secondary/60 text-secondary-foreground border-0 text-xs whitespace-nowrap">
+                          {label}
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground line-clamp-1">{job.instituteName}</p>
+                      {city && (
+                        <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
+                          <MapPin className="h-3 w-3" />
+                          {city}
+                        </div>
+                      )}
+                      {(job.subjects ?? []).length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-2">
+                          {(job.subjects as string[]).slice(0, 2).map((s: string) => (
+                            <span key={s} className="text-xs bg-muted px-1.5 py-0.5 rounded">{s}</span>
+                          ))}
+                        </div>
+                      )}
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })()}
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList>

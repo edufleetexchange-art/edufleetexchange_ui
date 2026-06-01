@@ -43,6 +43,7 @@ import { AdminSettingsPage } from '@/pages/admin/AdminSettingsPage';
 import UserManagement from '@/pages/admin/UserManagement';
 import AuditLogManagement from '@/pages/admin/AuditLogManagement';
 import ReportModeration from '@/pages/admin/ReportModeration';
+import VerificationModeration from '@/pages/admin/VerificationModeration';
 
 // Ad Management imports
 import { AdProvider } from '@/context/AdContext';
@@ -189,6 +190,7 @@ function App() {
                   <Route path="users" element={<UserManagement />} />
                   <Route path="audit-logs" element={<AuditLogManagement />} />
                   <Route path="reports" element={<ReportModeration />} />
+                  <Route path="verifications" element={<VerificationModeration />} />
                   <Route path="subscriptions" element={<SubscriptionManagement />} />
                   <Route path="settings" element={<AdminSettingsPage />} />
                 </Route>

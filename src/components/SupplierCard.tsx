@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Building2, Mail, Phone, MapPin, CheckCircle, Star, MessageCircle, Calendar, Lock, Share2, Crown } from 'lucide-react';
 import type { Supplier } from '@/api/types';
+import { VerifiedBadge } from '@/components/VerifiedBadge';
 import { useConfig } from '@/context/ConfigContext';
 import { useAuth } from '@/context/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -82,8 +83,10 @@ export function SupplierCard({ supplier, onViewDetails, showStatus = false, disa
 
         {/* Content */}
         <div className="flex flex-col flex-grow min-h-0">
-          <h3 className="font-bold text-[13px] leading-tight line-clamp-1 text-foreground mb-0.5 group-hover:text-primary transition-colors" title={supplier.name}>
-            {supplier.name}
+          <h3 className="font-bold text-[13px] leading-tight line-clamp-1 text-foreground mb-0.5 group-hover:text-primary transition-colors flex items-center gap-1" title={supplier.name}>
+            <span className="truncate">{supplier.name}</span>
+            {/* TODO: Switch to vendor.verification.status === 'verified' once supplier list response is enriched */}
+            {supplier.isVerified && <VerifiedBadge size="sm" label={false} />}
           </h3>
           
           <div className="flex items-center gap-1.5 mb-1">

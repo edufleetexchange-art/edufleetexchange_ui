@@ -9,6 +9,8 @@ import { VehicleCard } from '@/components/VehicleCard';
 import { JobCard } from '@/components/JobCard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Plus, Edit2, Trash2, Eye, User, Mail, Phone, MapPin, Building2, UserCircle, Users } from 'lucide-react';
+import { VerifiedBadge } from '@/components/VerifiedBadge';
+import { VerifyAccountDialog } from '@/components/VerifyAccountDialog';
 import {
   Table,
   TableBody,
@@ -55,6 +57,7 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
   const [loadingRecentApps, setLoadingRecentApps] = useState(false);
   const [teacherRecs, setTeacherRecs] = useState<TeacherRecommendation[]>([]);
   const [teacherRecsLoading, setTeacherRecsLoading] = useState(false);
+  const [showVerifyDialog, setShowVerifyDialog] = useState(false);
 
   const isVendor = user?.role === 'vendor';
   const isInstitute = user?.role === 'institute';
@@ -367,6 +370,32 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">Welcome, {user.name}</h1>
           <p className="text-muted-foreground">{instituteProfile?.instituteName}</p>
+          {/* Verification status */}
+          {isInstitute && (() => {
+            const vStatus = (instituteProfile as any)?.verification?.status;
+            if (vStatus === 'verified') {
+              return <div className="mt-2"><VerifiedBadge size="md" label={true} /></div>;
+            }
+            if (vStatus === 'pending') {
+              return (
+                <div className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 text-amber-700 text-xs font-medium border border-amber-500/20">
+                  Verification under review
+                </div>
+              );
+            }
+            return (
+              <Button size="sm" variant="outline" className="mt-2 gap-1.5 text-xs" onClick={() => setShowVerifyDialog(true)}>
+                Get verified
+              </Button>
+            );
+          })()}
+          {isInstitute && (
+            <VerifyAccountDialog
+              open={showVerifyDialog}
+              onOpenChange={setShowVerifyDialog}
+              onSubmitted={() => refreshProfile()}
+            />
+          )}
         </div>
 
         {/* Subscription Alerts & Usage Summary */}

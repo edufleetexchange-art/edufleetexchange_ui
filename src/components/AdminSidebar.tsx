@@ -13,7 +13,8 @@ import {
   UserPlus,
   History,
   Handshake,
-  Flag
+  Flag,
+  BadgeCheck
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
@@ -94,6 +95,11 @@ export function AdminSidebar({ pendingVehicles, pendingSuppliers }: AdminSidebar
       title: 'Reports',
       icon: Flag,
       path: '/admin/reports'
+    },
+    {
+      title: 'Verifications',
+      icon: BadgeCheck,
+      path: '/admin/verifications'
     },
     {
       title: 'Suppliers',
