@@ -40,7 +40,7 @@ export function NotificationBell() {
         </Button>
       </PopoverTrigger>
 
-      <PopoverContent className="w-96 p-0" align="end">
+      <PopoverContent className="w-[calc(100vw-1rem)] sm:w-96 p-0" align="end">
         <NotificationPanel onClose={() => setOpen(false)} />
       </PopoverContent>
     </Popover>

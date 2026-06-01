@@ -2,7 +2,7 @@ import { Outlet, Link } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { AdminSidebar } from '@/components/AdminSidebar';
+import { AdminSidebar, MobileAdminNav } from '@/components/AdminSidebar';
 import { useState, useEffect } from 'react';
 import { getSupplierStats } from '@/api/services/supplierService';
 import { apiClient } from '@/lib/apiClient';
@@ -53,13 +53,19 @@ export function AdminLayout() {
       />
       <main className="flex-1 h-screen overflow-y-auto">
         <div className="p-4 border-b border-border bg-card flex justify-between items-center lg:hidden">
-          <Link to="/" className="flex items-center gap-2">
-            <img 
-              src="https://firebasestorage.googleapis.com/v0/b/blink-451505.firebasestorage.app/o/user-uploads%2FmxwyRYTs2dcnubQCH6xSOA5OSFz2%2Fimage__9a481536.png?alt=media&token=b799bfcc-670d-46cb-9ea9-b9e521be88f2" 
-              alt="EduFleet" 
-              className="h-8 w-auto"
+          <div className="flex items-center gap-2">
+            <MobileAdminNav
+              pendingVehicles={pendingVehicles}
+              pendingSuppliers={supplierStats.pending}
             />
-          </Link>
+            <Link to="/" className="flex items-center gap-2">
+              <img
+                src="https://firebasestorage.googleapis.com/v0/b/blink-451505.firebasestorage.app/o/user-uploads%2FmxwyRYTs2dcnubQCH6xSOA5OSFz2%2Fimage__9a481536.png?alt=media&token=b799bfcc-670d-46cb-9ea9-b9e521be88f2"
+                alt="EduFleet"
+                className="h-8 w-auto"
+              />
+            </Link>
+          </div>
           <div className="flex items-center gap-2">
             <span className="text-xs font-medium px-2 py-1 bg-primary/10 text-primary rounded-full uppercase">
               {account.role}

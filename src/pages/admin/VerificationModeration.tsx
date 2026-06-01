@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Filter, BadgeCheck, RefreshCw, ExternalLink } from 'lucide-react';
+import { TableWrapper } from '@/components/ui/table-wrapper';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 
@@ -87,7 +88,7 @@ export default function VerificationModeration() {
   };
 
   return (
-    <div className="p-8">
+    <div className="p-4 sm:p-8">
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-3xl font-bold">Verification Moderation</h1>
@@ -138,7 +139,7 @@ export default function VerificationModeration() {
           </CardContent>
         </Card>
 
-        <div className="bg-card rounded-xl border shadow-sm">
+        <TableWrapper className="bg-card shadow-sm">
           <Table>
             <TableHeader>
               <TableRow>
@@ -233,7 +234,7 @@ export default function VerificationModeration() {
               )}
             </TableBody>
           </Table>
-        </div>
+        </TableWrapper>
       </div>
 
       {/* Detail dialog */}
