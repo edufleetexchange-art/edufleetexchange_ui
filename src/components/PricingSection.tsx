@@ -96,7 +96,7 @@ function PricingCardGrid({ plans, loading, onSelectPlan }: PricingCardGridProps)
           <Card 
             key={plan.id} 
             className={`flex flex-col h-full transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 relative border-2 ${
-              isPopular ? 'border-primary shadow-xl scale-105 z-10 border-beam' : 'border-white/50 shadow-md'
+              isPopular ? 'border-primary shadow-xl md:scale-105 z-10 border-beam' : 'border-white/50 shadow-md'
             }`}
           >
             {isPopular && (
@@ -232,19 +232,19 @@ export function PricingSection() {
               <TabsList className="h-14 p-1 bg-white border border-gray-100 shadow-sm rounded-full">
                 <TabsTrigger 
                   value="institute" 
-                  className="rounded-full px-8 h-12 text-base data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all"
+                  className="rounded-full px-4 sm:px-8 h-12 text-sm sm:text-base data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all"
                 >
                   Institutes
                 </TabsTrigger>
                 <TabsTrigger 
                   value="teacher" 
-                  className="rounded-full px-8 h-12 text-base data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all"
+                  className="rounded-full px-4 sm:px-8 h-12 text-sm sm:text-base data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all"
                 >
                   Teachers
                 </TabsTrigger>
                 <TabsTrigger 
                   value="vendor" 
-                  className="rounded-full px-8 h-12 text-base data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all"
+                  className="rounded-full px-4 sm:px-8 h-12 text-sm sm:text-base data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all"
                 >
                   Suppliers
                 </TabsTrigger>
