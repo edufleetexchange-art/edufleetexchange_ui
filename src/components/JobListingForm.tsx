@@ -620,7 +620,7 @@ export function JobListingForm({ initialInstituteId, onSuccess, initialValues, m
                       <Button
                         type="button"
                         variant="ghost"
-                        size="sm"
+                        size="default"
                         onClick={() => removeArrayItem(index, subjects, setSubjects)}
                         className="text-red-600"
                       >
@@ -660,7 +660,7 @@ export function JobListingForm({ initialInstituteId, onSuccess, initialValues, m
                       <Button
                         type="button"
                         variant="ghost"
-                        size="sm"
+                        size="default"
                         onClick={() => removeArrayItem(index, qualifications, setQualifications)}
                         className="text-red-600"
                       >
@@ -700,7 +700,7 @@ export function JobListingForm({ initialInstituteId, onSuccess, initialValues, m
                       <Button
                         type="button"
                         variant="ghost"
-                        size="sm"
+                        size="default"
                         onClick={() => removeArrayItem(index, requirements, setRequirements)}
                         className="text-red-600"
                       >
@@ -740,7 +740,7 @@ export function JobListingForm({ initialInstituteId, onSuccess, initialValues, m
                       <Button
                         type="button"
                         variant="ghost"
-                        size="sm"
+                        size="default"
                         onClick={() => removeArrayItem(index, responsibilities, setResponsibilities)}
                         className="text-red-600"
                       >
@@ -780,7 +780,7 @@ export function JobListingForm({ initialInstituteId, onSuccess, initialValues, m
                       <Button
                         type="button"
                         variant="ghost"
-                        size="sm"
+                        size="default"
                         onClick={() => removeArrayItem(index, benefits, setBenefits)}
                         className="text-red-600"
                       >

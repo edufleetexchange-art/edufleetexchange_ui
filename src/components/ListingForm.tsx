@@ -458,6 +458,7 @@ export function ListingForm({ listing, initialSellerId, onSuccess, onCancel }: L
                 <Button
                   type="button"
                   variant="outline"
+                  size="lg"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={uploading || uploadedImages.length >= 10}
                 >
@@ -659,7 +660,7 @@ export function ListingForm({ listing, initialSellerId, onSuccess, onCancel }: L
                     name="insuranceValid"
                     checked={formData.insuranceValid}
                     onChange={handleChange}
-                    className="w-4 h-4 rounded border-border"
+                    className="w-5 h-5 rounded border-border"
                   />
                   <label className="text-sm font-medium">Insurance Valid</label>
                 </div>
@@ -696,7 +697,7 @@ export function ListingForm({ listing, initialSellerId, onSuccess, onCancel }: L
                     name="fitnessValid"
                     checked={formData.fitnessValid}
                     onChange={handleChange}
-                    className="w-4 h-4 rounded border-border"
+                    className="w-5 h-5 rounded border-border"
                   />
                   <label className="text-sm font-medium">Fitness Certificate Valid</label>
                 </div>
@@ -720,7 +721,7 @@ export function ListingForm({ listing, initialSellerId, onSuccess, onCancel }: L
                     name="roadTaxValid"
                     checked={formData.roadTaxValid}
                     onChange={handleChange}
-                    className="w-4 h-4 rounded border-border"
+                    className="w-5 h-5 rounded border-border"
                   />
                   <label className="text-sm font-medium">Road Tax Valid</label>
                 </div>
@@ -744,7 +745,7 @@ export function ListingForm({ listing, initialSellerId, onSuccess, onCancel }: L
                     name="permitValid"
                     checked={formData.permitValid}
                     onChange={handleChange}
-                    className="w-4 h-4 rounded border-border"
+                    className="w-5 h-5 rounded border-border"
                   />
                   <label className="text-sm font-medium">Permit Valid</label>
                 </div>

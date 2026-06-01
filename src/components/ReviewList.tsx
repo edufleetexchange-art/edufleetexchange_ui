@@ -121,7 +121,7 @@ export function ReviewList({ targetType, targetId }: ReviewListProps) {
                 {account && reviewerId(r) === account.id && (
                   <button
                     onClick={openWrite}
-                    className="text-xs text-primary hover:underline mt-1"
+                    className="text-xs text-primary hover:underline mt-1 py-1 px-2 -ml-2 inline-flex items-center"
                   >
                     Edit
                   </button>

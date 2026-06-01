@@ -199,7 +199,7 @@ export function NotificationPanel({ onClose }: NotificationPanelProps) {
                     {/* Actions */}
                     <button
                       onClick={(e) => handleDelete(e, notification.id)}
-                      className="text-muted-foreground hover:text-red-600 transition p-1 flex-shrink-0"
+                      className="text-muted-foreground hover:text-red-600 transition min-w-[44px] min-h-[44px] flex items-center justify-center flex-shrink-0"
                       title="Delete notification"
                     >
                       <Trash2 className="w-4 h-4" />
