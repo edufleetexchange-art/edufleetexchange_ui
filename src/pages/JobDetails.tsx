@@ -408,7 +408,7 @@ export function JobDetails() {
 
       {/* Apply Dialog */}
       <Dialog open={showApplyDialog} onOpenChange={setShowApplyDialog}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="w-[95vw] max-w-2xl max-h-[90dvh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Apply for {job.title}</DialogTitle>
             <DialogDescription>

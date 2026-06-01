@@ -456,7 +456,7 @@ export function InstituteJobApplications() {
 
         {/* Schedule Interview Dialog */}
         <Dialog open={showScheduleDialog} onOpenChange={setShowScheduleDialog}>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="w-[95vw] max-w-2xl max-h-[90dvh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>{isRescheduling ? 'Reschedule Interview' : 'Schedule Interview'}</DialogTitle>
               <DialogDescription>
@@ -465,7 +465,7 @@ export function InstituteJobApplications() {
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="date">Date *</Label>
                   <Input
@@ -486,7 +486,7 @@ export function InstituteJobApplications() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="duration">Duration (minutes)</Label>
                   <Input

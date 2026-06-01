@@ -234,7 +234,7 @@ export function ListingDetails() {
               {/* Features */}
               <div>
                 <h3 className="font-semibold mb-3">Features</h3>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {vehicle.features.map((feature, idx) => (
                     <div key={idx} className="flex items-center gap-2 text-sm">
                       <div className="w-2 h-2 bg-primary rounded-full" />
@@ -392,7 +392,7 @@ export function ListingDetails() {
 
       {/* Contact Dialog */}
       <AlertDialog open={contactDialogOpen} onOpenChange={setContactDialogOpen}>
-        <AlertDialogContent>
+        <AlertDialogContent className="w-[95vw]">
           <AlertDialogHeader>
             <AlertDialogTitle>Contact Seller</AlertDialogTitle>
             <AlertDialogDescription>
@@ -413,7 +413,7 @@ export function ListingDetails() {
               <p className="text-sm text-muted-foreground">{vehicle.sellerPhone}</p>
             </div>
           </div>
-          <div className="flex gap-2 justify-end">
+          <div className="flex flex-col-reverse sm:flex-row gap-2 sm:justify-end">
             <AlertDialogCancel>Close</AlertDialogCancel>
             <AlertDialogAction asChild>
               <Button
