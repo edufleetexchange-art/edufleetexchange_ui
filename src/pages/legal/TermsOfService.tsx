@@ -3,7 +3,7 @@ const TermsOfService = () => {
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white py-12 px-4">
       <div className="max-w-4xl mx-auto prose prose-slate">
         <h1 className="text-4xl font-bold text-slate-900 mb-6">Terms of Service</h1>
-        <p className="text-slate-600 mb-8">Last updated: January 2026</p>
+        <p className="text-slate-600 mb-8">Last updated: June 2026</p>
 
         <div className="space-y-8 text-slate-700">
           <section>
@@ -81,8 +81,8 @@ const TermsOfService = () => {
           <section>
             <h2 className="text-2xl font-bold text-slate-900 mb-4">8. Governing Law</h2>
             <p>
-              These terms and conditions are governed by and construed in accordance with the laws of the United
-              States, and you irrevocably submit to the exclusive jurisdiction of the courts in that location.
+              These terms and conditions are governed by and construed in accordance with the laws of India,
+              and you irrevocably submit to the exclusive jurisdiction of the courts of Bengaluru, Karnataka.
             </p>
           </section>
 
@@ -100,7 +100,7 @@ const TermsOfService = () => {
             <h2 className="text-2xl font-bold text-slate-900 mb-4">10. Contact Us</h2>
             <p>
               If you have any questions about these Terms of Service, please contact us at:{' '}
-              <strong>legal@edufleet.com</strong>
+              <strong>legal@edufleetexchange.com</strong>
             </p>
           </section>
         </div>

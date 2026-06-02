@@ -3,7 +3,7 @@ const PrivacyPolicy = () => {
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white py-12 px-4">
       <div className="max-w-4xl mx-auto prose prose-slate">
         <h1 className="text-4xl font-bold text-slate-900 mb-6">Privacy Policy</h1>
-        <p className="text-slate-600 mb-8">Last updated: January 2026</p>
+        <p className="text-slate-600 mb-8">Last updated: June 2026</p>
 
         <div className="space-y-8 text-slate-700">
           <section>
@@ -74,7 +74,7 @@ const PrivacyPolicy = () => {
             <h2 className="text-2xl font-bold text-slate-900 mb-4">6. Contact Us</h2>
             <p>
               If you have any questions about this Privacy Policy, please contact us at:{' '}
-              <strong>privacy@edufleet.com</strong>
+              <strong>privacy@edufleetexchange.com</strong>
             </p>
           </section>
         </div>
