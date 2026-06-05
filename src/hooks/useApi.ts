@@ -615,7 +615,7 @@ export function useTeacherById(id: string | undefined) {
  * Hook to fetch active subscription plans
  * @param planType - Optional filter by plan type (teacher, institute, vendor)
  */
-export function useSubscriptionPlans(planType?: 'teacher' | 'institute' | 'vendor') {
+export function useSubscriptionPlans(planType?: 'teacher' | 'institute' | 'vendor' | 'consultant') {
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

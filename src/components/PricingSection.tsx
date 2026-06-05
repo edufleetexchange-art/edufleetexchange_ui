@@ -90,6 +90,13 @@ function PricingCardGrid({ plans, loading, onSelectPlan }: PricingCardGridProps)
             if (f.canAccessJobBoard) featuresList.push("Job Board Access");
             if (f.instantJobNotifications) featuresList.push("Instant Job Notifications");
           }
+          if (pt === 'consultant') {
+            if (f.maxRosterTeachers !== undefined && f.maxRosterTeachers > 0) featuresList.push(`${f.maxRosterTeachers} Roster Teachers`);
+            if (f.maxRosterInstitutes !== undefined && f.maxRosterInstitutes > 0) featuresList.push(`${f.maxRosterInstitutes} Client Institutes`);
+            if (f.maxApplicationsPerMonth !== undefined && f.maxApplicationsPerMonth > 0) featuresList.push(`${f.maxApplicationsPerMonth} Applications / month`);
+            if (f.maxPlacementsPerMonth !== undefined && f.maxPlacementsPerMonth > 0) featuresList.push(`${f.maxPlacementsPerMonth} Placements / month`);
+            if (f.canViewTeacherContact) featuresList.push("Teacher Contact Visible");
+          }
         }
 
         return (
@@ -165,13 +172,15 @@ export function PricingSection() {
   const isCompanyUser = account?.role === 'admin' || account?.role === 'sales' || account?.role === 'marketing';
 
   // Determine plan type based on account role
-  let planType: 'teacher' | 'institute' | 'vendor' | undefined;
+  let planType: 'teacher' | 'institute' | 'vendor' | 'consultant' | undefined;
   if (account?.role === 'teacher') {
     planType = 'teacher';
   } else if (account?.role === 'institute') {
     planType = 'institute';
   } else if (account?.role === 'vendor') {
     planType = 'vendor';
+  } else if (account?.role === 'consultant') {
+    planType = 'consultant';
   }
 
   // If logged in, fetch specific plans. If not, fetch all (planType undefined)

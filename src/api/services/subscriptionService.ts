@@ -40,7 +40,7 @@ export const getAllSubscriptionPlans = async (): Promise<ApiResponse<Subscriptio
 
 export const getActiveSubscriptionPlans = async (
   force = false, 
-  planType?: 'teacher' | 'institute' | 'vendor'
+  planType?: 'teacher' | 'institute' | 'vendor' | 'consultant'
 ): Promise<ApiResponse<SubscriptionPlan[]>> => {
   const now = Date.now();
   
