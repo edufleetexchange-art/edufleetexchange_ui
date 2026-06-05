@@ -7,6 +7,7 @@ import type {
   InstituteSignupRequest,
   TeacherSignupRequest,
   VendorSignupRequest,
+  ConsultantSignupRequest,
 } from '@/api/types';
 import { toast } from 'sonner';
 
@@ -36,6 +37,7 @@ interface AuthContextType {
   signupInstitute: (input: InstituteSignupRequest) => Promise<void>;
   signupTeacher: (input: TeacherSignupRequest | TeacherSignupData) => Promise<void>;
   signupVendor: (input: VendorSignupRequest) => Promise<void>;
+  signupConsultant: (input: ConsultantSignupRequest) => Promise<void>;
   updateAccount: (updates: Partial<Pick<Account, 'name' | 'phone' | 'avatar'>>) => Promise<void>;
   logout: () => Promise<void>;
   refresh: () => Promise<void>;
@@ -171,6 +173,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     [applyBundle],
   );
 
+  const signupConsultant = useCallback(
+    async (input: ConsultantSignupRequest) => {
+      setIsLoading(true);
+      try {
+        const bundle = await authService.signupConsultant(input);
+        applyBundle(bundle);
+        toast.success('Consultant signup successful');
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : 'Signup failed');
+        throw e;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [applyBundle],
+  );
+
   const signupSupplier = useCallback(
     async (data: VendorSignupRequest & { planId?: string }) => {
       // planId silently dropped — server picks the free vendor plan by default.
@@ -251,6 +270,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         signupInstitute,
         signupTeacher,
         signupVendor,
+        signupConsultant,
         signupSupplier,
         updateAccount,
         updateProfile,
