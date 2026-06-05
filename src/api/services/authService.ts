@@ -4,6 +4,7 @@ import type {
   InstituteSignupRequest,
   TeacherSignupRequest,
   VendorSignupRequest,
+  ConsultantSignupRequest,
   LoginRequest,
   Account,
 } from '@/api/types';
@@ -33,6 +34,11 @@ export const authService = {
   },
   async signupVendor(input: VendorSignupRequest): Promise<AuthBundle> {
     const result = await apiClient.post<BundleWithToken>('/auth/vendor/signup', input);
+    persist(result);
+    return result;
+  },
+  async signupConsultant(input: ConsultantSignupRequest): Promise<AuthBundle> {
+    const result = await apiClient.post<BundleWithToken>('/auth/consultant/signup', input);
     persist(result);
     return result;
   },
