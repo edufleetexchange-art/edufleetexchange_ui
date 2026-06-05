@@ -137,6 +137,16 @@ export function AdminSidebar({ pendingVehicles, pendingSuppliers }: AdminSidebar
       icon: CreditCard
     },
     {
+      title: 'Consultants',
+      path: '/admin/consultants',
+      icon: Briefcase
+    },
+    {
+      title: 'Placements',
+      path: '/admin/placements',
+      icon: BadgeCheck
+    },
+    {
       title: 'Settings',
       path: '/admin/settings',
       icon: Settings
