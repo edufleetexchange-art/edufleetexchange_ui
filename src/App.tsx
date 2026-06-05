@@ -18,6 +18,8 @@ import { VendorSignup } from '@/pages/VendorSignup';
 import { ConsultantSignup } from '@/pages/ConsultantSignup';
 import { ConsultantDashboard } from '@/pages/ConsultantDashboard';
 import { ConsultantRoster } from '@/pages/ConsultantRoster';
+import { ConsultantPlacements } from '@/pages/ConsultantPlacements';
+import { ConsultantInterviews } from '@/pages/ConsultantInterviews';
 import { TeacherDashboard } from '@/pages/TeacherDashboard';
 import { TeacherJobBrowse } from '@/pages/TeacherJobBrowse';
 import { TeacherJobDetails } from '@/pages/TeacherJobDetails';
@@ -125,6 +127,22 @@ function App() {
                   element={
                     <ProtectedRoute requiredRole="consultant">
                       <ConsultantRoster />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/consultant/placements"
+                  element={
+                    <ProtectedRoute requiredRole="consultant">
+                      <ConsultantPlacements />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/consultant/interviews"
+                  element={
+                    <ProtectedRoute requiredRole="consultant">
+                      <ConsultantInterviews />
                     </ProtectedRoute>
                   }
                 />
