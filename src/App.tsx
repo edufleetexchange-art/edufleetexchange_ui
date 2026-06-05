@@ -16,6 +16,7 @@ import { Dashboard } from '@/pages/Dashboard';
 import { TeacherSignup } from '@/pages/TeacherSignup';
 import { VendorSignup } from '@/pages/VendorSignup';
 import { ConsultantSignup } from '@/pages/ConsultantSignup';
+import { ConsultantDashboard } from '@/pages/ConsultantDashboard';
 import { TeacherDashboard } from '@/pages/TeacherDashboard';
 import { TeacherJobBrowse } from '@/pages/TeacherJobBrowse';
 import { TeacherJobDetails } from '@/pages/TeacherJobDetails';
@@ -108,6 +109,16 @@ function App() {
                 <Route path="/legal/privacy" element={<PrivacyPolicy />} />
                 <Route path="/legal/terms" element={<TermsOfService />} />
                 <Route path="/legal/cookies" element={<CookiePolicy />} />
+
+                {/* Protected Routes - Consultant */}
+                <Route
+                  path="/consultant/dashboard"
+                  element={
+                    <ProtectedRoute requiredRole="consultant">
+                      <ConsultantDashboard />
+                    </ProtectedRoute>
+                  }
+                />
 
                 {/* Protected Routes - Institute Only */}
                 <Route
