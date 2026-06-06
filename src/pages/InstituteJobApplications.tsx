@@ -39,6 +39,7 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { ConsultantBadge } from '@/components/ConsultantBadge';
 
 // Define valid status transitions
 const STATUS_TRANSITIONS: Record<string, string[]> = {
@@ -595,7 +596,12 @@ function ApplicationsList({
                     <AvatarFallback>{(application.teacherName?.[0] ?? '?').toUpperCase()}</AvatarFallback>
                   </Avatar>
                   <div>
-                    <CardTitle className="text-xl">{application.teacherName}</CardTitle>
+                    <CardTitle className="text-xl">
+                      {application.teacherName}
+                      {(application as any).submittedByConsultantId && (
+                        <ConsultantBadge consultant={(application as any).submittedByConsultantId} />
+                      )}
+                    </CardTitle>
                     <CardDescription className="mt-1">
                       Applied on {new Date(application.appliedDate).toLocaleDateString()}
                     </CardDescription>

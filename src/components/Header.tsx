@@ -50,6 +50,12 @@ export function Header() {
       } else {
         navigate('/teacher/dashboard');
       }
+    } else if (user?.role === 'consultant') {
+      if (tab === 'profile') {
+        navigate('/consultant/dashboard?tab=profile');
+      } else {
+        navigate('/consultant/dashboard');
+      }
     } else {
       // Default to institute dashboard for any other role
       if (tab === 'profile') {
@@ -68,7 +74,8 @@ export function Header() {
   // Check if user is vendor to hide specific links
   const isVendor = user?.role === 'vendor';
   const shouldShowInstituteNav = user?.role === 'institute';
-  const showPromoLinks = !(user?.role === 'institute' || user?.role === 'teacher' || isCompanyUser);
+  const shouldShowConsultantNav = user?.role === 'consultant';
+  const showPromoLinks = !(user?.role === 'institute' || user?.role === 'teacher' || user?.role === 'consultant' || isCompanyUser);
 
   const handleHeaderSearch = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
@@ -145,7 +152,7 @@ export function Header() {
           {/* Desktop Actions */}
           <div className="hidden lg:flex items-center gap-6">
             <nav className="flex items-center gap-7 text-sm font-medium">
-              {!shouldShowTeacherNav && !isVendor && (
+              {!shouldShowTeacherNav && !isVendor && !shouldShowConsultantNav && (
                 <>
                   <Link to="/browse" className="text-foreground/70 hover:text-primary transition-all relative group">
                     <span>Vehicles</span>
@@ -198,6 +205,16 @@ export function Header() {
                   <span>Browse Jobs</span>
                   <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all group-hover:w-full"></span>
                 </Link>
+              )}
+              {shouldShowConsultantNav && (
+                <>
+                  <Link to="/consultant/dashboard" className="text-foreground/70 hover:text-primary transition-all">Dashboard</Link>
+                  <Link to="/consultant/roster" className="text-foreground/70 hover:text-primary transition-all">Roster</Link>
+                  <Link to="/consultant/jobs" className="text-foreground/70 hover:text-primary transition-all">Jobs</Link>
+                  <Link to="/consultant/teachers" className="text-foreground/70 hover:text-primary transition-all">Teachers</Link>
+                  <Link to="/consultant/placements" className="text-foreground/70 hover:text-primary transition-all">Pipeline</Link>
+                  <Link to="/consultant/interviews" className="text-foreground/70 hover:text-primary transition-all">Interviews</Link>
+                </>
               )}
               {showPromoLinks && (
                 <>
@@ -302,7 +319,7 @@ export function Header() {
               </div>
             )}
             <div className="grid grid-cols-2 gap-2 mb-4">
-              {!shouldShowTeacherNav && !isVendor ? (
+              {!shouldShowTeacherNav && !isVendor && !shouldShowConsultantNav ? (
                 <>
                   <Link to={user?.role === 'institute' ? "/dashboard?tab=listings" : "/browse"} className="flex flex-col items-center justify-center p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
                     <span className="font-medium">Vehicles</span>

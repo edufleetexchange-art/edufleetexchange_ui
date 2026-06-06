@@ -15,6 +15,13 @@ import { Signup } from '@/pages/Signup';
 import { Dashboard } from '@/pages/Dashboard';
 import { TeacherSignup } from '@/pages/TeacherSignup';
 import { VendorSignup } from '@/pages/VendorSignup';
+import { ConsultantSignup } from '@/pages/ConsultantSignup';
+import { ConsultantDashboard } from '@/pages/ConsultantDashboard';
+import { ConsultantRoster } from '@/pages/ConsultantRoster';
+import { ConsultantPlacements } from '@/pages/ConsultantPlacements';
+import { ConsultantInterviews } from '@/pages/ConsultantInterviews';
+import { ConsultantJobSearch } from '@/pages/ConsultantJobSearch';
+import { ConsultantTeacherSearch } from '@/pages/ConsultantTeacherSearch';
 import { TeacherDashboard } from '@/pages/TeacherDashboard';
 import { TeacherJobBrowse } from '@/pages/TeacherJobBrowse';
 import { TeacherJobDetails } from '@/pages/TeacherJobDetails';
@@ -43,6 +50,8 @@ import { AdminSettingsPage } from '@/pages/admin/AdminSettingsPage';
 import UserManagement from '@/pages/admin/UserManagement';
 import AuditLogManagement from '@/pages/admin/AuditLogManagement';
 import ReportModeration from '@/pages/admin/ReportModeration';
+import ConsultantManagement from '@/pages/admin/ConsultantManagement';
+import PlacementManagement from '@/pages/admin/PlacementManagement';
 import VerificationModeration from '@/pages/admin/VerificationModeration';
 
 // Ad Management imports
@@ -89,6 +98,7 @@ function App() {
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/teacher/signup" element={<TeacherSignup />} />
                 <Route path="/vendor/signup" element={<VendorSignup />} />
+                <Route path="/consultant/signup" element={<ConsultantSignup />} />
                 <Route path="/teacher/jobs" element={<TeacherJobBrowse />} />
                 <Route path="/teacher/job/:id" element={<TeacherJobDetails />} />
                 <Route path="/advertise" element={<Advertise />} />
@@ -106,6 +116,56 @@ function App() {
                 <Route path="/legal/privacy" element={<PrivacyPolicy />} />
                 <Route path="/legal/terms" element={<TermsOfService />} />
                 <Route path="/legal/cookies" element={<CookiePolicy />} />
+
+                {/* Protected Routes - Consultant */}
+                <Route
+                  path="/consultant/dashboard"
+                  element={
+                    <ProtectedRoute requiredRole="consultant">
+                      <ConsultantDashboard />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/consultant/roster"
+                  element={
+                    <ProtectedRoute requiredRole="consultant">
+                      <ConsultantRoster />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/consultant/placements"
+                  element={
+                    <ProtectedRoute requiredRole="consultant">
+                      <ConsultantPlacements />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/consultant/interviews"
+                  element={
+                    <ProtectedRoute requiredRole="consultant">
+                      <ConsultantInterviews />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/consultant/jobs"
+                  element={
+                    <ProtectedRoute requiredRole="consultant">
+                      <ConsultantJobSearch />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/consultant/teachers"
+                  element={
+                    <ProtectedRoute requiredRole="consultant">
+                      <ConsultantTeacherSearch />
+                    </ProtectedRoute>
+                  }
+                />
 
                 {/* Protected Routes - Institute Only */}
                 <Route
@@ -193,6 +253,8 @@ function App() {
                   <Route path="verifications" element={<VerificationModeration />} />
                   <Route path="subscriptions" element={<SubscriptionManagement />} />
                   <Route path="settings" element={<AdminSettingsPage />} />
+                  <Route path="consultants" element={<ConsultantManagement />} />
+                  <Route path="placements" element={<PlacementManagement />} />
                 </Route>
 
                 {/* Admin Ad Management Routes - Separate Layout */}

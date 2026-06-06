@@ -40,6 +40,7 @@ import { SubscriptionStatus } from '@/components/SubscriptionStatus'; // Assumin
 import { SubscriptionAlert } from '@/components/SubscriptionAlert';
 import { SubscriptionUsageCard } from '@/components/SubscriptionUsageCard';
 import { recommendationService, type JobRecommendation, type CollaborativeRecsResponse } from '@/api/services/recommendationService';
+import { TeacherConsentToggle } from '@/components/TeacherConsentToggle';
 
 export function TeacherDashboard() {
   const { account: user, profile, updateAccount, refresh: refreshProfile, subscription, ensureSubscription } = useAuth();
@@ -557,6 +558,9 @@ export function TeacherDashboard() {
                 )}
               </CardContent>
             </Card>
+            <div className="mt-4">
+              <TeacherConsentToggle />
+            </div>
           </TabsContent>
 
           {/* Applications Tab */}

@@ -4,7 +4,7 @@ export interface SubscriptionPlan {
   name: string;
   displayName: string;
   description: string;
-  planType: 'teacher' | 'institute' | 'vendor';
+  planType: 'teacher' | 'institute' | 'vendor' | 'consultant';
   price: number;
   currency: string;
   duration: number; // in days
@@ -114,7 +114,7 @@ export interface CreateSubscriptionPlanDto {
   name: string;
   displayName: string;
   description: string;
-  planType: 'teacher' | 'institute' | 'vendor';
+  planType: 'teacher' | 'institute' | 'vendor' | 'consultant';
   price: number;
   currency?: string;
   duration: number;

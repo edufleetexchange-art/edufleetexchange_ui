@@ -25,6 +25,7 @@ const PERSONAS = {
   teacher: { email: 'teacher1@edufleet.test', password: 'password123', dashboard: '/teacher/dashboard' },
   marketing: { email: 'marketing1@edufleet.test', password: 'password123', dashboard: '/marketing/dashboard' },
   admin: { email: 'admin@edufleet.test', password: 'password123', dashboard: '/admin', loginPath: '/admin/login' },
+  consultant: { email: 'consultant1@edufleet.test', password: 'password123', dashboard: '/consultant/dashboard' },
 };
 
 async function loginAs(page: Page, persona: typeof PERSONAS[keyof typeof PERSONAS]) {
@@ -102,6 +103,11 @@ for (const viewport of VIEWPORTS) {
     test('admin overview', async ({ page }) => {
       await loginAs(page, PERSONAS.admin);
       await snap(page, viewport, '23-admin-overview');
+    });
+
+    test('consultant dashboard', async ({ page }) => {
+      await loginAs(page, PERSONAS.consultant);
+      await snap(page, viewport, '14-consultant-dashboard');
     });
   });
 }

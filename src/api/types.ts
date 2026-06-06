@@ -119,7 +119,7 @@ export interface UpdateVehicleDto extends Partial<CreateVehicleDto> {
 }
 
 // Auth Types — Account + Profile + Subscription bundle
-export type AccountRole = 'institute' | 'teacher' | 'vendor' | 'admin' | 'marketing' | 'sales';
+export type AccountRole = 'institute' | 'teacher' | 'vendor' | 'admin' | 'marketing' | 'sales' | 'consultant';
 
 export interface Account {
   id: string;
@@ -143,6 +143,14 @@ export interface InstituteProfile {
   address: { street: string; city: string; state: string; pincode: string; country: string };
 }
 
+export interface TeacherConsultantConsent {
+  granted: boolean;
+  grantedAt?: string;
+  revokedAt?: string;
+  scope: 'any' | 'specific';
+  allowedConsultantAccountIds?: string[];
+}
+
 export interface TeacherProfile {
   id: string;
   accountId: string;
@@ -155,6 +163,7 @@ export interface TeacherProfile {
   currentInstitute?: string;
   achievements?: string[];
   isAvailable: boolean;
+  consultantConsent?: TeacherConsultantConsent;
 }
 
 export interface VendorProfile {
@@ -175,7 +184,37 @@ export interface StaffProfile {
   permissions?: string[];
 }
 
-export type Profile = InstituteProfile | TeacherProfile | VendorProfile | StaffProfile;
+export interface ConsultantProfile {
+  id: string;
+  accountId: string;
+  agencyName?: string;
+  registrationNumber?: string;
+  yearsOfExperience: number;
+  specializations: {
+    subjects: string[];
+    levels: string[];
+    regions: string[];
+  };
+  bio?: string;
+  website?: string;
+  phone?: string;
+  address?: {
+    street?: string;
+    city?: string;
+    state?: string;
+    pincode?: string;
+    country?: string;
+  };
+  verification?: {
+    status: 'none' | 'pending' | 'verified' | 'rejected';
+    verifiedAt?: string;
+    verifiedBy?: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type Profile = InstituteProfile | TeacherProfile | VendorProfile | StaffProfile | ConsultantProfile;
 
 export interface Subscription {
   id: string;
@@ -393,3 +432,84 @@ export type {
   CreateSubscriptionRequestDto,
   UpdateSubscriptionRequestDto,
 } from '../types/subscriptionTypes';
+
+// ─── Consultant persona ────────────────────────────────────────────────────
+
+export interface ConsultantSignupRequest {
+  name: string;
+  email: string;
+  password: string;
+  phone?: string;
+  agencyName?: string;
+  registrationNumber?: string;
+  yearsOfExperience: number;
+  specializations: { subjects: string[]; levels: string[]; regions: string[] };
+  bio?: string;
+  website?: string;
+}
+
+export interface ConsultantRosterEntry {
+  id: string;
+  consultantAccountId: string;
+  entityType: 'teacher' | 'institute';
+  entityAccountId: string | { id: string; name: string; email: string; avatar?: string; role: string };
+  status: 'active' | 'archived' | 'inactive';
+  addedAt: string;
+  archivedAt?: string;
+  internalNotes?: string;
+  tags?: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type InterviewMode = 'in_person' | 'video' | 'phone';
+export type InterviewStatus = 'scheduled' | 'rescheduled' | 'completed' | 'canceled' | 'no_show';
+export type InterviewOutcome = 'recommend_hire' | 'hold' | 'reject';
+
+export interface Interview {
+  id: string;
+  applicationId: string;
+  jobId: string;
+  teacherAccountId: string;
+  instituteAccountId: string;
+  scheduledByAccountId: string;
+  round: number;
+  mode: InterviewMode;
+  scheduledAt: string;
+  durationMinutes: number;
+  location?: string;
+  meetingLink?: string;
+  participants: string[];
+  status: InterviewStatus;
+  rescheduleReason?: string;
+  notesBefore?: string;
+  outcome?: InterviewOutcome;
+  notesAfter?: string;
+  consultantId?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type PlacementStage =
+  | 'proposed' | 'applied' | 'interviewing' | 'offer_extended' | 'placed' | 'declined' | 'lost';
+
+export interface Placement {
+  id: string;
+  consultantAccountId: string;
+  teacherAccountId: string | { id: string; name: string; email: string; avatar?: string };
+  jobId: string | { id: string; title: string; instituteName: string; location: string };
+  applicationId?: string;
+  stage: PlacementStage;
+  agreedFee?: number;
+  agreedFeeNotes?: string;
+  stageHistory: Array<{
+    stage: PlacementStage;
+    changedAt: string;
+    changedByAccountId: string;
+    reason?: string;
+  }>;
+  lastActivityAt: string;
+  internalNotes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
