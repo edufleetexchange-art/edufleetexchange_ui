@@ -25,8 +25,8 @@ export function TeacherConsentToggle() {
     try {
       const updated = await apiClient.patch<any>('/teachers/me/consultant-consent', { granted, scope: 'any' });
       setConsent({
-        granted: updated.consultantConsent.granted,
-        scope: updated.consultantConsent.scope,
+        granted: updated?.consultantConsent?.granted ?? granted,
+        scope: updated?.consultantConsent?.scope ?? 'any',
       });
       toast.success(granted ? 'Consultants can now apply on your behalf' : 'Consultant access revoked');
     } catch (e: any) {

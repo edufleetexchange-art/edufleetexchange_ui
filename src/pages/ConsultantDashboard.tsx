@@ -93,7 +93,7 @@ export function ConsultantDashboard() {
             <p className="text-sm text-muted-foreground col-span-full py-8 text-center">Add teachers to your roster to see job recommendations.</p>
           ) : (
             recommendedJobs.map((r) => (
-              <Link key={r.job.id ?? r.job._id} to={`/consultant/jobs/${r.job.id ?? r.job._id}`}>
+              <Link key={r.job.id ?? r.job._id} to={`/job/${r.job.id ?? r.job._id}`}>
                 <Card className="hover:shadow-md transition-shadow"><CardContent className="p-3">
                   <p className="font-semibold text-sm">{r.job.title}</p>
                   <p className="text-xs text-muted-foreground">{r.job.instituteName} · {r.job.location?.city ?? r.job.location}</p>

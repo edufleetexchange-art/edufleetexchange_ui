@@ -37,6 +37,7 @@ export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) 
         vendor: '/dashboard',
         marketing: '/marketing/dashboard',
         sales: '/sales/dashboard',
+        consultant: '/consultant/dashboard',
       };
       const redirectTo = dashboardByRole[account.role] ?? '/';
       return <Navigate to={redirectTo} replace />;

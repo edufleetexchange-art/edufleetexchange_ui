@@ -61,6 +61,8 @@ export function ConsultantSignup() {
         website: formData.website || undefined,
       });
       navigate('/consultant/dashboard');
+    } catch {
+      // AuthContext already toasts the error; swallow to keep the form mounted.
     } finally {
       setSubmitting(false);
     }

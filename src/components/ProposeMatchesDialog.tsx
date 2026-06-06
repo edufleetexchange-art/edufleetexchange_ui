@@ -43,9 +43,17 @@ export function ProposeMatchesDialog({ jobId, open, onOpenChange, onProposed }: 
       }
     }
     setSubmitting(false);
-    toast.success(`Proposed ${ok}${dup ? `, ${dup} already pending` : ''}${fail ? `, ${fail} failed` : ''}`);
-    onProposed?.();
-    onOpenChange(false);
+    const summary = `Proposed ${ok}${dup ? `, ${dup} already pending` : ''}${fail ? `, ${fail} failed` : ''}`;
+    if (ok > 0) {
+      toast.success(summary);
+      onProposed?.();
+      onOpenChange(false);
+    } else if (dup > 0 && fail === 0) {
+      toast.info(summary);
+      onOpenChange(false);
+    } else {
+      toast.error(summary);
+    }
   };
 
   return (

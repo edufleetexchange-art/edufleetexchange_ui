@@ -51,7 +51,11 @@ export function Header() {
         navigate('/teacher/dashboard');
       }
     } else if (user?.role === 'consultant') {
-      navigate('/consultant/dashboard');
+      if (tab === 'profile') {
+        navigate('/consultant/dashboard?tab=profile');
+      } else {
+        navigate('/consultant/dashboard');
+      }
     } else {
       // Default to institute dashboard for any other role
       if (tab === 'profile') {
@@ -148,7 +152,7 @@ export function Header() {
           {/* Desktop Actions */}
           <div className="hidden lg:flex items-center gap-6">
             <nav className="flex items-center gap-7 text-sm font-medium">
-              {!shouldShowTeacherNav && !isVendor && (
+              {!shouldShowTeacherNav && !isVendor && !shouldShowConsultantNav && (
                 <>
                   <Link to="/browse" className="text-foreground/70 hover:text-primary transition-all relative group">
                     <span>Vehicles</span>
@@ -315,7 +319,7 @@ export function Header() {
               </div>
             )}
             <div className="grid grid-cols-2 gap-2 mb-4">
-              {!shouldShowTeacherNav && !isVendor ? (
+              {!shouldShowTeacherNav && !isVendor && !shouldShowConsultantNav ? (
                 <>
                   <Link to={user?.role === 'institute' ? "/dashboard?tab=listings" : "/browse"} className="flex flex-col items-center justify-center p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
                     <span className="font-medium">Vehicles</span>
