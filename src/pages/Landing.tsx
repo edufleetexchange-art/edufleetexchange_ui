@@ -219,10 +219,12 @@ export function Landing() {
               </div>
               <div className="grid grid-cols-4 md:grid-cols-8 gap-y-10 gap-x-4 md:gap-x-6">
                 {quickLinks.map((link, idx) => (
-                  <div 
-                    key={idx} 
+                  <button
+                    type="button"
+                    key={idx}
                     onClick={() => navigate(link.path)}
-                    className="flex flex-col items-center gap-3 cursor-pointer group"
+                    aria-label={link.label}
+                    className="flex flex-col items-center gap-3 cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-2xl p-1"
                   >
                     <div className={`w-12 h-12 md:w-20 md:h-20 rounded-2xl ${link.bg} flex items-center justify-center transition-all duration-300 group-hover:-translate-y-3 group-hover:shadow-xl border-2 border-transparent group-hover:border-white shadow-sm`}>
                       <link.icon className={`w-6 h-6 md:w-10 md:h-10 ${link.color} transition-transform duration-300 group-hover:scale-110`} />
@@ -230,7 +232,7 @@ export function Landing() {
                     <span className="text-xs md:text-sm font-semibold text-gray-700 text-center group-hover:text-primary transition-colors line-clamp-2 leading-tight">
                       {link.label}
                     </span>
-                  </div>
+                  </button>
                 ))}
               </div>
             </div>

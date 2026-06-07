@@ -80,20 +80,20 @@ export function ConsultantSignup() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div><Label>Name</Label><Input name="name" value={formData.name} onChange={handleChange} />{errors.name && <p className="text-xs text-destructive">{errors.name}</p>}</div>
-              <div><Label>Email</Label><Input name="email" type="email" value={formData.email} onChange={handleChange} />{errors.email && <p className="text-xs text-destructive">{errors.email}</p>}</div>
-              <div><Label>Password</Label><Input name="password" type="password" value={formData.password} onChange={handleChange} />{errors.password && <p className="text-xs text-destructive">{errors.password}</p>}</div>
-              <div><Label>Confirm Password</Label><Input name="confirmPassword" type="password" value={formData.confirmPassword} onChange={handleChange} />{errors.confirmPassword && <p className="text-xs text-destructive">{errors.confirmPassword}</p>}</div>
-              <div><Label>Phone</Label><Input name="phone" value={formData.phone} onChange={handleChange} /></div>
-              <div><Label>Years of Experience</Label><Input name="yearsOfExperience" type="number" value={formData.yearsOfExperience} onChange={handleChange} />{errors.yearsOfExperience && <p className="text-xs text-destructive">{errors.yearsOfExperience}</p>}</div>
-              <div><Label>Agency Name (optional)</Label><Input name="agencyName" value={formData.agencyName} onChange={handleChange} /></div>
-              <div><Label>Registration Number (optional)</Label><Input name="registrationNumber" value={formData.registrationNumber} onChange={handleChange} /></div>
+              <div><Label htmlFor="cs-name">Name *</Label><Input id="cs-name" name="name" autoComplete="name" value={formData.name} onChange={handleChange} aria-invalid={!!errors.name} />{errors.name && <p className="text-xs text-destructive">{errors.name}</p>}</div>
+              <div><Label htmlFor="cs-email">Email *</Label><Input id="cs-email" name="email" type="email" autoComplete="email" value={formData.email} onChange={handleChange} aria-invalid={!!errors.email} />{errors.email && <p className="text-xs text-destructive">{errors.email}</p>}</div>
+              <div><Label htmlFor="cs-password">Password *</Label><Input id="cs-password" name="password" type="password" autoComplete="new-password" value={formData.password} onChange={handleChange} aria-invalid={!!errors.password} />{errors.password && <p className="text-xs text-destructive">{errors.password}</p>}</div>
+              <div><Label htmlFor="cs-confirm-password">Confirm Password *</Label><Input id="cs-confirm-password" name="confirmPassword" type="password" autoComplete="new-password" value={formData.confirmPassword} onChange={handleChange} aria-invalid={!!errors.confirmPassword} />{errors.confirmPassword && <p className="text-xs text-destructive">{errors.confirmPassword}</p>}</div>
+              <div><Label htmlFor="cs-phone">Phone</Label><Input id="cs-phone" name="phone" type="tel" autoComplete="tel" value={formData.phone} onChange={handleChange} /></div>
+              <div><Label htmlFor="cs-experience">Years of Experience *</Label><Input id="cs-experience" name="yearsOfExperience" type="number" min={0} value={formData.yearsOfExperience} onChange={handleChange} aria-invalid={!!errors.yearsOfExperience} />{errors.yearsOfExperience && <p className="text-xs text-destructive">{errors.yearsOfExperience}</p>}</div>
+              <div><Label htmlFor="cs-agency">Agency Name (optional)</Label><Input id="cs-agency" name="agencyName" autoComplete="organization" value={formData.agencyName} onChange={handleChange} /></div>
+              <div><Label htmlFor="cs-registration">Registration Number (optional)</Label><Input id="cs-registration" name="registrationNumber" value={formData.registrationNumber} onChange={handleChange} /></div>
             </div>
-            <div><Label>Specialization — Subjects (comma-separated)</Label><Input name="subjects" value={formData.subjects} onChange={handleChange} placeholder="Math, Physics" /></div>
-            <div><Label>Specialization — Levels (comma-separated)</Label><Input name="levels" value={formData.levels} onChange={handleChange} placeholder="Primary, Secondary" /></div>
-            <div><Label>Specialization — Regions (comma-separated)</Label><Input name="regions" value={formData.regions} onChange={handleChange} placeholder="Bengaluru, Mysore" /></div>
-            <div><Label>Website (optional)</Label><Input name="website" value={formData.website} onChange={handleChange} /></div>
-            <div><Label>Bio (optional)</Label><Textarea name="bio" value={formData.bio} onChange={handleChange} rows={3} /></div>
+            <div><Label htmlFor="cs-subjects">Specialization — Subjects (comma-separated)</Label><Input id="cs-subjects" name="subjects" value={formData.subjects} onChange={handleChange} placeholder="Math, Physics" /></div>
+            <div><Label htmlFor="cs-levels">Specialization — Levels (comma-separated)</Label><Input id="cs-levels" name="levels" value={formData.levels} onChange={handleChange} placeholder="Primary, Secondary" /></div>
+            <div><Label htmlFor="cs-regions">Specialization — Regions (comma-separated)</Label><Input id="cs-regions" name="regions" value={formData.regions} onChange={handleChange} placeholder="Bengaluru, Mysore" /></div>
+            <div><Label htmlFor="cs-website">Website (optional)</Label><Input id="cs-website" name="website" type="url" value={formData.website} onChange={handleChange} placeholder="https://" /></div>
+            <div><Label htmlFor="cs-bio">Bio (optional)</Label><Textarea id="cs-bio" name="bio" value={formData.bio} onChange={handleChange} rows={3} /></div>
             <Button type="submit" disabled={submitting} className="w-full">{submitting ? 'Signing up…' : 'Create Consultant Account'}</Button>
             <p className="text-sm text-center">Already have an account? <Link to="/login" className="underline">Log in</Link></p>
           </form>
