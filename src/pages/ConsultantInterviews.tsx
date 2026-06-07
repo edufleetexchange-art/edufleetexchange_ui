@@ -4,18 +4,23 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { LoadError } from '@/components/LoadError';
 import { toast } from 'sonner';
 import type { Interview } from '@/api/types';
 
 export function ConsultantInterviews() {
   const [items, setItems] = useState<Interview[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const load = async () => {
     setLoading(true);
+    setError(null);
     try {
       const res = await interviewService.list({});
       setItems(res.items);
+    } catch (e: any) {
+      setError(e?.message ?? "Couldn't load interviews.");
     } finally {
       setLoading(false);
     }
@@ -31,6 +36,7 @@ export function ConsultantInterviews() {
     <div className="container mx-auto p-4 sm:p-6 space-y-4">
       <h1 className="text-2xl font-bold">Interviews</h1>
       {loading ? <Skeleton className="h-32" /> :
+        error ? <LoadError message={error} onRetry={load} /> :
         items.length === 0 ? <p className="text-sm text-muted-foreground text-center py-12">No interviews scheduled.</p> :
         <div className="space-y-3">
           {items.map((iv) => (

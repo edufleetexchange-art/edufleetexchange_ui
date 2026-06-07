@@ -8,6 +8,7 @@ import { consultantService } from '@/api/services/consultantService';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { PlacementCard } from '@/components/PlacementCard';
 import { Skeleton } from '@/components/ui/skeleton';
+import { LoadError } from '@/components/LoadError';
 import type { Placement, PlacementStage, Interview, ConsultantRosterEntry } from '@/api/types';
 
 const KANBAN_STAGES: PlacementStage[] = ['proposed', 'applied', 'interviewing', 'offer_extended', 'placed'];
@@ -20,8 +21,11 @@ export function ConsultantDashboard() {
   const [rosterTeachers, setRosterTeachers] = useState<ConsultantRosterEntry[]>([]);
   const [recommendedJobs, setRecommendedJobs] = useState<Array<{ job: any; score: number; bestTeacherAccountId: string }>>([]);
 
+  const [error, setError] = useState<string | null>(null);
+
   const load = async () => {
     setLoading(true);
+    setError(null);
     try {
       const now = new Date();
       const weekAhead = new Date(now.getTime() + 7 * 86400000);
@@ -35,6 +39,8 @@ export function ConsultantDashboard() {
       setInterviews(iv.items);
       setRosterTeachers(rt.items);
       setRecommendedJobs(rec.items);
+    } catch (e: any) {
+      setError(e?.message ?? "Couldn't load your dashboard.");
     } finally {
       setLoading(false);
     }
@@ -52,6 +58,9 @@ export function ConsultantDashboard() {
 
   if (loading) {
     return <div className="container mx-auto p-4 space-y-4"><Skeleton className="h-12" /><Skeleton className="h-64" /></div>;
+  }
+  if (error) {
+    return <div className="container mx-auto p-4 sm:p-6"><LoadError message={error} onRetry={load} /></div>;
   }
 
   return (

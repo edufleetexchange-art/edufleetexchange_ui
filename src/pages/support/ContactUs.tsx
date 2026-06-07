@@ -26,20 +26,22 @@ const ContactUs = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-
-    try {
-      // Mock API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      toast.success('Message sent successfully! We\'ll get back to you soon.');
-      setFormData({ name: '', email: '', subject: 'general', message: '' });
-    } catch (error) {
-      toast.error('Failed to send message. Please try again.');
-    } finally {
+    // No backend endpoint yet — open the user's mail client so the message actually goes somewhere.
+    const subjectLabel =
+      formData.subject === 'general' ? 'General Inquiry'
+        : formData.subject === 'support' ? 'Technical Support'
+        : formData.subject === 'billing' ? 'Billing Issue'
+        : formData.subject === 'partnership' ? 'Partnership'
+        : 'Feedback';
+    const mailto = `mailto:edufleetexchange@gmail.com?subject=${encodeURIComponent(`[${subjectLabel}] ${formData.name || 'Inquiry'}`)}&body=${encodeURIComponent(`${formData.message}\n\n— ${formData.name} <${formData.email}>`)}`;
+    window.location.href = mailto;
+    setTimeout(() => {
       setIsSubmitting(false);
-    }
+      toast.info('Opening your mail client. If nothing happens, email edufleetexchange@gmail.com directly.');
+    }, 400);
   };
 
   return (

@@ -547,13 +547,20 @@ export function TeacherDashboard() {
                 </div>
 
                 {isEditing && (
-                  <div className="flex justify-end gap-2">
-                    <Button variant="outline" onClick={() => setIsEditing(false)}>
-                      Cancel
-                    </Button>
-                    <Button onClick={handleSaveProfile}>
-                      Save Changes
-                    </Button>
+                  <div className="space-y-3">
+                    <p className="text-xs text-muted-foreground">
+                      Only your name and phone are saved here right now. Email{' '}
+                      <a href="mailto:support@edufleet.com" className="underline">support@edufleet.com</a>{' '}
+                      to update subjects, qualifications, experience, or bio.
+                    </p>
+                    <div className="flex justify-end gap-2">
+                      <Button variant="outline" onClick={() => setIsEditing(false)}>
+                        Cancel
+                      </Button>
+                      <Button onClick={handleSaveProfile}>
+                        Save Changes
+                      </Button>
+                    </div>
                   </div>
                 )}
               </CardContent>

@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AddToRosterDialog } from '@/components/AddToRosterDialog';
+import { LoadError } from '@/components/LoadError';
 import { rosterService } from '@/api/services/rosterService';
 import type { ConsultantRosterEntry } from '@/api/types';
 import { toast } from 'sonner';
@@ -13,13 +14,17 @@ export function ConsultantRoster() {
   const [tab, setTab] = useState<'teacher' | 'institute'>('teacher');
   const [items, setItems] = useState<ConsultantRosterEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
 
   const load = async () => {
     setLoading(true);
+    setError(null);
     try {
       const res = await rosterService.list({ entityType: tab, status: 'active', pageSize: 100 });
       setItems(res.items);
+    } catch (e: any) {
+      setError(e?.message ?? "Couldn't load roster.");
     } finally {
       setLoading(false);
     }
@@ -51,6 +56,8 @@ export function ConsultantRoster() {
         <TabsContent value={tab} className="mt-4">
           {loading ? (
             <Skeleton className="h-32 w-full" />
+          ) : error ? (
+            <LoadError message={error} onRetry={load} />
           ) : items.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-12">No active {tab}s in your roster.</p>
           ) : (

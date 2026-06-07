@@ -5,20 +5,25 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ProposeMatchesDialog } from '@/components/ProposeMatchesDialog';
+import { LoadError } from '@/components/LoadError';
 
 export function ConsultantJobSearch() {
   const [items, setItems] = useState<any[]>([]);
   const [q, setQ] = useState('');
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [selectedJob, setSelectedJob] = useState<string | null>(null);
 
   const load = async () => {
     setLoading(true);
+    setError(null);
     try {
       const params = new URLSearchParams({ pageSize: '50', status: 'active' });
       if (q) params.set('q', q);
       const data = await apiClient.get<{ items: any[] }>(`/jobs?${params.toString()}`);
       setItems(data.items ?? []);
+    } catch (e: any) {
+      setError(e?.message ?? "Couldn't load jobs.");
     } finally { setLoading(false); }
   };
   useEffect(() => { load(); }, []);
@@ -31,6 +36,8 @@ export function ConsultantJobSearch() {
         <Button onClick={load}>Search</Button>
       </div>
       {loading ? <Skeleton className="h-64" /> :
+        error ? <LoadError message={error} onRetry={load} /> :
+        items.length === 0 ? <p className="text-sm text-muted-foreground text-center py-12">No active jobs match your search.</p> :
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {items.map((j) => (
             <Card key={j.id ?? j._id}>
