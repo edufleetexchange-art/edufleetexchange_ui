@@ -125,7 +125,7 @@ export function Landing() {
           {/* Premium Trust Badge */}
           <div className="inline-flex items-center gap-2.5 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-6 py-2.5 mb-10 animate-in-fade shadow-xl">
             <div className="w-2 h-2 bg-success rounded-full animate-pulse shadow-[0_0_12px_rgba(34,197,94,0.8)]"></div>
-            <span className="text-white/95 text-sm font-semibold tracking-wide">Trusted by 5,000+ Educational Institutes</span>
+            <span className="text-white/95 text-sm font-semibold tracking-wide">Built for India&apos;s educational institutes</span>
           </div>
 
           {/* Professional Main Headline */}
