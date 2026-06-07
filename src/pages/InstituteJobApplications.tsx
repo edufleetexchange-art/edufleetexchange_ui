@@ -203,6 +203,12 @@ export function InstituteJobApplications() {
       return;
     }
 
+    const when = new Date(`${interviewData.date}T${interviewData.time}`);
+    if (Number.isNaN(when.getTime()) || when.getTime() <= Date.now()) {
+      toast.error('Interview must be scheduled in the future');
+      return;
+    }
+
     if (interviewData.mode === 'video' && !interviewData.meetingLink) {
       toast.error('Please provide a meeting link for video interviews');
       return;
@@ -472,6 +478,7 @@ export function InstituteJobApplications() {
                   <Input
                     id="date"
                     type="date"
+                    min={new Date().toISOString().slice(0, 10)}
                     value={interviewData.date}
                     onChange={(e) => setInterviewData({ ...interviewData, date: e.target.value })}
                   />
