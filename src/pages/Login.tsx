@@ -158,7 +158,7 @@ export function Login() {
               <div className="space-y-2">
                 <div className="flex justify-between items-center ml-1">
                   <label htmlFor="login-password" className="text-sm font-semibold text-foreground/80">Password</label>
-                  <Link to="/forgot-password" title="Feature coming soon" className="text-xs font-medium text-primary hover:text-primary-light transition-colors">
+                  <Link to="/forgot-password" className="text-xs font-medium text-primary hover:text-primary-light transition-colors">
                     Forgot password?
                   </Link>
                 </div>
@@ -211,22 +211,36 @@ export function Login() {
             {/* Signup Redirects */}
             <div className="mt-8 pt-8 border-t border-border/50">
               <p className="text-center text-sm text-muted-foreground mb-4">
-                Don't have an account yet?
+                Don&apos;t have an account yet?
               </p>
-              <div className="grid grid-cols-2 gap-3">
-                <Link 
-                  to="/signup" 
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <Link
+                  to="/signup"
                   className="flex flex-col items-center p-3 rounded-xl border border-border/50 bg-muted/30 hover:bg-primary/5 hover:border-primary/20 transition-all group"
                 >
                   <span className="text-xs font-bold text-primary group-hover:scale-110 transition-transform">INSTITUTE</span>
-                  <span className="text-[10px] text-muted-foreground mt-0.5">Register School</span>
+                  <span className="text-[10px] text-muted-foreground mt-0.5">Register school</span>
                 </Link>
-                <Link 
-                  to="/teacher/signup" 
+                <Link
+                  to="/teacher/signup"
                   className="flex flex-col items-center p-3 rounded-xl border border-border/50 bg-muted/30 hover:bg-secondary/5 hover:border-secondary/20 transition-all group"
                 >
-                  <span className="text-xs font-bold text-secondary group-hover:scale-110 transition-transform">STAFF</span>
-                  <span className="text-[10px] text-muted-foreground mt-0.5">Individual Account</span>
+                  <span className="text-xs font-bold text-secondary group-hover:scale-110 transition-transform">TEACHER</span>
+                  <span className="text-[10px] text-muted-foreground mt-0.5">Job seeker</span>
+                </Link>
+                <Link
+                  to="/vendor/signup"
+                  className="flex flex-col items-center p-3 rounded-xl border border-border/50 bg-muted/30 hover:bg-accent/5 hover:border-accent/20 transition-all group"
+                >
+                  <span className="text-xs font-bold text-accent group-hover:scale-110 transition-transform">VENDOR</span>
+                  <span className="text-[10px] text-muted-foreground mt-0.5">Sell or advertise</span>
+                </Link>
+                <Link
+                  to="/consultant/signup"
+                  className="flex flex-col items-center p-3 rounded-xl border border-border/50 bg-muted/30 hover:bg-primary/5 hover:border-primary/20 transition-all group"
+                >
+                  <span className="text-xs font-bold text-primary group-hover:scale-110 transition-transform">CONSULTANT</span>
+                  <span className="text-[10px] text-muted-foreground mt-0.5">Placement broker</span>
                 </Link>
               </div>
             </div>

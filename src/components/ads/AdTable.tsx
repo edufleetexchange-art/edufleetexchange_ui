@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import DOMPurify from 'dompurify';
 import { Ad, AdStatus } from '../../types/adTypes';
 import {
   Table,
@@ -239,7 +240,14 @@ export const AdTable: React.FC<AdTableProps> = ({ ads, onEdit, onDelete, onToggl
                     <video src={selectedAd.mediaUrl} controls className="w-full h-auto rounded" />
                   )}
                   {selectedAd.type === 'html' && selectedAd.htmlContent && (
-                    <div dangerouslySetInnerHTML={{ __html: selectedAd.htmlContent }} />
+                    <div
+                      dangerouslySetInnerHTML={{
+                        __html: DOMPurify.sanitize(selectedAd.htmlContent, {
+                          FORBID_TAGS: ['script', 'iframe', 'object', 'embed', 'form'],
+                          FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover', 'onfocus', 'onblur', 'onsubmit'],
+                        }),
+                      }}
+                    />
                   )}
                 </div>
               </div>

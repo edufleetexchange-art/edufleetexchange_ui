@@ -15,16 +15,12 @@ const AdDashboard: React.FC = () => {
   const totalClicks = ads.reduce((acc, curr) => acc + curr.clicks, 0);
   const avgCtr = totalImpressions > 0 ? (totalClicks / totalImpressions) * 100 : 0;
 
-  // Chart data
-  const chartData = [
-    { date: 'Mon', impressions: 4000, clicks: 240 },
-    { date: 'Tue', impressions: 3000, clicks: 139 },
-    { date: 'Wed', impressions: 2000, clicks: 980 },
-    { date: 'Thu', impressions: 2780, clicks: 390 },
-    { date: 'Fri', impressions: 1890, clicks: 480 },
-    { date: 'Sat', impressions: 2390, clicks: 380 },
-    { date: 'Sun', impressions: 3490, clicks: 430 },
-  ];
+  // Weekly chart data is not wired to a backend yet — render empty bars rather than fabricate.
+  const chartData = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((date) => ({
+    date,
+    impressions: 0,
+    clicks: 0,
+  }));
 
   return (
     <div className="p-8 space-y-8">
@@ -43,25 +39,19 @@ const AdDashboard: React.FC = () => {
           title="Impressions"
           value={totalImpressions.toLocaleString()}
           icon={Eye}
-          trend="up"
-          trendValue="+20.1%"
-          description="from last month"
+          description="Lifetime"
         />
         <AdStatsCard
           title="Total Clicks"
           value={totalClicks.toLocaleString()}
           icon={MousePointerClick}
-          trend="up"
-          trendValue="+12.5%"
-          description="from last month"
+          description="Lifetime"
         />
         <AdStatsCard
           title="Average CTR"
           value={`${avgCtr.toFixed(2)}%`}
           icon={TrendingUp}
-          trend="down"
-          trendValue="-4.1%"
-          description="from last month"
+          description="Across all ads"
         />
       </div>
 

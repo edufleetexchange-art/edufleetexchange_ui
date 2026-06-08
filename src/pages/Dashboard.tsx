@@ -153,10 +153,11 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
   
   const handleSaveProfile = async () => {
     try {
-      // TODO: updateAccount only supports name/phone/avatar; institute-specific fields (instituteName, contactPerson, location) require a separate profile endpoint
+      // updateAccount only supports name/phone/avatar today; institute-specific fields
+      // (instituteName, contactPerson, location) require a backend profile endpoint that is not yet wired.
       await updateAccount({ name: profileData.name, phone: profileData.phone });
       setIsEditingProfile(false);
-      toast.success('Profile updated');
+      toast.success('Contact details updated. To change institute name or address, email support@edufleet.com.');
     } catch (error) {
       console.error('Failed to update profile:', error);
       toast.error('Failed to update profile');
@@ -1144,13 +1145,20 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
                     </div>
 
                     {isEditingProfile && (
-                      <div className="flex justify-end gap-3 pt-4 border-t border-border">
-                        <Button variant="outline" onClick={() => setIsEditingProfile(false)}>
-                          Cancel
-                        </Button>
-                        <Button onClick={handleSaveProfile}>
-                          Save Changes
-                        </Button>
+                      <div className="pt-4 border-t border-border space-y-3">
+                        <p className="text-xs text-muted-foreground">
+                          Only your name and phone are saved here right now. Email{' '}
+                          <a href="mailto:support@edufleet.com" className="underline">support@edufleet.com</a>{' '}
+                          to update institute name or address.
+                        </p>
+                        <div className="flex justify-end gap-3">
+                          <Button variant="outline" onClick={() => setIsEditingProfile(false)}>
+                            Cancel
+                          </Button>
+                          <Button onClick={handleSaveProfile}>
+                            Save Changes
+                          </Button>
+                        </div>
                       </div>
                     )}
                   </div>

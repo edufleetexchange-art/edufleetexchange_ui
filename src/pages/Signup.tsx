@@ -146,10 +146,11 @@ export function Signup() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Contact Person Name */}
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Contact Person Name</label>
+                  <label htmlFor="signup-name" className="text-sm font-medium mb-2 block">Contact Person Name</label>
                   <div className="relative">
                     <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input
+                      id="signup-name"
                       type="text"
                       name="name"
                       placeholder="John Doe"
@@ -157,16 +158,18 @@ export function Signup() {
                       onChange={handleChange}
                       className="pl-10"
                       disabled={loading}
+                      autoComplete="name"
                     />
                   </div>
                 </div>
 
                 {/* Email */}
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Email Address</label>
+                  <label htmlFor="signup-email" className="text-sm font-medium mb-2 block">Email Address</label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input
+                      id="signup-email"
                       type="email"
                       name="email"
                       placeholder="your@institute.edu.in"
@@ -174,6 +177,7 @@ export function Signup() {
                       onChange={handleChange}
                       className="pl-10"
                       disabled={loading}
+                      autoComplete="email"
                     />
                   </div>
                 </div>
@@ -186,10 +190,11 @@ export function Signup() {
               <div className="space-y-4">
                 {/* Institute Name */}
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Institute Name</label>
+                  <label htmlFor="signup-institute-name" className="text-sm font-medium mb-2 block">Institute Name</label>
                   <div className="relative">
                     <Building2 className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input
+                      id="signup-institute-name"
                       type="text"
                       name="instituteName"
                       placeholder="Your Institute Name"
@@ -197,6 +202,7 @@ export function Signup() {
                       onChange={handleChange}
                       className="pl-10"
                       disabled={loading}
+                      autoComplete="organization"
                     />
                   </div>
                 </div>
@@ -205,10 +211,11 @@ export function Signup() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Phone Number */}
                   <div>
-                    <label className="text-sm font-medium mb-2 block">
+                    <label htmlFor="signup-phone" className="text-sm font-medium mb-2 block">
                       Phone Number <span className="text-red-500">*</span>
                     </label>
                     <Input
+                      id="signup-phone"
                       type="tel"
                       name="phone"
                       placeholder="9876543210"
@@ -216,6 +223,7 @@ export function Signup() {
                       onChange={handleChange}
                       disabled={loading}
                       maxLength={10}
+                      autoComplete="tel-national"
                     />
                     <p className="text-xs text-muted-foreground mt-1">
                       10-digit Indian mobile number
@@ -224,8 +232,9 @@ export function Signup() {
 
                   {/* Contact Person Title */}
                   <div>
-                    <label className="text-sm font-medium mb-2 block">Your Title/Position</label>
+                    <label htmlFor="signup-contact-person" className="text-sm font-medium mb-2 block">Your Role at the Institute</label>
                     <Input
+                      id="signup-contact-person"
                       type="text"
                       name="contactPerson"
                       placeholder="e.g., Transport Manager, Principal"
@@ -247,56 +256,63 @@ export function Signup() {
               <div className="space-y-4">
                 {/* Street */}
                 <div>
-                  <label className="text-sm font-medium mb-2 block">
+                  <label htmlFor="signup-street" className="text-sm font-medium mb-2 block">
                     Street Address <span className="text-red-500">*</span>
                   </label>
                   <Input
+                    id="signup-street"
                     type="text"
                     name="street"
                     placeholder="123 Main Street"
                     value={formData.street}
                     onChange={handleChange}
                     disabled={loading}
+                    autoComplete="street-address"
                   />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {/* City */}
                   <div>
-                    <label className="text-sm font-medium mb-2 block">
+                    <label htmlFor="signup-city" className="text-sm font-medium mb-2 block">
                       City <span className="text-red-500">*</span>
                     </label>
                     <Input
+                      id="signup-city"
                       type="text"
                       name="city"
                       placeholder="Mumbai"
                       value={formData.city}
                       onChange={handleChange}
                       disabled={loading}
+                      autoComplete="address-level2"
                     />
                   </div>
 
                   {/* State */}
                   <div>
-                    <label className="text-sm font-medium mb-2 block">
+                    <label htmlFor="signup-state" className="text-sm font-medium mb-2 block">
                       State <span className="text-red-500">*</span>
                     </label>
                     <Input
+                      id="signup-state"
                       type="text"
                       name="state"
                       placeholder="Maharashtra"
                       value={formData.state}
                       onChange={handleChange}
                       disabled={loading}
+                      autoComplete="address-level1"
                     />
                   </div>
 
                   {/* Pincode */}
                   <div>
-                    <label className="text-sm font-medium mb-2 block">
+                    <label htmlFor="signup-pincode" className="text-sm font-medium mb-2 block">
                       Pincode <span className="text-red-500">*</span>
                     </label>
                     <Input
+                      id="signup-pincode"
                       type="text"
                       name="pincode"
                       placeholder="400001"
@@ -304,6 +320,7 @@ export function Signup() {
                       onChange={handleChange}
                       disabled={loading}
                       maxLength={6}
+                      autoComplete="postal-code"
                     />
                   </div>
                 </div>
@@ -316,10 +333,11 @@ export function Signup() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Password */}
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Password</label>
+                  <label htmlFor="signup-password" className="text-sm font-medium mb-2 block">Password</label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input
+                      id="signup-password"
                       type="password"
                       name="password"
                       placeholder="••••••••"
@@ -327,16 +345,19 @@ export function Signup() {
                       onChange={handleChange}
                       className="pl-10"
                       disabled={loading}
+                      autoComplete="new-password"
                     />
                   </div>
+                  <p className="text-xs text-muted-foreground mt-1">Minimum 6 characters</p>
                 </div>
 
                 {/* Confirm Password */}
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Confirm Password</label>
+                  <label htmlFor="signup-confirm-password" className="text-sm font-medium mb-2 block">Confirm Password</label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <Input
+                      id="signup-confirm-password"
                       type="password"
                       name="confirmPassword"
                       placeholder="••••••••"
@@ -344,6 +365,7 @@ export function Signup() {
                       onChange={handleChange}
                       className="pl-10"
                       disabled={loading}
+                      autoComplete="new-password"
                     />
                   </div>
                 </div>

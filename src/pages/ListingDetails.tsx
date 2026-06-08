@@ -406,26 +406,19 @@ export function ListingDetails() {
             </div>
             <div>
               <p className="text-sm font-medium mb-1">Email</p>
-              <p className="text-sm text-muted-foreground">{vehicle.sellerEmail}</p>
+              {vehicle.sellerEmail
+                ? <a href={`mailto:${vehicle.sellerEmail}`} className="text-sm text-primary underline">{vehicle.sellerEmail}</a>
+                : <p className="text-sm text-muted-foreground">—</p>}
             </div>
             <div>
               <p className="text-sm font-medium mb-1">Phone</p>
-              <p className="text-sm text-muted-foreground">{vehicle.sellerPhone}</p>
+              {vehicle.sellerPhone
+                ? <a href={`tel:${vehicle.sellerPhone}`} className="text-sm text-primary underline">{vehicle.sellerPhone}</a>
+                : <p className="text-sm text-muted-foreground">—</p>}
             </div>
           </div>
           <div className="flex flex-col-reverse sm:flex-row gap-2 sm:justify-end">
             <AlertDialogCancel>Close</AlertDialogCancel>
-            <AlertDialogAction asChild>
-              <Button
-                onClick={() => {
-                  // Send contact request
-                  setContactDialogOpen(false);
-                  alert('Contact request sent! The seller will be in touch soon.');
-                }}
-              >
-                Send Message
-              </Button>
-            </AlertDialogAction>
           </div>
         </AlertDialogContent>
       </AlertDialog>

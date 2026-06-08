@@ -93,13 +93,20 @@ export default function SalesDashboard() {
   const [onboardingData, setOnboardingData] = useState({
     name: '',
     email: '',
-    password: 'EduFleetUser123!',
+    password: '',
     role: 'institute' as any,
     instituteName: '',
     companyName: '',
     phone: '',
     planId: ''
   });
+
+  const generateTempPassword = () => {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+    const bytes = new Uint32Array(14);
+    crypto.getRandomValues(bytes);
+    return Array.from(bytes, (b) => chars[b % chars.length]).join('') + '!9';
+  };
 
   const [activePlans, setActivePlans] = useState<any[]>([]);
   const [institutes, setInstitutes] = useState<any[]>([]);
@@ -234,22 +241,24 @@ export default function SalesDashboard() {
     e.preventDefault();
     try {
       setIsSubmitting(true);
-      
+      const tempPassword = generateTempPassword();
+
       if (onboardingData.role === 'vendor') {
-        // Special handling for vendor if needed, but salesService.createUser handles roles
-        // We might want to use salesService.createVendor instead if we want to create both user and supplier profile at once
         await salesService.createVendor({
           name: onboardingData.name,
           email: onboardingData.email,
           companyName: onboardingData.companyName,
           phone: onboardingData.phone,
-          planId: onboardingData.planId
+          planId: onboardingData.planId,
         });
       } else {
-        await salesService.createUser(onboardingData);
+        await salesService.createUser({ ...onboardingData, password: tempPassword });
       }
-      
-      toast.success(`${onboardingData.role.charAt(0).toUpperCase() + onboardingData.role.slice(1)} onboarded successfully`);
+
+      toast.success(
+        `${onboardingData.role.charAt(0).toUpperCase() + onboardingData.role.slice(1)} onboarded. Temporary password: ${tempPassword} — share securely and ask them to change it on first login.`,
+        { duration: 30_000 },
+      );
       setIsOnboardingDialogOpen(false);
       loadData();
       loadInstitutes();
@@ -465,33 +474,32 @@ export default function SalesDashboard() {
                 <div className="space-y-3">
                   <div className="flex justify-between py-2 border-b border-dashed">
                     <span className="text-muted-foreground">Department</span>
-                    <span className="font-medium">Direct Sales & Growth</span>
+                    <span className="font-medium">{staffProfile?.department || '—'}</span>
                   </div>
                   <div className="flex justify-between py-2 border-b border-dashed">
-                    <span className="text-muted-foreground">Reporting Manager</span>
-                    <span className="font-medium">Zonal Sales Manager</span>
-                  </div>
-                  <div className="flex justify-between py-2 border-b border-dashed">
-                    <span className="text-muted-foreground">Joining Date</span>
-                    <span className="font-medium">January 15, 2024</span>
+                    <span className="text-muted-foreground">Employee ID</span>
+                    <span className="font-medium">{staffProfile?.employeeId || '—'}</span>
                   </div>
                 </div>
+                <p className="text-xs text-muted-foreground">
+                  Manager and joining date will appear once HR records are connected.
+                </p>
               </div>
-              
+
               <div className="space-y-4">
-                <h4 className="font-semibold text-sm uppercase tracking-wider text-muted-foreground">Performance Summary</h4>
+                <h4 className="font-semibold text-sm uppercase tracking-wider text-muted-foreground">Activity Summary</h4>
                 <div className="space-y-3">
                   <div className="flex justify-between py-2 border-b border-dashed">
-                    <span className="text-muted-foreground">Target Achievement</span>
-                    <span className="font-medium text-emerald-600">92% (Quarterly)</span>
+                    <span className="text-muted-foreground">Total Requests Processed</span>
+                    <span className="font-medium">{stats?.totalRequests ?? '—'}</span>
                   </div>
                   <div className="flex justify-between py-2 border-b border-dashed">
-                    <span className="text-muted-foreground">Customer Satisfaction</span>
-                    <span className="font-medium">4.8/5.0</span>
+                    <span className="text-muted-foreground">Approved Requests</span>
+                    <span className="font-medium">{stats?.approvedRequests ?? '—'}</span>
                   </div>
                   <div className="flex justify-between py-2 border-b border-dashed">
-                    <span className="text-muted-foreground">Incentive Tier</span>
-                    <span className="font-medium">Gold Member</span>
+                    <span className="text-muted-foreground">Pending Requests</span>
+                    <span className="font-medium">{stats?.pendingRequests ?? '—'}</span>
                   </div>
                 </div>
               </div>

@@ -364,71 +364,74 @@ export function NotificationsPage() {
               {filteredNotifications.map(notification => (
                 <div
                   key={notification.id}
-                  className={`p-4 sm:p-5 border rounded-lg cursor-pointer transition-all ${getPriorityColor(
+                  className={`relative border rounded-lg transition-all ${getPriorityColor(
                     notification.priority
                   )} ${notification.isRead ? 'opacity-75' : 'opacity-100 border-l-4'}`}
-                  onClick={() => handleNotificationClick(notification)}
                 >
-                  <div className="flex items-start gap-3 sm:gap-4">
-                    {/* Icon */}
-                    <div className="flex-shrink-0 mt-1">
-                      {getNotificationIcon(notification.type)}
-                    </div>
+                  <button
+                    type="button"
+                    onClick={() => handleNotificationClick(notification)}
+                    aria-expanded={expandedId === notification.id}
+                    aria-label={`${notification.isRead ? 'Read' : 'Unread'} notification: ${notification.title}`}
+                    className="w-full text-left p-4 sm:p-5 pr-14 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:rounded-lg"
+                  >
+                    <div className="flex items-start gap-3 sm:gap-4">
+                      <div className="flex-shrink-0 mt-1">
+                        {getNotificationIcon(notification.type)}
+                      </div>
 
-                    {/* Content */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2 mb-2">
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-sm sm:text-base text-gray-900">
-                            {notification.title}
-                          </h3>
-                          <div className="flex flex-wrap gap-2 items-center mt-2">
-                            <Badge variant="secondary" className="text-xs">
-                              {getTypeLabel(notification.type)}
-                            </Badge>
-                            <Badge className={`text-xs ${getPriorityBadgeColor(notification.priority)}`}>
-                              {notification.priority.charAt(0).toUpperCase() +
-                                notification.priority.slice(1)}{' '}
-                              Priority
-                            </Badge>
-                            {!notification.isRead && (
-                              <div className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0" />
-                            )}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-2 mb-2">
+                          <div className="flex-1">
+                            <h3 className="font-semibold text-sm sm:text-base text-gray-900">
+                              {notification.title}
+                            </h3>
+                            <div className="flex flex-wrap gap-2 items-center mt-2">
+                              <Badge variant="secondary" className="text-xs">
+                                {getTypeLabel(notification.type)}
+                              </Badge>
+                              <Badge className={`text-xs ${getPriorityBadgeColor(notification.priority)}`}>
+                                {notification.priority.charAt(0).toUpperCase() +
+                                  notification.priority.slice(1)}{' '}
+                                Priority
+                              </Badge>
+                              {!notification.isRead && (
+                                <span className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0" aria-label="Unread" />
+                              )}
+                            </div>
                           </div>
                         </div>
-                      </div>
 
-                      {/* Message */}
-                      <p className="text-sm text-gray-700 mt-2 line-clamp-2">
-                        {notification.message}
-                      </p>
+                        <p className="text-sm text-gray-700 mt-2 line-clamp-2">
+                          {notification.message}
+                        </p>
 
-                      {/* Expanded Details */}
-                      {expandedId === notification.id && notification.message && (
-                        <div className="mt-3 pt-3 border-t border-gray-200">
-                          <p className="text-sm text-gray-600">{notification.message}</p>
-                          {notification.actionUrl && (
-                            <p className="text-xs text-blue-600 mt-2">Click to view details</p>
-                          )}
+                        {expandedId === notification.id && notification.message && (
+                          <div className="mt-3 pt-3 border-t border-gray-200">
+                            <p className="text-sm text-gray-600">{notification.message}</p>
+                            {notification.actionUrl && (
+                              <p className="text-xs text-blue-600 mt-2">Click to view details</p>
+                            )}
+                          </div>
+                        )}
+
+                        <div className="flex items-center gap-1 text-xs text-gray-500 mt-3">
+                          <Clock className="w-3 h-3" />
+                          {new Date(notification.createdAt).toLocaleString()}
                         </div>
-                      )}
-
-                      {/* Timestamp */}
-                      <div className="flex items-center gap-1 text-xs text-gray-500 mt-3">
-                        <Clock className="w-3 h-3" />
-                        {new Date(notification.createdAt).toLocaleString()}
                       </div>
                     </div>
+                  </button>
 
-                    {/* Delete Button */}
-                    <button
-                      onClick={e => handleDelete(e, notification.id)}
-                      className="text-gray-400 hover:text-red-600 transition-colors p-3 flex-shrink-0"
-                      title="Delete notification"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
+                  <button
+                    type="button"
+                    onClick={e => handleDelete(e, notification.id)}
+                    className="absolute top-3 right-3 text-gray-400 hover:text-red-600 transition-colors p-3 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                    aria-label={`Delete notification: ${notification.title}`}
+                    title="Delete notification"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
                 </div>
               ))}
             </div>

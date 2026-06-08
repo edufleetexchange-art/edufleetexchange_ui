@@ -125,7 +125,7 @@ export function Landing() {
           {/* Premium Trust Badge */}
           <div className="inline-flex items-center gap-2.5 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-6 py-2.5 mb-10 animate-in-fade shadow-xl">
             <div className="w-2 h-2 bg-success rounded-full animate-pulse shadow-[0_0_12px_rgba(34,197,94,0.8)]"></div>
-            <span className="text-white/95 text-sm font-semibold tracking-wide">Trusted by 5,000+ Educational Institutes</span>
+            <span className="text-white/95 text-sm font-semibold tracking-wide">Built for India&apos;s educational institutes</span>
           </div>
 
           {/* Professional Main Headline */}
@@ -219,10 +219,12 @@ export function Landing() {
               </div>
               <div className="grid grid-cols-4 md:grid-cols-8 gap-y-10 gap-x-4 md:gap-x-6">
                 {quickLinks.map((link, idx) => (
-                  <div 
-                    key={idx} 
+                  <button
+                    type="button"
+                    key={idx}
                     onClick={() => navigate(link.path)}
-                    className="flex flex-col items-center gap-3 cursor-pointer group"
+                    aria-label={link.label}
+                    className="flex flex-col items-center gap-3 cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-2xl p-1"
                   >
                     <div className={`w-12 h-12 md:w-20 md:h-20 rounded-2xl ${link.bg} flex items-center justify-center transition-all duration-300 group-hover:-translate-y-3 group-hover:shadow-xl border-2 border-transparent group-hover:border-white shadow-sm`}>
                       <link.icon className={`w-6 h-6 md:w-10 md:h-10 ${link.color} transition-transform duration-300 group-hover:scale-110`} />
@@ -230,7 +232,7 @@ export function Landing() {
                     <span className="text-xs md:text-sm font-semibold text-gray-700 text-center group-hover:text-primary transition-colors line-clamp-2 leading-tight">
                       {link.label}
                     </span>
-                  </div>
+                  </button>
                 ))}
               </div>
             </div>
