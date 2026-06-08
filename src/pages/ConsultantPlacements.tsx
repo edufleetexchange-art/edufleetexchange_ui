@@ -4,6 +4,8 @@ import { PlacementCard } from '@/components/PlacementCard';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { LoadError } from '@/components/LoadError';
+import { EmptyState } from '@/components/EmptyState';
+import { Inbox } from 'lucide-react';
 import type { Placement, PlacementStage } from '@/api/types';
 
 const STAGES: PlacementStage[] = ['proposed', 'applied', 'interviewing', 'offer_extended', 'placed', 'declined', 'lost'];
@@ -40,7 +42,13 @@ export function ConsultantPlacements() {
         <TabsContent value={stage} className="mt-4">
           {loading ? <Skeleton className="h-32" /> :
             error ? <LoadError message={error} onRetry={load} /> :
-            items.length === 0 ? <p className="text-sm text-muted-foreground text-center py-12">No placements at this stage.</p> :
+            items.length === 0 ? (
+              <EmptyState
+                icon={Inbox}
+                title="No placements at this stage"
+                description="Propose a teacher from your roster to a job, or move an existing placement forward."
+              />
+            ) :
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {items.map((p) => <PlacementCard key={p.id} placement={p} onChange={load} />)}
             </div>

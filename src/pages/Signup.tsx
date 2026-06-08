@@ -253,6 +253,9 @@ export function Signup() {
                 <MapPin className="w-4 h-4" />
                 Institute Address
               </h3>
+              <p className="text-xs text-muted-foreground mb-3">
+                eduFleet currently operates in India only — phone and pincode validation expects Indian formats.
+              </p>
               <div className="space-y-4">
                 {/* Street */}
                 <div>

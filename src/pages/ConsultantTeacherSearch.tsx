@@ -6,6 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { rosterService } from '@/api/services/rosterService';
 import { LoadError } from '@/components/LoadError';
+import { EmptyState } from '@/components/EmptyState';
+import { GraduationCap } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface TeacherItem {
@@ -51,7 +53,15 @@ export function ConsultantTeacherSearch() {
       </div>
       {loading ? <Skeleton className="h-64" /> :
         error ? <LoadError message={error} onRetry={load} /> :
-        items.length === 0 ? <p className="text-sm text-muted-foreground text-center py-12">No teachers match this search.</p> :
+        items.length === 0 ? (
+          <EmptyState
+            icon={GraduationCap}
+            title="No teachers match this search"
+            description="Try a different subject or clear the filter to see the full directory."
+            actionLabel="Clear filter"
+            onAction={() => { setSubject(''); load(); }}
+          />
+        ) :
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {items.map((t) => (
             <Card key={t.account?.id ?? t.profile?.id}>

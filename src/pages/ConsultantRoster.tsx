@@ -5,10 +5,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AddToRosterDialog } from '@/components/AddToRosterDialog';
 import { LoadError } from '@/components/LoadError';
+import { EmptyState } from '@/components/EmptyState';
 import { rosterService } from '@/api/services/rosterService';
 import type { ConsultantRosterEntry } from '@/api/types';
 import { toast } from 'sonner';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Users } from 'lucide-react';
 
 export function ConsultantRoster() {
   const [tab, setTab] = useState<'teacher' | 'institute'>('teacher');
@@ -59,7 +60,13 @@ export function ConsultantRoster() {
           ) : error ? (
             <LoadError message={error} onRetry={load} />
           ) : items.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-12">No active {tab}s in your roster.</p>
+            <EmptyState
+              icon={Users}
+              title={`No active ${tab}s in your roster yet`}
+              description={`Add ${tab}s to start tracking placements, job matches, and interviews on their behalf.`}
+              actionLabel={`Add ${tab}`}
+              onAction={() => setDialogOpen(true)}
+            />
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {items.map((entry) => {

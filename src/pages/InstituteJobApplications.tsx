@@ -327,29 +327,31 @@ export function InstituteJobApplications() {
           </Card>
         </div>
 
-        {/* Applications Tabs */}
+        {/* Applications Tabs — horizontally scrollable on small screens so they don't get clipped */}
         <Tabs defaultValue="all">
-          <TabsList className="flex-wrap h-auto gap-1">
-            <TabsTrigger value="all">All ({applications.length})</TabsTrigger>
-            <TabsTrigger value="pending">
-              Pending ({getApplicationsByStatus('pending').length})
-            </TabsTrigger>
-            <TabsTrigger value="reviewed">
-              Reviewed ({getApplicationsByStatus('reviewed').length})
-            </TabsTrigger>
-            <TabsTrigger value="shortlisted">
-              Shortlisted ({getApplicationsByStatus('shortlisted').length})
-            </TabsTrigger>
-            <TabsTrigger value="interview_scheduled">
-              Interviews ({getApplicationsByStatus('interview_scheduled').length})
-            </TabsTrigger>
-            <TabsTrigger value="accepted">
-              Accepted ({getApplicationsByStatus('accepted').length})
-            </TabsTrigger>
-            <TabsTrigger value="rejected">
-              Rejected ({getApplicationsByStatus('rejected').length})
-            </TabsTrigger>
-          </TabsList>
+          <div className="overflow-x-auto -mx-2 px-2">
+            <TabsList className="inline-flex flex-nowrap h-auto gap-1 min-w-max sm:flex-wrap sm:min-w-0">
+              <TabsTrigger value="all" className="min-h-[40px]">All ({applications.length})</TabsTrigger>
+              <TabsTrigger value="pending" className="min-h-[40px]">
+                Pending ({getApplicationsByStatus('pending').length})
+              </TabsTrigger>
+              <TabsTrigger value="reviewed" className="min-h-[40px]">
+                Reviewed ({getApplicationsByStatus('reviewed').length})
+              </TabsTrigger>
+              <TabsTrigger value="shortlisted" className="min-h-[40px]">
+                Shortlisted ({getApplicationsByStatus('shortlisted').length})
+              </TabsTrigger>
+              <TabsTrigger value="interview_scheduled" className="min-h-[40px]">
+                Interviews ({getApplicationsByStatus('interview_scheduled').length})
+              </TabsTrigger>
+              <TabsTrigger value="accepted" className="min-h-[40px]">
+                Accepted ({getApplicationsByStatus('accepted').length})
+              </TabsTrigger>
+              <TabsTrigger value="rejected" className="min-h-[40px]">
+                Rejected ({getApplicationsByStatus('rejected').length})
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
           <TabsContent value="all" className="mt-6">
             <ApplicationsList

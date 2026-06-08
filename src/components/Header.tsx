@@ -85,17 +85,23 @@ export function Header() {
 
   const performSearch = () => {
     const q = headerSearch.trim();
+    if (!q) return;
     const encoded = encodeURIComponent(q);
     const lower = q.toLowerCase();
-    if (lower.includes('job')) {
-      navigate(`/jobs?q=${encoded}`);
-    } else if (lower.includes('supplier') || lower.includes('vendor')) {
-      navigate(`/suppliers?q=${encoded}`);
-    } else if (lower.includes('teacher')) {
-      navigate(`/browse?q=${encoded}`);
-    } else {
-      navigate(`/browse?q=${encoded}`);
+    // Broader intent classification than just "the word job is in the query".
+    const jobKeywords = ['job', 'teacher', 'teaching', 'principal', 'professor', 'tutor', 'lecturer', 'instructor'];
+    const supplierKeywords = ['supplier', 'vendor', 'book', 'uniform', 'stationery', 'lab', 'equipment'];
+    const vehicleKeywords = ['vehicle', 'bus', 'van', 'transport', 'cab', 'driver'];
+    let target = '/browse';
+    if (jobKeywords.some((k) => lower.includes(k))) target = '/jobs';
+    else if (supplierKeywords.some((k) => lower.includes(k))) target = '/suppliers';
+    else if (vehicleKeywords.some((k) => lower.includes(k))) target = '/browse';
+    else {
+      // No vertical signal — keep the user on whatever section they're already in.
+      if (location.pathname.startsWith('/jobs')) target = '/jobs';
+      else if (location.pathname.startsWith('/suppliers')) target = '/suppliers';
     }
+    navigate(`${target}?q=${encoded}`);
     setHeaderSearch('');
   }
 

@@ -6,6 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ProposeMatchesDialog } from '@/components/ProposeMatchesDialog';
 import { LoadError } from '@/components/LoadError';
+import { EmptyState } from '@/components/EmptyState';
+import { Briefcase } from 'lucide-react';
 
 export function ConsultantJobSearch() {
   const [items, setItems] = useState<any[]>([]);
@@ -37,7 +39,15 @@ export function ConsultantJobSearch() {
       </div>
       {loading ? <Skeleton className="h-64" /> :
         error ? <LoadError message={error} onRetry={load} /> :
-        items.length === 0 ? <p className="text-sm text-muted-foreground text-center py-12">No active jobs match your search.</p> :
+        items.length === 0 ? (
+          <EmptyState
+            icon={Briefcase}
+            title="No active jobs match your search"
+            description="Try a broader subject, different city, or clear the search to see all open postings."
+            actionLabel="Clear search"
+            onAction={() => { setQ(''); load(); }}
+          />
+        ) :
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {items.map((j) => (
             <Card key={j.id ?? j._id}>
