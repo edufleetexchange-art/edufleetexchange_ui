@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { AuthProvider } from '@/context/AuthContext';
 import { ConfigProvider } from '@/context/ConfigContext';
 import { NotificationProvider } from '@/context/NotificationContext';
@@ -23,8 +23,6 @@ import { ConsultantInterviews } from '@/pages/ConsultantInterviews';
 import { ConsultantJobSearch } from '@/pages/ConsultantJobSearch';
 import { ConsultantTeacherSearch } from '@/pages/ConsultantTeacherSearch';
 import { TeacherDashboard } from '@/pages/TeacherDashboard';
-import { TeacherJobBrowse } from '@/pages/TeacherJobBrowse';
-import { TeacherJobDetails } from '@/pages/TeacherJobDetails';
 import { InstituteTeacherSearch } from '@/pages/InstituteTeacherSearch';
 import { InstituteJobApplications } from '@/pages/InstituteJobApplications';
 import { SupplierBrowse } from '@/pages/SupplierBrowse';
@@ -74,6 +72,11 @@ import PrivacyPolicy from '@/pages/legal/PrivacyPolicy';
 import TermsOfService from '@/pages/legal/TermsOfService';
 import CookiePolicy from '@/pages/legal/CookiePolicy';
 
+function RedirectTeacherJobDetails() {
+  const { id } = useParams<{ id: string }>();
+  return <Navigate to={`/job/${id ?? ''}`} replace />;
+}
+
 function App() {
   return (
     <ErrorBoundary>
@@ -99,8 +102,9 @@ function App() {
                 <Route path="/teacher/signup" element={<TeacherSignup />} />
                 <Route path="/vendor/signup" element={<VendorSignup />} />
                 <Route path="/consultant/signup" element={<ConsultantSignup />} />
-                <Route path="/teacher/jobs" element={<TeacherJobBrowse />} />
-                <Route path="/teacher/job/:id" element={<TeacherJobDetails />} />
+                {/* Legacy teacher job routes — preserved as redirects so bookmarks/links keep working. */}
+                <Route path="/teacher/jobs" element={<Navigate to="/jobs" replace />} />
+                <Route path="/teacher/job/:id" element={<RedirectTeacherJobDetails />} />
                 <Route path="/advertise" element={<Advertise />} />
                 <Route path="/notifications" element={<NotificationsPage />} />
                 <Route path="/admin/login" element={<AdminLogin />} />

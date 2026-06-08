@@ -30,15 +30,22 @@ export function JobBrowse() {
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(initialQuery);
   const [typeFilter, setTypeFilter] = useState('all');
   const [departmentFilter, setDepartmentFilter] = useState('all');
+  const [locationFilter, setLocationFilter] = useState('');
+  const [debouncedLocationFilter, setDebouncedLocationFilter] = useState('');
   const [uniqueDepartments, setUniqueDepartments] = useState<string[]>([]);
   const [browseLimitReached, setBrowseLimitReached] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
 
-  // 300ms debounce on text search
+  // 300ms debounce on text inputs
   useEffect(() => {
     const t = setTimeout(() => setDebouncedSearchTerm(searchTerm), 300);
     return () => clearTimeout(t);
   }, [searchTerm]);
+
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedLocationFilter(locationFilter), 300);
+    return () => clearTimeout(t);
+  }, [locationFilter]);
 
   // Enforce browse quota on mount — authenticated users only
   useEffect(() => {
@@ -53,6 +60,7 @@ export function JobBrowse() {
     searchTerm: debouncedSearchTerm,
     type: typeFilter !== 'all' ? typeFilter : undefined,
     department: departmentFilter !== 'all' ? departmentFilter : undefined,
+    location: debouncedLocationFilter || undefined,
     pageSize: 100 // Fetch more items since we don't have pagination UI yet
   });
 
@@ -69,9 +77,11 @@ export function JobBrowse() {
     setDebouncedSearchTerm('');
     setTypeFilter('all');
     setDepartmentFilter('all');
+    setLocationFilter('');
+    setDebouncedLocationFilter('');
   };
 
-  const hasActiveFilters = searchTerm !== '' || typeFilter !== 'all' || departmentFilter !== 'all';
+  const hasActiveFilters = searchTerm !== '' || typeFilter !== 'all' || departmentFilter !== 'all' || locationFilter !== '';
   
   // Subscription check — subscription is now a plain Subscription | null
   const activePlanId = subscription?.planId;
@@ -214,6 +224,16 @@ export function JobBrowse() {
                           </SelectContent>
                         </Select>
                       </div>
+                      <div className="space-y-1.5">
+                        <label htmlFor="job-location-sheet" className="text-xs font-semibold text-muted-foreground">Location</label>
+                        <Input
+                          id="job-location-sheet"
+                          type="text"
+                          placeholder="City or state"
+                          value={locationFilter}
+                          onChange={(e) => setLocationFilter(e.target.value)}
+                        />
+                      </div>
                     </div>
                   </Card>
                 </div>
@@ -284,6 +304,17 @@ export function JobBrowse() {
                       ))}
                     </SelectContent>
                   </Select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label htmlFor="job-location-sidebar" className="text-xs font-semibold text-muted-foreground">Location</label>
+                  <Input
+                    id="job-location-sidebar"
+                    type="text"
+                    placeholder="City or state"
+                    value={locationFilter}
+                    onChange={(e) => setLocationFilter(e.target.value)}
+                  />
                 </div>
               </div>
             </Card>
