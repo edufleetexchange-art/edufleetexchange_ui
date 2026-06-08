@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { ConfirmDestructive } from '@/components/ConfirmDestructive';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CheckCircle2, XCircle, Plus, Building2, ShieldCheck, Eye, Pencil, Trash2, AlertTriangle, Clock } from 'lucide-react';
@@ -124,13 +125,13 @@ export function SupplierManagement() {
     }
   };
 
-  const handleDeleteSupplier = async (id: string) => {
-    if (!window.confirm('Are you sure you want to delete this supplier? This action cannot be undone.')) {
-      return;
-    }
+  const [pendingDeleteSupplierId, setPendingDeleteSupplierId] = useState<string | null>(null);
+  const handleDeleteSupplier = (id: string) => setPendingDeleteSupplierId(id);
+  const confirmDeleteSupplier = async () => {
+    if (!pendingDeleteSupplierId) return;
     try {
       setIsLoading(true);
-      await deleteSupplier(id);
+      await deleteSupplier(pendingDeleteSupplierId);
       toast.success('Supplier deleted successfully');
       loadSuppliers();
       loadSupplierStats();
@@ -138,6 +139,7 @@ export function SupplierManagement() {
       toast.error('Failed to delete supplier');
     } finally {
       setIsLoading(false);
+      setPendingDeleteSupplierId(null);
     }
   };
 
@@ -536,6 +538,14 @@ export function SupplierManagement() {
           </div>
         </DialogContent>
       </Dialog>
+      <ConfirmDestructive
+        open={!!pendingDeleteSupplierId}
+        onOpenChange={(o) => !o && setPendingDeleteSupplierId(null)}
+        title="Delete this supplier?"
+        description="This action cannot be undone. The supplier listing will be removed for everyone."
+        confirmLabel="Delete supplier"
+        onConfirm={confirmDeleteSupplier}
+      />
     </div>
   );
 }
