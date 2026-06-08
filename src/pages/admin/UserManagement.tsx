@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { adminService } from '@/api/services/adminService';
+import { ConfirmDestructive } from '@/components/ConfirmDestructive';
 import { getAllSubscriptionPlans } from '@/api/services/subscriptionService';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -171,14 +172,18 @@ export default function UserManagement() {
     }
   };
 
-  const handleDeleteUser = async (userId: string) => {
-    if (!window.confirm('Are you sure you want to delete this user? This action cannot be undone.')) return;
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+  const handleDeleteUser = (userId: string) => setPendingDeleteId(userId);
+  const confirmDeleteUser = async () => {
+    if (!pendingDeleteId) return;
     try {
-      await adminService.deleteUser(userId);
+      await adminService.deleteUser(pendingDeleteId);
       toast.success('User deleted successfully');
       loadData();
     } catch (error) {
       toast.error('Failed to delete user');
+    } finally {
+      setPendingDeleteId(null);
     }
   };
 
@@ -591,6 +596,14 @@ export default function UserManagement() {
         isOpen={isDetailsOpen}
         onClose={() => setIsDetailsOpen(false)}
         plans={plans}
+      />
+      <ConfirmDestructive
+        open={!!pendingDeleteId}
+        onOpenChange={(o) => !o && setPendingDeleteId(null)}
+        title="Delete this user?"
+        description="This action cannot be undone. The user will lose access immediately."
+        confirmLabel="Delete user"
+        onConfirm={confirmDeleteUser}
       />
     </div>
   );
