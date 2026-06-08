@@ -35,6 +35,7 @@ import { api } from '@/api';
 
 import { AdSlot } from '@/components/ads/AdSlot';
 import { ApplicantsList } from '@/components/ApplicantsList';
+import { ConfirmDestructive } from '@/components/ConfirmDestructive';
 import { recommendationService, type TeacherRecommendation } from '@/api/services/recommendationService';
 
 interface DashboardProps {
@@ -184,16 +185,23 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleDeleteListing = async (vehicleId: string) => {
-    if (window.confirm('Are you sure you want to delete this listing? This action cannot be undone.')) {
-      try {
-        await deleteVehicle(vehicleId);
-        toast.success('Listing deleted successfully');
-        refetchListings();
-      } catch (error) {
-        console.error('Failed to delete listing:', error);
-        toast.error('Failed to delete listing');
-      }
+  const [pendingListingDelete, setPendingListingDelete] = useState<string | null>(null);
+  const [pendingJobDelete, setPendingJobDelete] = useState<string | null>(null);
+
+  const handleDeleteListing = (vehicleId: string) => {
+    setPendingListingDelete(vehicleId);
+  };
+  const confirmDeleteListing = async () => {
+    if (!pendingListingDelete) return;
+    try {
+      await deleteVehicle(pendingListingDelete);
+      toast.success('Listing deleted successfully');
+      refetchListings();
+    } catch (error) {
+      console.error('Failed to delete listing:', error);
+      toast.error('Failed to delete listing');
+    } finally {
+      setPendingListingDelete(null);
     }
   };
 
@@ -201,16 +209,20 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
     navigate(`/dashboard/edit-job/${jobId}`);
   };
 
-  const handleDeleteJob = async (jobId: string) => {
-    if (window.confirm('Are you sure you want to delete this job posting? This action cannot be undone.')) {
-      try {
-        await api.jobs.deleteJob(jobId);
-        toast.success('Job deleted successfully');
-        refetchJobs();
-      } catch (error) {
-        console.error('Failed to delete job:', error);
-        toast.error('Failed to delete job');
-      }
+  const handleDeleteJob = (jobId: string) => {
+    setPendingJobDelete(jobId);
+  };
+  const confirmDeleteJob = async () => {
+    if (!pendingJobDelete) return;
+    try {
+      await api.jobs.deleteJob(pendingJobDelete);
+      toast.success('Job deleted successfully');
+      refetchJobs();
+    } catch (error) {
+      console.error('Failed to delete job:', error);
+      toast.error('Failed to delete job');
+    } finally {
+      setPendingJobDelete(null);
     }
   };
   
@@ -1175,7 +1187,7 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
           </div>
         ) : (
           <ListingForm 
-            listing={editingListing} 
+            listing={editingListing}
             onSuccess={handleListingCreateSuccess}
             onCancel={() => {
               setEditingListing(null);
@@ -1183,6 +1195,22 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
             }}
           />
         )}
+        <ConfirmDestructive
+          open={!!pendingListingDelete}
+          onOpenChange={(o) => !o && setPendingListingDelete(null)}
+          title="Delete this listing?"
+          description="This action cannot be undone. The listing will be removed for everyone."
+          confirmLabel="Delete listing"
+          onConfirm={confirmDeleteListing}
+        />
+        <ConfirmDestructive
+          open={!!pendingJobDelete}
+          onOpenChange={(o) => !o && setPendingJobDelete(null)}
+          title="Delete this job posting?"
+          description="This action cannot be undone. Active applicants will see the posting disappear."
+          confirmLabel="Delete job"
+          onConfirm={confirmDeleteJob}
+        />
       </div>
     </div>
   );
