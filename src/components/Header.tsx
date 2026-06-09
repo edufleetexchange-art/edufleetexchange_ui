@@ -85,17 +85,23 @@ export function Header() {
 
   const performSearch = () => {
     const q = headerSearch.trim();
+    if (!q) return;
     const encoded = encodeURIComponent(q);
     const lower = q.toLowerCase();
-    if (lower.includes('job')) {
-      navigate(`/jobs?q=${encoded}`);
-    } else if (lower.includes('supplier') || lower.includes('vendor')) {
-      navigate(`/suppliers?q=${encoded}`);
-    } else if (lower.includes('teacher')) {
-      navigate(`/browse?q=${encoded}`);
-    } else {
-      navigate(`/browse?q=${encoded}`);
+    // Broader intent classification than just "the word job is in the query".
+    const jobKeywords = ['job', 'teacher', 'teaching', 'principal', 'professor', 'tutor', 'lecturer', 'instructor'];
+    const supplierKeywords = ['supplier', 'vendor', 'book', 'uniform', 'stationery', 'lab', 'equipment'];
+    const vehicleKeywords = ['vehicle', 'bus', 'van', 'transport', 'cab', 'driver'];
+    let target = '/browse';
+    if (jobKeywords.some((k) => lower.includes(k))) target = '/jobs';
+    else if (supplierKeywords.some((k) => lower.includes(k))) target = '/suppliers';
+    else if (vehicleKeywords.some((k) => lower.includes(k))) target = '/browse';
+    else {
+      // No vertical signal — keep the user on whatever section they're already in.
+      if (location.pathname.startsWith('/jobs')) target = '/jobs';
+      else if (location.pathname.startsWith('/suppliers')) target = '/suppliers';
     }
+    navigate(`${target}?q=${encoded}`);
     setHeaderSearch('');
   }
 
@@ -152,7 +158,7 @@ export function Header() {
           {/* Desktop Actions */}
           <div className="hidden lg:flex items-center gap-6">
             <nav className="flex items-center gap-7 text-sm font-medium">
-              {!shouldShowTeacherNav && !isVendor && !shouldShowConsultantNav && (
+              {!shouldShowTeacherNav && !isVendor && !shouldShowConsultantNav && !isCompanyUser && (
                 <>
                   <Link to="/browse" className="text-foreground/70 hover:text-primary transition-all relative group">
                     <span>Vehicles</span>
@@ -319,7 +325,7 @@ export function Header() {
               </div>
             )}
             <div className="grid grid-cols-2 gap-2 mb-4">
-              {!shouldShowTeacherNav && !isVendor && !shouldShowConsultantNav ? (
+              {!shouldShowTeacherNav && !isVendor && !shouldShowConsultantNav && !isCompanyUser ? (
                 <>
                   <Link to={user?.role === 'institute' ? "/dashboard?tab=listings" : "/browse"} className="flex flex-col items-center justify-center p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
                     <span className="font-medium">Vehicles</span>

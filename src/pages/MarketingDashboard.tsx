@@ -6,7 +6,7 @@ import { adminService } from '@/api/services/adminService';
 import { marketingService } from '@/api/services/marketingService';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
+import { DashboardSkeleton } from '@/components/DashboardSkeleton';
 import { 
   Users, 
   Plus, 
@@ -169,15 +169,7 @@ export default function MarketingDashboard() {
   }, [leads, leadSearch]);
 
   if (loading && !stats) {
-    return (
-      <div className="p-8">
-        <Skeleton className="w-64 h-10 mb-8" />
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-32" />)}
-        </div>
-        <Skeleton className="w-full h-96" />
-      </div>
-    );
+    return <DashboardSkeleton statTiles={4} label="Loading marketing dashboard" />;
   }
 
   return (
@@ -467,17 +459,16 @@ export default function MarketingDashboard() {
                   <div className="space-y-3">
                     <div className="flex justify-between py-2 border-b border-dashed">
                       <span className="text-muted-foreground">Department</span>
-                      <span className="font-medium">Marketing & Communications</span>
+                      <span className="font-medium">{staffProfile?.department || '—'}</span>
                     </div>
                     <div className="flex justify-between py-2 border-b border-dashed">
-                      <span className="text-muted-foreground">Reporting Manager</span>
-                      <span className="font-medium">Chief Marketing Officer</span>
-                    </div>
-                    <div className="flex justify-between py-2 border-b border-dashed">
-                      <span className="text-muted-foreground">Joining Date</span>
-                      <span className="font-medium">March 10, 2024</span>
+                      <span className="text-muted-foreground">Employee ID</span>
+                      <span className="font-medium">{staffProfile?.employeeId || '—'}</span>
                     </div>
                   </div>
+                  <p className="text-xs text-muted-foreground">
+                    Manager and joining date will appear once HR records are connected.
+                  </p>
                 </div>
                 
                 <div className="space-y-4">

@@ -262,16 +262,23 @@ export function AdminDashboard() {
     }
   };
 
-  const handleApproveAll = () => {
+  const handleApproveAll = async () => {
     const pendingIds = pendingListings.map(v => v.id);
     if (pendingIds.length === 0) {
       toast.info('No pending listings to approve');
       return;
     }
-    setVehicles(prev => prev.map(v => 
-      pendingIds.includes(v.id) ? { ...v, status: 'approved' as const } : v
-    ));
-    toast.success(`Approved ${pendingIds.length} pending listing(s)`);
+    const results = await Promise.allSettled(
+      pendingIds.map(id => adminService.updateApprovalStatus({ vehicleId: id, status: 'approved' })),
+    );
+    const ok = results.filter(r => r.status === 'fulfilled').length;
+    const failed = results.length - ok;
+    if (ok > 0) {
+      toast.success(`Approved ${ok} listing${ok === 1 ? '' : 's'}${failed ? `; ${failed} failed` : ''}`);
+      await loadVehicles();
+    } else {
+      toast.error('Failed to approve listings — please retry');
+    }
   };
 
   return (

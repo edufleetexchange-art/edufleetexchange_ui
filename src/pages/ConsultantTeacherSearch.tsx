@@ -5,6 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { rosterService } from '@/api/services/rosterService';
+import { LoadError } from '@/components/LoadError';
+import { EmptyState } from '@/components/EmptyState';
+import { GraduationCap } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface TeacherItem {
@@ -16,14 +19,18 @@ export function ConsultantTeacherSearch() {
   const [items, setItems] = useState<TeacherItem[]>([]);
   const [subject, setSubject] = useState('');
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const load = async () => {
     setLoading(true);
+    setError(null);
     try {
       const params = new URLSearchParams({ pageSize: '50' });
       if (subject) params.set('subject', subject);
       const data = await apiClient.get<{ items: TeacherItem[] }>(`/teachers?${params.toString()}`);
       setItems(data.items ?? []);
+    } catch (e: any) {
+      setError(e?.message ?? "Couldn't load teachers.");
     } finally { setLoading(false); }
   };
   useEffect(() => { load(); }, []);
@@ -45,6 +52,16 @@ export function ConsultantTeacherSearch() {
         <Button onClick={load}>Search</Button>
       </div>
       {loading ? <Skeleton className="h-64" /> :
+        error ? <LoadError message={error} onRetry={load} /> :
+        items.length === 0 ? (
+          <EmptyState
+            icon={GraduationCap}
+            title="No teachers match this search"
+            description="Try a different subject or clear the filter to see the full directory."
+            actionLabel="Clear filter"
+            onAction={() => { setSubject(''); load(); }}
+          />
+        ) :
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {items.map((t) => (
             <Card key={t.account?.id ?? t.profile?.id}>

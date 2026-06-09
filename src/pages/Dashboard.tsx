@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { VehicleCard } from '@/components/VehicleCard';
 import { JobCard } from '@/components/JobCard';
 import { Skeleton } from '@/components/ui/skeleton';
+import { DashboardSkeleton } from '@/components/DashboardSkeleton';
 import { Plus, Edit2, Trash2, Eye, User, Mail, Phone, MapPin, Building2, UserCircle, Users } from 'lucide-react';
 import { VerifiedBadge } from '@/components/VerifiedBadge';
 import { VerifyAccountDialog } from '@/components/VerifyAccountDialog';
@@ -35,6 +36,7 @@ import { api } from '@/api';
 
 import { AdSlot } from '@/components/ads/AdSlot';
 import { ApplicantsList } from '@/components/ApplicantsList';
+import { ConfirmDestructive } from '@/components/ConfirmDestructive';
 import { recommendationService, type TeacherRecommendation } from '@/api/services/recommendationService';
 
 interface DashboardProps {
@@ -153,10 +155,11 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
   
   const handleSaveProfile = async () => {
     try {
-      // TODO: updateAccount only supports name/phone/avatar; institute-specific fields (instituteName, contactPerson, location) require a separate profile endpoint
+      // updateAccount only supports name/phone/avatar today; institute-specific fields
+      // (instituteName, contactPerson, location) require a backend profile endpoint that is not yet wired.
       await updateAccount({ name: profileData.name, phone: profileData.phone });
       setIsEditingProfile(false);
-      toast.success('Profile updated');
+      toast.success('Contact details updated. To change institute name or address, email support@edufleet.com.');
     } catch (error) {
       console.error('Failed to update profile:', error);
       toast.error('Failed to update profile');
@@ -184,16 +187,23 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleDeleteListing = async (vehicleId: string) => {
-    if (window.confirm('Are you sure you want to delete this listing? This action cannot be undone.')) {
-      try {
-        await deleteVehicle(vehicleId);
-        toast.success('Listing deleted successfully');
-        refetchListings();
-      } catch (error) {
-        console.error('Failed to delete listing:', error);
-        toast.error('Failed to delete listing');
-      }
+  const [pendingListingDelete, setPendingListingDelete] = useState<string | null>(null);
+  const [pendingJobDelete, setPendingJobDelete] = useState<string | null>(null);
+
+  const handleDeleteListing = (vehicleId: string) => {
+    setPendingListingDelete(vehicleId);
+  };
+  const confirmDeleteListing = async () => {
+    if (!pendingListingDelete) return;
+    try {
+      await deleteVehicle(pendingListingDelete);
+      toast.success('Listing deleted successfully');
+      refetchListings();
+    } catch (error) {
+      console.error('Failed to delete listing:', error);
+      toast.error('Failed to delete listing');
+    } finally {
+      setPendingListingDelete(null);
     }
   };
 
@@ -201,16 +211,20 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
     navigate(`/dashboard/edit-job/${jobId}`);
   };
 
-  const handleDeleteJob = async (jobId: string) => {
-    if (window.confirm('Are you sure you want to delete this job posting? This action cannot be undone.')) {
-      try {
-        await api.jobs.deleteJob(jobId);
-        toast.success('Job deleted successfully');
-        refetchJobs();
-      } catch (error) {
-        console.error('Failed to delete job:', error);
-        toast.error('Failed to delete job');
-      }
+  const handleDeleteJob = (jobId: string) => {
+    setPendingJobDelete(jobId);
+  };
+  const confirmDeleteJob = async () => {
+    if (!pendingJobDelete) return;
+    try {
+      await api.jobs.deleteJob(pendingJobDelete);
+      toast.success('Job deleted successfully');
+      refetchJobs();
+    } catch (error) {
+      console.error('Failed to delete job:', error);
+      toast.error('Failed to delete job');
+    } finally {
+      setPendingJobDelete(null);
     }
   };
   
@@ -339,23 +353,12 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
     );
   }
 
-  // loadingRecentApps is intentionally excluded here so the full dashboard renders while
-  // recent applications load in the background (see the listings tab section below).
-  if (listingsLoading || jobsLoading || subscriptionLoading) {
-    return (
-      <div className="min-h-screen bg-background py-8">
-        <div className="container mx-auto px-4">
-          <Skeleton className="w-64 h-10 mb-4" />
-          <Skeleton className="w-32 h-6 mb-8" />
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-8">
-            {[...Array(7)].map((_, i) => (
-              <Skeleton key={i} className="h-24" />
-            ))}
-          </div>
-          <Skeleton className="w-full h-96" />
-        </div>
-      </div>
-    );
+  // First-mount only: when nothing has loaded yet, show the shared shell.
+  // We deliberately don't gate on every individual fetch — sections render their
+  // own skeletons so a slow recommendations call no longer blocks the whole page.
+  const isInitialLoad = listingsLoading && jobsLoading && subscriptionLoading;
+  if (isInitialLoad) {
+    return <DashboardSkeleton statTiles={4} label="Loading institute dashboard" />;
   }
 
   return (
@@ -1144,13 +1147,20 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
                     </div>
 
                     {isEditingProfile && (
-                      <div className="flex justify-end gap-3 pt-4 border-t border-border">
-                        <Button variant="outline" onClick={() => setIsEditingProfile(false)}>
-                          Cancel
-                        </Button>
-                        <Button onClick={handleSaveProfile}>
-                          Save Changes
-                        </Button>
+                      <div className="pt-4 border-t border-border space-y-3">
+                        <p className="text-xs text-muted-foreground">
+                          Only your name and phone are saved here right now. Email{' '}
+                          <a href="mailto:support@edufleet.com" className="underline">support@edufleet.com</a>{' '}
+                          to update institute name or address.
+                        </p>
+                        <div className="flex justify-end gap-3">
+                          <Button variant="outline" onClick={() => setIsEditingProfile(false)}>
+                            Cancel
+                          </Button>
+                          <Button onClick={handleSaveProfile}>
+                            Save Changes
+                          </Button>
+                        </div>
                       </div>
                     )}
                   </div>
@@ -1175,7 +1185,7 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
           </div>
         ) : (
           <ListingForm 
-            listing={editingListing} 
+            listing={editingListing}
             onSuccess={handleListingCreateSuccess}
             onCancel={() => {
               setEditingListing(null);
@@ -1183,6 +1193,22 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
             }}
           />
         )}
+        <ConfirmDestructive
+          open={!!pendingListingDelete}
+          onOpenChange={(o) => !o && setPendingListingDelete(null)}
+          title="Delete this listing?"
+          description="This action cannot be undone. The listing will be removed for everyone."
+          confirmLabel="Delete listing"
+          onConfirm={confirmDeleteListing}
+        />
+        <ConfirmDestructive
+          open={!!pendingJobDelete}
+          onOpenChange={(o) => !o && setPendingJobDelete(null)}
+          title="Delete this job posting?"
+          description="This action cannot be undone. Active applicants will see the posting disappear."
+          confirmLabel="Delete job"
+          onConfirm={confirmDeleteJob}
+        />
       </div>
     </div>
   );

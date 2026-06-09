@@ -16,6 +16,11 @@ interface Props {
   onScheduled?: () => void;
 }
 
+function toLocalISO(d: Date) {
+  const off = d.getTimezoneOffset();
+  return new Date(d.getTime() - off * 60_000).toISOString().slice(0, 16);
+}
+
 export function InterviewScheduler({ applicationId, open, onOpenChange, onScheduled }: Props) {
   const [scheduledAt, setScheduledAt] = useState('');
   const [durationMinutes, setDurationMinutes] = useState(30);
@@ -24,9 +29,14 @@ export function InterviewScheduler({ applicationId, open, onOpenChange, onSchedu
   const [meetingLink, setMeetingLink] = useState('');
   const [notesBefore, setNotesBefore] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const minDateTime = toLocalISO(new Date());
 
   const handleSubmit = async () => {
     if (!scheduledAt) { toast.error('Please pick a date/time'); return; }
+    if (new Date(scheduledAt).getTime() <= Date.now()) {
+      toast.error('Interview must be scheduled in the future');
+      return;
+    }
     setSubmitting(true);
     try {
       await interviewService.schedule({
@@ -56,7 +66,10 @@ export function InterviewScheduler({ applicationId, open, onOpenChange, onSchedu
           <DialogDescription>Teacher and institute will be notified automatically.</DialogDescription>
         </DialogHeader>
         <div className="space-y-3">
-          <div><Label>Date & time</Label><Input type="datetime-local" value={scheduledAt} onChange={(e) => setScheduledAt(e.target.value)} /></div>
+          <div>
+            <Label htmlFor="iv-when">Date &amp; time</Label>
+            <Input id="iv-when" type="datetime-local" min={minDateTime} value={scheduledAt} onChange={(e) => setScheduledAt(e.target.value)} />
+          </div>
           <div><Label>Duration (minutes)</Label><Input type="number" value={durationMinutes} onChange={(e) => setDurationMinutes(parseInt(e.target.value, 10) || 30)} min={5} /></div>
           <div>
             <Label>Mode</Label>

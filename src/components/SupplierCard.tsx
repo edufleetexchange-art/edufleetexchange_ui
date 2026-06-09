@@ -46,12 +46,9 @@ export function SupplierCard({ supplier, onViewDetails, showStatus = false, disa
     }
   };
 
-  // Generate rating from supplier data or default - safely handle missing/invalid id
-  const supplierId = supplier?.id || supplier?.name || 'default';
-  const idSuffix = typeof supplierId === 'string' && supplierId.length >= 2 ? supplierId.slice(-2) : '00';
-  const idSuffix3 = typeof supplierId === 'string' && supplierId.length >= 3 ? supplierId.slice(-3) : '000';
-  const rating = (4.0 + (parseInt(idSuffix, 36) % 10) / 10).toFixed(1);
-  const reviewCount = 50 + (parseInt(idSuffix3, 36) % 200);
+  // Only display rating/reviewCount when the supplier record actually carries them.
+  const rating = typeof (supplier as any).rating === 'number' ? (supplier as any).rating.toFixed(1) : null;
+  const reviewCount = typeof (supplier as any).reviewCount === 'number' ? (supplier as any).reviewCount : null;
 
   return (
     <div className={`relative group w-full ${disableNavigation ? 'cursor-default' : 'cursor-pointer'}`} onClick={handleClick}>
@@ -89,13 +86,15 @@ export function SupplierCard({ supplier, onViewDetails, showStatus = false, disa
             {supplier.isVerified && <VerifiedBadge size="sm" label={false} />}
           </h3>
           
-          <div className="flex items-center gap-1.5 mb-1">
-            <div className="flex items-center gap-0.5 text-[9px] font-bold text-amber-600 bg-amber-50 px-1 rounded">
-              <span>{rating}</span>
-              <Star className="w-2.5 h-2.5 fill-current" />
+          {rating !== null && (
+            <div className="flex items-center gap-1.5 mb-1">
+              <div className="flex items-center gap-0.5 text-[9px] font-bold text-amber-600 bg-amber-50 px-1 rounded">
+                <span>{rating}</span>
+                <Star className="w-2.5 h-2.5 fill-current" />
+              </div>
+              {reviewCount !== null && <span className="text-[9px] text-muted-foreground">{reviewCount} rev.</span>}
             </div>
-            <span className="text-[9px] text-muted-foreground">{reviewCount} rev.</span>
-          </div>
+          )}
 
           <div className="flex flex-col gap-0.5 text-[10px] text-muted-foreground">
             {supplier.address && (

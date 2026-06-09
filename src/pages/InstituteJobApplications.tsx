@@ -203,6 +203,12 @@ export function InstituteJobApplications() {
       return;
     }
 
+    const when = new Date(`${interviewData.date}T${interviewData.time}`);
+    if (Number.isNaN(when.getTime()) || when.getTime() <= Date.now()) {
+      toast.error('Interview must be scheduled in the future');
+      return;
+    }
+
     if (interviewData.mode === 'video' && !interviewData.meetingLink) {
       toast.error('Please provide a meeting link for video interviews');
       return;
@@ -321,92 +327,44 @@ export function InstituteJobApplications() {
           </Card>
         </div>
 
-        {/* Applications Tabs */}
+        {/* Applications Tabs — horizontally scrollable on small screens so they don't get clipped */}
         <Tabs defaultValue="all">
-          <TabsList className="flex-wrap h-auto gap-1">
-            <TabsTrigger value="all">All ({applications.length})</TabsTrigger>
-            <TabsTrigger value="pending">
-              Pending ({getApplicationsByStatus('pending').length})
-            </TabsTrigger>
-            <TabsTrigger value="reviewed">
-              Reviewed ({getApplicationsByStatus('reviewed').length})
-            </TabsTrigger>
-            <TabsTrigger value="shortlisted">
-              Shortlisted ({getApplicationsByStatus('shortlisted').length})
-            </TabsTrigger>
-            <TabsTrigger value="interview_scheduled">
-              Interviews ({getApplicationsByStatus('interview_scheduled').length})
-            </TabsTrigger>
-            <TabsTrigger value="accepted">
-              Accepted ({getApplicationsByStatus('accepted').length})
-            </TabsTrigger>
-            <TabsTrigger value="rejected">
-              Rejected ({getApplicationsByStatus('rejected').length})
-            </TabsTrigger>
-          </TabsList>
+          <div className="overflow-x-auto -mx-2 px-2">
+            <TabsList className="inline-flex flex-nowrap h-auto gap-1 min-w-max sm:flex-wrap sm:min-w-0">
+              <TabsTrigger value="all" className="min-h-[40px]">All ({applications.length})</TabsTrigger>
+              <TabsTrigger value="pending" className="min-h-[40px]">
+                Pending ({getApplicationsByStatus('pending').length})
+              </TabsTrigger>
+              <TabsTrigger value="reviewed" className="min-h-[40px]">
+                Reviewed ({getApplicationsByStatus('reviewed').length})
+              </TabsTrigger>
+              <TabsTrigger value="shortlisted" className="min-h-[40px]">
+                Shortlisted ({getApplicationsByStatus('shortlisted').length})
+              </TabsTrigger>
+              <TabsTrigger value="interview_scheduled" className="min-h-[40px]">
+                Interviews ({getApplicationsByStatus('interview_scheduled').length})
+              </TabsTrigger>
+              <TabsTrigger value="accepted" className="min-h-[40px]">
+                Accepted ({getApplicationsByStatus('accepted').length})
+              </TabsTrigger>
+              <TabsTrigger value="rejected" className="min-h-[40px]">
+                Rejected ({getApplicationsByStatus('rejected').length})
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
-          <TabsContent value="all" className="mt-6">
-            <ApplicationsList
-              applications={applications}
-              onStatusChange={handleStatusChange}
-              onOpenStatusDialog={openStatusChangeDialog}
-              onScheduleInterview={handleScheduleInterview}
-            />
-          </TabsContent>
-
-          <TabsContent value="pending" className="mt-6">
-            <ApplicationsList
-              applications={getApplicationsByStatus('pending')}
-              onStatusChange={handleStatusChange}
-              onOpenStatusDialog={openStatusChangeDialog}
-              onScheduleInterview={handleScheduleInterview}
-            />
-          </TabsContent>
-
-          <TabsContent value="reviewed" className="mt-6">
-            <ApplicationsList
-              applications={getApplicationsByStatus('reviewed')}
-              onStatusChange={handleStatusChange}
-              onOpenStatusDialog={openStatusChangeDialog}
-              onScheduleInterview={handleScheduleInterview}
-            />
-          </TabsContent>
-
-          <TabsContent value="shortlisted" className="mt-6">
-            <ApplicationsList
-              applications={getApplicationsByStatus('shortlisted')}
-              onStatusChange={handleStatusChange}
-              onOpenStatusDialog={openStatusChangeDialog}
-              onScheduleInterview={handleScheduleInterview}
-            />
-          </TabsContent>
-
-          <TabsContent value="interview_scheduled" className="mt-6">
-            <ApplicationsList
-              applications={getApplicationsByStatus('interview_scheduled')}
-              onStatusChange={handleStatusChange}
-              onOpenStatusDialog={openStatusChangeDialog}
-              onScheduleInterview={handleScheduleInterview}
-            />
-          </TabsContent>
-
-          <TabsContent value="accepted" className="mt-6">
-            <ApplicationsList
-              applications={getApplicationsByStatus('accepted')}
-              onStatusChange={handleStatusChange}
-              onOpenStatusDialog={openStatusChangeDialog}
-              onScheduleInterview={handleScheduleInterview}
-            />
-          </TabsContent>
-
-          <TabsContent value="rejected" className="mt-6">
-            <ApplicationsList
-              applications={getApplicationsByStatus('rejected')}
-              onStatusChange={handleStatusChange}
-              onOpenStatusDialog={openStatusChangeDialog}
-              onScheduleInterview={handleScheduleInterview}
-            />
-          </TabsContent>
+          {/* Same ApplicationsList, scoped to the active tab's status — was previously
+              seven near-identical copies of the same JSX. */}
+          {(['all', 'pending', 'reviewed', 'shortlisted', 'interview_scheduled', 'accepted', 'rejected'] as const).map((tabValue) => (
+            <TabsContent key={tabValue} value={tabValue} className="mt-6">
+              <ApplicationsList
+                applications={tabValue === 'all' ? applications : getApplicationsByStatus(tabValue)}
+                onStatusChange={handleStatusChange}
+                onOpenStatusDialog={openStatusChangeDialog}
+                onScheduleInterview={handleScheduleInterview}
+              />
+            </TabsContent>
+          ))}
         </Tabs>
 
         {/* Status Change Confirmation Dialog */}
@@ -472,6 +430,7 @@ export function InstituteJobApplications() {
                   <Input
                     id="date"
                     type="date"
+                    min={new Date().toISOString().slice(0, 10)}
                     value={interviewData.date}
                     onChange={(e) => setInterviewData({ ...interviewData, date: e.target.value })}
                   />

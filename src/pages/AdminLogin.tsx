@@ -125,24 +125,17 @@ export function AdminLogin() {
             </Button>
           </form>
 
-          {/* Demo Credentials — dev only */}
+          {/* Dev autofill — collapsed to a single button; only renders in dev builds (tree-shaken in prod via Vite's static replacement of import.meta.env.DEV). */}
           {import.meta.env.DEV && (
-            <div className="mt-6 space-y-4">
-              <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-700">
-                <p className="font-medium mb-1">Internal Admin Account (dev seed):</p>
-                <div className="space-y-1 font-mono text-xs">
-                  <p>Email: <span className="text-amber-900">admin@edufleet.test</span></p>
-                  <p>Password: <span className="text-amber-900">password123</span></p>
-                </div>
-              </div>
-
-              <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-700">
-                <p className="font-medium mb-1">Subscribed Partner (Institute, dev seed):</p>
-                <div className="space-y-1 font-mono text-xs">
-                  <p>Email: <span className="text-blue-900">institute1@edufleet.test</span></p>
-                  <p>Password: <span className="text-blue-900">password123</span></p>
-                </div>
-              </div>
+            <div className="mt-6 flex flex-wrap gap-2 justify-center">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => { setEmail('admin@edufleet.test'); setPassword('password123'); }}
+              >
+                Use admin dev account
+              </Button>
             </div>
           )}
 

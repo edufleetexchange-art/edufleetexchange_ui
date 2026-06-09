@@ -88,10 +88,15 @@ export const AdSlot: React.FC<AdSlotProps> = ({ placement, className, variant = 
     }
   };
 
+  const prefersReducedMotion =
+    typeof window !== 'undefined' &&
+    typeof window.matchMedia === 'function' &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
   const getMediaUrl = (url?: string) => {
-    if (!url) return 'https://via.placeholder.com/800x400?text=No+Image';
+    if (!url) return null;
     if (url.startsWith('http')) return url;
-    
+
     // Prefix with backend base URL if it's a relative path
     const baseUrl = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api').replace('/api', '');
     return `${baseUrl}${url.startsWith('/') ? '' : '/'}${url}`;
@@ -135,22 +140,24 @@ export const AdSlot: React.FC<AdSlotProps> = ({ placement, className, variant = 
         Ad
       </div>
       
-      {currentAd.type === 'image' && (
-        <img 
-          src={getMediaUrl(currentAd.mediaUrl)} 
-          alt={currentAd.title} 
-          className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-500"
+      {currentAd.type === 'image' && getMediaUrl(currentAd.mediaUrl) && (
+        <img
+          src={getMediaUrl(currentAd.mediaUrl) as string}
+          alt={currentAd.title ? `Advertisement: ${currentAd.title}` : 'Advertisement'}
+          loading="lazy"
+          className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-500 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
         />
       )}
 
-      {currentAd.type === 'video' && (
-        <video 
-          src={getMediaUrl(currentAd.mediaUrl)} 
-          className="w-full h-full object-cover" 
-          autoPlay 
-          muted 
-          loop 
+      {currentAd.type === 'video' && getMediaUrl(currentAd.mediaUrl) && (
+        <video
+          src={getMediaUrl(currentAd.mediaUrl) as string}
+          className="w-full h-full object-cover"
+          autoPlay={!prefersReducedMotion}
+          muted
+          loop
           playsInline
+          aria-label={currentAd.title ? `Advertisement: ${currentAd.title}` : 'Advertisement'}
         />
       )}
 

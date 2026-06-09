@@ -646,54 +646,91 @@ export function SubscriptionStatus({
         </DialogContent>
       </Dialog>
 
-      <Card id="payment-instructions" className="p-6 border-blue-200 bg-blue-50">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="p-2 bg-blue-100 rounded-lg">
-            <Banknote className="w-6 h-6 text-blue-600" />
-          </div>
-          <div>
-            <h3 className="font-semibold text-blue-900">Payment Instructions</h3>
-            <p className="text-sm text-blue-700">How to pay for your subscription</p>
-          </div>
-        </div>
+      <PaymentInstructionsCard />
+    </div>
+  );
+}
 
-        <div className="space-y-4">
+function maskAccount(num?: string) {
+  if (!num) return undefined;
+  const trimmed = num.replace(/\s+/g, '');
+  if (trimmed.length <= 4) return trimmed;
+  return `••••${trimmed.slice(-4)}`;
+}
+
+function PaymentInstructionsCard() {
+  const env = import.meta.env;
+  const accountName = env.VITE_PAYMENT_ACCOUNT_NAME as string | undefined;
+  const bankName = env.VITE_PAYMENT_BANK_NAME as string | undefined;
+  const accountNumber = env.VITE_PAYMENT_ACCOUNT_NUMBER as string | undefined;
+  const ifsc = env.VITE_PAYMENT_IFSC as string | undefined;
+  const supportEmail = (env.VITE_PAYMENT_SUPPORT_EMAIL as string | undefined) ?? 'payments@edufleet.com';
+  const supportPhone = env.VITE_PAYMENT_SUPPORT_PHONE as string | undefined;
+  const hasBankDetails = accountName && bankName && accountNumber && ifsc;
+
+  return (
+    <Card id="payment-instructions" className="p-6 border-blue-200 bg-blue-50">
+      <div className="flex items-center gap-3 mb-4">
+        <div className="p-2 bg-blue-100 rounded-lg">
+          <Banknote className="w-6 h-6 text-blue-600" />
+        </div>
+        <div>
+          <h3 className="font-semibold text-blue-900">Payment Instructions</h3>
+          <p className="text-sm text-blue-700">How to pay for your subscription</p>
+        </div>
+      </div>
+
+      <div className="space-y-4">
+        {hasBankDetails ? (
           <div className="p-4 bg-white/50 rounded-lg border border-blue-100 space-y-2">
             <p className="text-xs font-bold text-blue-800 uppercase tracking-wider">Bank Transfer Details</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
               <div>
                 <p className="text-muted-foreground text-[10px] uppercase">Account Name</p>
-                <p className="font-medium">NAVEEN J</p>
+                <p className="font-medium">{accountName}</p>
               </div>
               <div>
                 <p className="text-muted-foreground text-[10px] uppercase">Bank Name</p>
-                <p className="font-medium">SBI Bank</p>
+                <p className="font-medium">{bankName}</p>
               </div>
               <div>
-                <p className="text-muted-foreground text-[10px] uppercase">Account Number</p>
-                <p className="font-mono font-bold text-lg tracking-wider">64182266761</p>
+                <p className="text-muted-foreground text-[10px] uppercase">Account Number (last 4)</p>
+                <p className="font-mono font-bold text-lg tracking-wider">{maskAccount(accountNumber)}</p>
+                <p className="text-[10px] text-muted-foreground mt-1">
+                  Email {supportEmail} for the full account number before transferring.
+                </p>
               </div>
               <div>
                 <p className="text-muted-foreground text-[10px] uppercase">IFSC Code</p>
-                <p className="font-mono font-bold text-lg tracking-wider">SBIN0040884</p>
+                <p className="font-mono font-bold text-lg tracking-wider">{ifsc}</p>
               </div>
             </div>
           </div>
+        ) : (
+          <div className="p-4 bg-white/50 rounded-lg border border-blue-100 text-sm text-blue-900">
+            <p className="font-medium mb-1">Bank transfer details are issued per request.</p>
+            <p>
+              Email <a href={`mailto:${supportEmail}`} className="font-bold underline">{supportEmail}</a> with your user ID and chosen plan and we&apos;ll share secure payment instructions.
+            </p>
+          </div>
+        )}
 
-          <div className="flex items-start gap-3 p-4 bg-white/50 rounded-lg border border-blue-100">
-            <Info className="w-5 h-5 text-blue-600 mt-0.5 shrink-0" />
-            <div className="text-sm space-y-2">
-              <p className="font-medium text-blue-900">Important Note:</p>
-              <ul className="list-disc ml-4 space-y-1 text-blue-800">
-                <li>Make the payment to the above account.</li>
-                <li>Take a screenshot of the transaction.</li>
-                <li>Send the screenshot along with your <strong>User ID</strong> to <span className="font-bold underline">payments@edufleet.com</span> or WhatsApp at <span className="font-bold underline">+91 9876543210</span>.</li>
-                <li>Admin will verify and update your subscription within 24 hours.</li>
-              </ul>
-            </div>
+        <div className="flex items-start gap-3 p-4 bg-white/50 rounded-lg border border-blue-100">
+          <Info className="w-5 h-5 text-blue-600 mt-0.5 shrink-0" />
+          <div className="text-sm space-y-2">
+            <p className="font-medium text-blue-900">After paying:</p>
+            <ul className="list-disc ml-4 space-y-1 text-blue-800">
+              <li>Take a screenshot of the transaction.</li>
+              <li>
+                Send the screenshot with your <strong>User ID</strong> to{' '}
+                <a href={`mailto:${supportEmail}`} className="font-bold underline">{supportEmail}</a>
+                {supportPhone ? <> or WhatsApp <a href={`https://wa.me/${supportPhone.replace(/[^+\d]/g, '')}`} className="font-bold underline">{supportPhone}</a></> : null}.
+              </li>
+              <li>We&apos;ll verify and update your subscription within 24 hours.</li>
+            </ul>
           </div>
         </div>
-      </Card>
-    </div>
+      </div>
+    </Card>
   );
 }

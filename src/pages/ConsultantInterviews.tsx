@@ -1,21 +1,28 @@
 import { useEffect, useState } from 'react';
 import { interviewService } from '@/api/services/interviewService';
 import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { LoadError } from '@/components/LoadError';
+import { EmptyState } from '@/components/EmptyState';
+import { StatusBadge, statusToTone } from '@/components/StatusBadge';
+import { CalendarClock } from 'lucide-react';
 import { toast } from 'sonner';
 import type { Interview } from '@/api/types';
 
 export function ConsultantInterviews() {
   const [items, setItems] = useState<Interview[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const load = async () => {
     setLoading(true);
+    setError(null);
     try {
       const res = await interviewService.list({});
       setItems(res.items);
+    } catch (e: any) {
+      setError(e?.message ?? "Couldn't load interviews.");
     } finally {
       setLoading(false);
     }
@@ -31,7 +38,14 @@ export function ConsultantInterviews() {
     <div className="container mx-auto p-4 sm:p-6 space-y-4">
       <h1 className="text-2xl font-bold">Interviews</h1>
       {loading ? <Skeleton className="h-32" /> :
-        items.length === 0 ? <p className="text-sm text-muted-foreground text-center py-12">No interviews scheduled.</p> :
+        error ? <LoadError message={error} onRetry={load} /> :
+        items.length === 0 ? (
+          <EmptyState
+            icon={CalendarClock}
+            title="No interviews scheduled"
+            description="Schedule the next round from a placement card and it will show up here."
+          />
+        ) :
         <div className="space-y-3">
           {items.map((iv) => (
             <Card key={iv.id}>
@@ -43,7 +57,7 @@ export function ConsultantInterviews() {
                   {iv.location && <p className="text-xs">📍 {iv.location}</p>}
                 </div>
                 <div className="flex items-center gap-2">
-                  <Badge variant="outline">{iv.status}</Badge>
+                  <StatusBadge {...statusToTone(iv.status)} />
                   {iv.status === 'scheduled' && <Button size="sm" variant="ghost" onClick={() => handleCancel(iv.id)}>Cancel</Button>}
                 </div>
               </CardContent>

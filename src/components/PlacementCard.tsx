@@ -1,6 +1,6 @@
 import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { StatusBadge, statusToTone } from '@/components/StatusBadge';
 import { placementService } from '@/api/services/placementService';
 import type { Placement, PlacementStage } from '@/api/types';
 import { toast } from 'sonner';
@@ -46,7 +46,7 @@ export function PlacementCard({ placement, onChange }: Props) {
             <p className="font-semibold text-sm truncate">{teacher?.name ?? 'Teacher'}</p>
             <p className="text-xs text-muted-foreground truncate">{job?.title ?? 'Job'} · {job?.instituteName ?? ''}</p>
           </div>
-          <Badge variant="outline">{STAGE_LABEL[placement.stage]}</Badge>
+          <StatusBadge {...statusToTone(placement.stage)} label={STAGE_LABEL[placement.stage]} />
         </div>
         {next.length > 0 && (
           <Select onValueChange={(v) => handleTransition(v as PlacementStage)}>

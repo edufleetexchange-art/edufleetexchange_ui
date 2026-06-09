@@ -89,10 +89,18 @@ export function JobDetails() {
   const navigate = useNavigate();
   const { job, loading } = useJobById(id || '');
   
+  const draftKey = id ? `jobApply.draft.${id}` : '';
   const [showApplyDialog, setShowApplyDialog] = useState(false);
-  const [coverLetter, setCoverLetter] = useState('');
+  const [coverLetter, setCoverLetter] = useState(() => (draftKey ? localStorage.getItem(draftKey) ?? '' : ''));
   const [hasApplied, setHasApplied] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  // Persist the cover letter draft so a navigation/refresh doesn't lose it.
+  useEffect(() => {
+    if (!draftKey) return;
+    if (coverLetter) localStorage.setItem(draftKey, coverLetter);
+    else localStorage.removeItem(draftKey);
+  }, [coverLetter, draftKey]);
 
   useEffect(() => {
     const checkApplicationStatus = async () => {
@@ -105,7 +113,7 @@ export function JobDetails() {
         console.error('Failed to check application status', error);
       }
     };
-    
+
     checkApplicationStatus();
   }, [user, id]);
 
@@ -177,6 +185,7 @@ export function JobDetails() {
       toast.success('Application submitted successfully!');
       setShowApplyDialog(false);
       setCoverLetter('');
+      if (draftKey) localStorage.removeItem(draftKey);
       setHasApplied(true);
       
       // Navigate to dashboard after a short delay

@@ -30,15 +30,22 @@ export function JobBrowse() {
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(initialQuery);
   const [typeFilter, setTypeFilter] = useState('all');
   const [departmentFilter, setDepartmentFilter] = useState('all');
+  const [locationFilter, setLocationFilter] = useState('');
+  const [debouncedLocationFilter, setDebouncedLocationFilter] = useState('');
   const [uniqueDepartments, setUniqueDepartments] = useState<string[]>([]);
   const [browseLimitReached, setBrowseLimitReached] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
 
-  // 300ms debounce on text search
+  // 300ms debounce on text inputs
   useEffect(() => {
     const t = setTimeout(() => setDebouncedSearchTerm(searchTerm), 300);
     return () => clearTimeout(t);
   }, [searchTerm]);
+
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedLocationFilter(locationFilter), 300);
+    return () => clearTimeout(t);
+  }, [locationFilter]);
 
   // Enforce browse quota on mount — authenticated users only
   useEffect(() => {
@@ -53,6 +60,7 @@ export function JobBrowse() {
     searchTerm: debouncedSearchTerm,
     type: typeFilter !== 'all' ? typeFilter : undefined,
     department: departmentFilter !== 'all' ? departmentFilter : undefined,
+    location: debouncedLocationFilter || undefined,
     pageSize: 100 // Fetch more items since we don't have pagination UI yet
   });
 
@@ -69,9 +77,11 @@ export function JobBrowse() {
     setDebouncedSearchTerm('');
     setTypeFilter('all');
     setDepartmentFilter('all');
+    setLocationFilter('');
+    setDebouncedLocationFilter('');
   };
 
-  const hasActiveFilters = searchTerm !== '' || typeFilter !== 'all' || departmentFilter !== 'all';
+  const hasActiveFilters = searchTerm !== '' || typeFilter !== 'all' || departmentFilter !== 'all' || locationFilter !== '';
   
   // Subscription check — subscription is now a plain Subscription | null
   const activePlanId = subscription?.planId;
@@ -100,42 +110,47 @@ export function JobBrowse() {
     );
   }
 
-  return (
-    <div className="min-h-screen bg-background py-8">
-      <div className="container mx-auto px-4">
-        {browseLimitReached && (
-          <div className="mb-8">
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Monthly browse limit reached</AlertTitle>
-              <AlertDescription className="flex flex-col sm:flex-row sm:items-center gap-3 mt-1">
-                <span>You've reached your monthly browse limit. Upgrade your plan to see more listings.</span>
-                <a
-                  href="/#pricing"
-                  className="inline-flex items-center justify-center rounded-md bg-destructive-foreground text-destructive px-4 py-1.5 text-sm font-semibold hover:opacity-90 transition-opacity whitespace-nowrap"
-                >
-                  Upgrade Plan
-                </a>
-              </AlertDescription>
-            </Alert>
-          </div>
-        )}
+  // Consolidate the two possible plan banners into one slot so the primary task
+  // (search + results) stays above the fold. Hard-limit overrides the soft-delay
+  // banner since it's strictly more severe.
+  const banner = browseLimitReached
+    ? { tone: 'destructive' as const, title: 'Monthly browse limit reached', body: "You've reached your monthly browse limit. Upgrade to see more listings.", cta: 'Upgrade Plan' }
+    : hasDelay
+      ? {
+          tone: 'warning' as const,
+          title: !user ? 'Guest mode' : 'Free plan',
+          body: !user
+            ? 'You are browsing as a guest — newer jobs are hidden. Log in to unlock.'
+            : 'You are seeing jobs at least 10 days old. Upgrade to Professional for instant access.',
+          cta: !user ? 'Log in' : 'Upgrade',
+        }
+      : null;
 
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Browse Job Openings</h1>
-          <p className="text-muted-foreground">Discover career opportunities at educational institutes</p>
+  return (
+    <div className="min-h-screen bg-background py-6 sm:py-8">
+      <div className="container mx-auto px-4">
+        {/* Header — tighter margins on small screens so results show above the fold sooner. */}
+        <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold mb-1">Browse Job Openings</h1>
+            <p className="text-sm text-muted-foreground">Discover career opportunities at educational institutes</p>
+          </div>
         </div>
 
-        {hasDelay && (
-          <div className="mb-8">
-            <Alert variant="default" className="border-amber-200 bg-amber-50">
-              <AlertCircle className="h-4 w-4 text-amber-600" />
-              <div className="ml-4 text-amber-800">
-                {!user
-                  ? "You are browsing as a guest. Login to see newer job openings."
-                  : "You are on a Free plan. You are seeing jobs that are at least 10 days old. Upgrade to Professional for instant access."}
-              </div>
+        {banner && (
+          <div className="mb-4 sm:mb-6">
+            <Alert variant={banner.tone === 'destructive' ? 'destructive' : 'default'} className={banner.tone === 'warning' ? 'border-amber-200 bg-amber-50' : ''}>
+              <AlertCircle className={`h-4 w-4 ${banner.tone === 'warning' ? 'text-amber-600' : ''}`} />
+              <AlertTitle>{banner.title}</AlertTitle>
+              <AlertDescription className="flex flex-col sm:flex-row sm:items-center gap-3 mt-1">
+                <span className={banner.tone === 'warning' ? 'text-amber-800' : ''}>{banner.body}</span>
+                <a
+                  href={!user && banner.tone === 'warning' ? '/login' : '/#pricing'}
+                  className={`inline-flex items-center justify-center rounded-md px-4 py-1.5 text-sm font-semibold whitespace-nowrap ${banner.tone === 'destructive' ? 'bg-destructive-foreground text-destructive hover:opacity-90' : 'bg-amber-600 text-white hover:bg-amber-700'} transition-opacity`}
+                >
+                  {banner.cta}
+                </a>
+              </AlertDescription>
             </Alert>
           </div>
         )}
@@ -214,6 +229,16 @@ export function JobBrowse() {
                           </SelectContent>
                         </Select>
                       </div>
+                      <div className="space-y-1.5">
+                        <label htmlFor="job-location-sheet" className="text-xs font-semibold text-muted-foreground">Location</label>
+                        <Input
+                          id="job-location-sheet"
+                          type="text"
+                          placeholder="City or state"
+                          value={locationFilter}
+                          onChange={(e) => setLocationFilter(e.target.value)}
+                        />
+                      </div>
                     </div>
                   </Card>
                 </div>
@@ -284,6 +309,17 @@ export function JobBrowse() {
                       ))}
                     </SelectContent>
                   </Select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label htmlFor="job-location-sidebar" className="text-xs font-semibold text-muted-foreground">Location</label>
+                  <Input
+                    id="job-location-sidebar"
+                    type="text"
+                    placeholder="City or state"
+                    value={locationFilter}
+                    onChange={(e) => setLocationFilter(e.target.value)}
+                  />
                 </div>
               </div>
             </Card>

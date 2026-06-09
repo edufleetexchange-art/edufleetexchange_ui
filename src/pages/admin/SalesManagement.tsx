@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { adminService } from '@/api/services/adminService';
+import { ConfirmDestructive } from '@/components/ConfirmDestructive';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { 
@@ -114,14 +115,18 @@ export default function SalesManagement() {
     }
   };
 
-  const handleDeleteUser = async (userId: string) => {
-    if (!window.confirm('Are you sure you want to delete this sales member?')) return;
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+  const handleDeleteUser = (userId: string) => setPendingDeleteId(userId);
+  const confirmDeleteUser = async () => {
+    if (!pendingDeleteId) return;
     try {
-      await adminService.deleteUser(userId);
+      await adminService.deleteUser(pendingDeleteId);
       toast.success('Sales member deleted successfully');
       loadData();
     } catch (error) {
       toast.error('Failed to delete sales member');
+    } finally {
+      setPendingDeleteId(null);
     }
   };
 
@@ -348,6 +353,14 @@ export default function SalesManagement() {
           </TableBody>
         </Table>
       </div>
+      <ConfirmDestructive
+        open={!!pendingDeleteId}
+        onOpenChange={(o) => !o && setPendingDeleteId(null)}
+        title="Delete this sales member?"
+        description="This removes their account. They will lose access immediately."
+        confirmLabel="Delete member"
+        onConfirm={confirmDeleteUser}
+      />
     </div>
   );
 }

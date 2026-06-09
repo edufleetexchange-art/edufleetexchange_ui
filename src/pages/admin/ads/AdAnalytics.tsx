@@ -8,20 +8,16 @@ const AdAnalytics: React.FC = () => {
   const { ads } = useAds();
   const [timeRange, setTimeRange] = useState('7d');
 
-  // Data generator based on selected range
-  const generateData = (days: number) => {
-    return Array.from({ length: days }).map((_, i) => {
-      const d = new Date();
-      d.setDate(d.getDate() - (days - 1 - i));
-      return {
-        date: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-        impressions: Math.floor(Math.random() * 5000) + 1000,
-        clicks: Math.floor(Math.random() * 500) + 50,
-      };
-    });
-  };
-
-  const data = generateData(timeRange === '7d' ? 7 : 30);
+  // Time-series analytics are not wired to a backend yet — show empty buckets rather than fabricate data.
+  const data = Array.from({ length: timeRange === '7d' ? 7 : 30 }).map((_, i, arr) => {
+    const d = new Date();
+    d.setDate(d.getDate() - (arr.length - 1 - i));
+    return {
+      date: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+      impressions: 0,
+      clicks: 0,
+    };
+  });
 
   // Aggregated stats by placement
   const placementStats = ads.reduce((acc, curr) => {
@@ -52,7 +48,12 @@ const AdAnalytics: React.FC = () => {
         </Select>
       </div>
 
-      <AnalyticsChart data={data} title={`Performance Trends (${timeRange === '7d' ? 'Last 7 Days' : 'Last 30 Days'})`} />
+      <div>
+        <AnalyticsChart data={data} title={`Performance Trends (${timeRange === '7d' ? 'Last 7 Days' : 'Last 30 Days'})`} />
+        <p className="text-xs text-muted-foreground mt-2">
+          Time-series data will appear once the impressions/clicks reporting pipeline is connected.
+        </p>
+      </div>
 
       <div className="grid gap-6 md:grid-cols-2">
         <Card>

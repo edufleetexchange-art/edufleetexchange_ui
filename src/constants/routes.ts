@@ -53,8 +53,10 @@ export const ROUTES = {
   // Teacher Routes
   TEACHER_SIGNUP: '/teacher/signup',
   TEACHER_DASHBOARD: '/teacher/dashboard',
-  TEACHER_JOB_BROWSE: '/teacher/jobs',
-  TEACHER_JOB_DETAILS: (id: string) => `/teacher/job/${id}`,
+  // The teacher-specific job browse/details were consolidated into the public surfaces.
+  // These constants now point at the shared routes; legacy URLs still redirect for back-compat.
+  TEACHER_JOB_BROWSE: '/jobs',
+  TEACHER_JOB_DETAILS: (id: string) => `/job/${id}`,
   TEACHER_MY_APPLICATIONS: '/teacher/applications',
   TEACHER_PROFILE: '/teacher/profile',
   TEACHER_SEARCH: '/teacher/search',

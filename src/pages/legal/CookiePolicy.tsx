@@ -27,7 +27,7 @@ const CookiePolicy = () => {
       <div className="max-w-4xl mx-auto">
         <div className="prose prose-slate">
           <h1 className="text-4xl font-bold text-slate-900 mb-6">Cookie Policy</h1>
-          <p className="text-slate-600 mb-8">Last updated: June 2026</p>
+          <p className="text-slate-600 mb-8">Last updated: 2026-06-08</p>
 
           <div className="space-y-8 text-slate-700">
             <section>
