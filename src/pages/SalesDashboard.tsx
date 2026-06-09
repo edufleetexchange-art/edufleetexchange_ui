@@ -6,7 +6,7 @@ import { salesService, SalesStats, SubscriptionRequest } from '@/api/services/sa
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
+import { DashboardSkeleton } from '@/components/DashboardSkeleton';
 import { 
   TrendingUp, 
   Clock, 
@@ -289,15 +289,7 @@ export default function SalesDashboard() {
   };
 
   if (loading && !stats) {
-    return (
-      <div className="p-8 space-8">
-        <Skeleton className="h-10 w-64" />
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-          {[...Array(5)].map((_, i) => <Skeleton key={i} className="h-32 w-full" />)}
-        </div>
-        <Skeleton className="h-[400px] w-full" />
-      </div>
-    );
+    return <DashboardSkeleton statTiles={5} label="Loading sales dashboard" />;
   }
 
   return (

@@ -12,6 +12,14 @@ import { X } from 'lucide-react';
 import { toast } from 'sonner';
 import { AdSlot } from '@/components/ads/AdSlot';
 
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PHONE_RE = /^[6-9]\d{9}$/;
+
+type FieldErrors = Partial<Record<
+  'name' | 'email' | 'password' | 'confirmPassword' | 'phone' | 'location' | 'qualifications' | 'subjects',
+  string
+>>;
+
 export function TeacherSignup() {
   const navigate = useNavigate();
   const { signupTeacher } = useAuth();
@@ -31,13 +39,32 @@ export function TeacherSignup() {
   const [isAvailable, setIsAvailable] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [confirmPasswordError, setConfirmPasswordError] = useState('');
+  const [errors, setErrors] = useState<FieldErrors>({});
+
+  const validateField = (field: keyof FieldErrors, value: string): string => {
+    switch (field) {
+      case 'name': return value.trim() ? '' : 'Enter your full name';
+      case 'email': return EMAIL_RE.test(value) ? '' : 'Enter a valid email address';
+      case 'password': return value.length >= 6 ? '' : 'Minimum 6 characters';
+      case 'confirmPassword': return value === formData.password ? '' : 'Passwords do not match';
+      case 'phone': return PHONE_RE.test(value) ? '' : 'Enter a 10-digit Indian mobile number';
+      case 'location': return value.trim() ? '' : 'Enter your city';
+      default: return '';
+    }
+  };
+
+  const handleBlur = (field: keyof FieldErrors, value: string) => {
+    const msg = validateField(field, value);
+    setErrors((prev) => ({ ...prev, [field]: msg || undefined }));
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+    // Clear the field-level error as soon as the user starts typing; it will
+    // re-validate onBlur so we never persist stale messaging.
+    if (errors[e.target.name as keyof FieldErrors]) {
+      setErrors((prev) => ({ ...prev, [e.target.name]: undefined }));
+    }
   };
 
   const addQualification = () => {
@@ -65,24 +92,24 @@ export function TeacherSignup() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.name || !formData.email || !formData.password || !formData.phone || !formData.location) {
-      toast.error('Please fill in all required fields');
-      return;
-    }
-
-    if (formData.password !== confirmPassword) {
-      setConfirmPasswordError('Passwords do not match');
-      return;
-    }
-    setConfirmPasswordError('');
-
-    if (qualifications.length === 0) {
-      toast.error('Please add at least one qualification');
-      return;
-    }
-
-    if (subjects.length === 0) {
-      toast.error('Please add at least one subject');
+    const next: FieldErrors = {
+      name: validateField('name', formData.name),
+      email: validateField('email', formData.email),
+      password: validateField('password', formData.password),
+      confirmPassword: validateField('confirmPassword', confirmPassword),
+      phone: validateField('phone', formData.phone),
+      location: validateField('location', formData.location),
+      qualifications: qualifications.length === 0 ? 'Add at least one qualification' : '',
+      subjects: subjects.length === 0 ? 'Add at least one subject' : '',
+    };
+    // Strip empty strings — only keep real errors so `Object.keys` reflects fail count.
+    Object.keys(next).forEach((k) => { if (!next[k as keyof FieldErrors]) delete next[k as keyof FieldErrors]; });
+    setErrors(next);
+    const failCount = Object.keys(next).length;
+    if (failCount > 0) {
+      toast.error(`${failCount} field${failCount === 1 ? '' : 's'} need${failCount === 1 ? 's' : ''} attention`);
+      const firstFailId = Object.keys(next)[0];
+      document.getElementById(firstFailId)?.focus();
       return;
     }
 
@@ -137,8 +164,13 @@ export function TeacherSignup() {
                     name="name"
                     value={formData.name}
                     onChange={handleInputChange}
+                    onBlur={(e) => handleBlur('name', e.target.value)}
+                    autoComplete="name"
+                    aria-invalid={!!errors.name}
+                    aria-describedby={errors.name ? 'name-err' : undefined}
                     required
                   />
+                  {errors.name && <p id="name-err" className="text-sm text-destructive mt-1">{errors.name}</p>}
                 </div>
 
                 <div>
@@ -149,8 +181,13 @@ export function TeacherSignup() {
                     type="email"
                     value={formData.email}
                     onChange={handleInputChange}
+                    onBlur={(e) => handleBlur('email', e.target.value)}
+                    autoComplete="email"
+                    aria-invalid={!!errors.email}
+                    aria-describedby={errors.email ? 'email-err' : undefined}
                     required
                   />
+                  {errors.email && <p id="email-err" className="text-sm text-destructive mt-1">{errors.email}</p>}
                 </div>
 
                 <div>
@@ -161,8 +198,15 @@ export function TeacherSignup() {
                     type="password"
                     value={formData.password}
                     onChange={handleInputChange}
+                    onBlur={(e) => handleBlur('password', e.target.value)}
+                    autoComplete="new-password"
+                    aria-invalid={!!errors.password}
+                    aria-describedby={errors.password ? 'password-err' : 'password-hint'}
                     required
                   />
+                  {errors.password
+                    ? <p id="password-err" className="text-sm text-destructive mt-1">{errors.password}</p>
+                    : <p id="password-hint" className="text-xs text-muted-foreground mt-1">Minimum 6 characters</p>}
                 </div>
 
                 <div>
@@ -174,14 +218,17 @@ export function TeacherSignup() {
                     value={confirmPassword}
                     onChange={(e) => {
                       setConfirmPassword(e.target.value);
-                      if (confirmPasswordError) setConfirmPasswordError('');
+                      if (errors.confirmPassword) setErrors((p) => ({ ...p, confirmPassword: undefined }));
                     }}
+                    onBlur={(e) => handleBlur('confirmPassword', e.target.value)}
+                    autoComplete="new-password"
+                    aria-invalid={!!errors.confirmPassword}
+                    aria-describedby={errors.confirmPassword ? 'confirm-err' : undefined}
                     required
                   />
-                  {confirmPasswordError && (
-                    <p className="text-sm text-destructive mt-1">{confirmPasswordError}</p>
+                  {errors.confirmPassword && (
+                    <p id="confirm-err" className="text-sm text-destructive mt-1">{errors.confirmPassword}</p>
                   )}
-                  {/* TODO: Add forgot-password flow once backend reset endpoint is available */}
                 </div>
 
                 <div>
@@ -192,8 +239,17 @@ export function TeacherSignup() {
                     type="tel"
                     value={formData.phone}
                     onChange={handleInputChange}
+                    onBlur={(e) => handleBlur('phone', e.target.value)}
+                    placeholder="9876543210"
+                    autoComplete="tel-national"
+                    maxLength={10}
+                    aria-invalid={!!errors.phone}
+                    aria-describedby={errors.phone ? 'phone-err' : 'phone-hint'}
                     required
                   />
+                  {errors.phone
+                    ? <p id="phone-err" className="text-sm text-destructive mt-1">{errors.phone}</p>
+                    : <p id="phone-hint" className="text-xs text-muted-foreground mt-1">10-digit Indian mobile number</p>}
                 </div>
 
                 <div>
@@ -204,8 +260,13 @@ export function TeacherSignup() {
                     placeholder="e.g., Delhi, India"
                     value={formData.location}
                     onChange={handleInputChange}
+                    onBlur={(e) => handleBlur('location', e.target.value)}
+                    autoComplete="address-level2"
+                    aria-invalid={!!errors.location}
+                    aria-describedby={errors.location ? 'location-err' : undefined}
                     required
                   />
+                  {errors.location && <p id="location-err" className="text-sm text-destructive mt-1">{errors.location}</p>}
                 </div>
               </div>
 
@@ -258,6 +319,7 @@ export function TeacherSignup() {
                       </Badge>
                     ))}
                   </div>
+                  {errors.qualifications && <p className="text-sm text-destructive mt-1">{errors.qualifications}</p>}
                 </div>
 
                 <div>
@@ -293,6 +355,7 @@ export function TeacherSignup() {
                       </Badge>
                     ))}
                   </div>
+                  {errors.subjects && <p className="text-sm text-destructive mt-1">{errors.subjects}</p>}
                 </div>
 
                 <div>

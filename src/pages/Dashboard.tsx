@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { VehicleCard } from '@/components/VehicleCard';
 import { JobCard } from '@/components/JobCard';
 import { Skeleton } from '@/components/ui/skeleton';
+import { DashboardSkeleton } from '@/components/DashboardSkeleton';
 import { Plus, Edit2, Trash2, Eye, User, Mail, Phone, MapPin, Building2, UserCircle, Users } from 'lucide-react';
 import { VerifiedBadge } from '@/components/VerifiedBadge';
 import { VerifyAccountDialog } from '@/components/VerifyAccountDialog';
@@ -352,23 +353,12 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
     );
   }
 
-  // loadingRecentApps is intentionally excluded here so the full dashboard renders while
-  // recent applications load in the background (see the listings tab section below).
-  if (listingsLoading || jobsLoading || subscriptionLoading) {
-    return (
-      <div className="min-h-screen bg-background py-8">
-        <div className="container mx-auto px-4">
-          <Skeleton className="w-64 h-10 mb-4" />
-          <Skeleton className="w-32 h-6 mb-8" />
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-8">
-            {[...Array(7)].map((_, i) => (
-              <Skeleton key={i} className="h-24" />
-            ))}
-          </div>
-          <Skeleton className="w-full h-96" />
-        </div>
-      </div>
-    );
+  // First-mount only: when nothing has loaded yet, show the shared shell.
+  // We deliberately don't gate on every individual fetch — sections render their
+  // own skeletons so a slow recommendations call no longer blocks the whole page.
+  const isInitialLoad = listingsLoading && jobsLoading && subscriptionLoading;
+  if (isInitialLoad) {
+    return <DashboardSkeleton statTiles={4} label="Loading institute dashboard" />;
   }
 
   return (

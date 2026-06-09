@@ -11,6 +11,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { DashboardSkeleton } from '@/components/DashboardSkeleton';
 import { 
   Briefcase, 
   Calendar, 
@@ -225,13 +226,10 @@ export function TeacherDashboard() {
       }
     : null;
 
-  // Loading state while checking auth or loading data
-  if (!user || appsLoading || subscriptionLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-      </div>
-    );
+  // Wait only for auth — let individual sections render their own skeletons while
+  // applications/subscription finish loading. Was previously full-page-blocking.
+  if (!user) {
+    return <DashboardSkeleton statTiles={4} label="Loading teacher dashboard" />;
   }
 
   if (user.role !== 'teacher') {

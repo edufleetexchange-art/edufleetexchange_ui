@@ -353,68 +353,18 @@ export function InstituteJobApplications() {
             </TabsList>
           </div>
 
-          <TabsContent value="all" className="mt-6">
-            <ApplicationsList
-              applications={applications}
-              onStatusChange={handleStatusChange}
-              onOpenStatusDialog={openStatusChangeDialog}
-              onScheduleInterview={handleScheduleInterview}
-            />
-          </TabsContent>
-
-          <TabsContent value="pending" className="mt-6">
-            <ApplicationsList
-              applications={getApplicationsByStatus('pending')}
-              onStatusChange={handleStatusChange}
-              onOpenStatusDialog={openStatusChangeDialog}
-              onScheduleInterview={handleScheduleInterview}
-            />
-          </TabsContent>
-
-          <TabsContent value="reviewed" className="mt-6">
-            <ApplicationsList
-              applications={getApplicationsByStatus('reviewed')}
-              onStatusChange={handleStatusChange}
-              onOpenStatusDialog={openStatusChangeDialog}
-              onScheduleInterview={handleScheduleInterview}
-            />
-          </TabsContent>
-
-          <TabsContent value="shortlisted" className="mt-6">
-            <ApplicationsList
-              applications={getApplicationsByStatus('shortlisted')}
-              onStatusChange={handleStatusChange}
-              onOpenStatusDialog={openStatusChangeDialog}
-              onScheduleInterview={handleScheduleInterview}
-            />
-          </TabsContent>
-
-          <TabsContent value="interview_scheduled" className="mt-6">
-            <ApplicationsList
-              applications={getApplicationsByStatus('interview_scheduled')}
-              onStatusChange={handleStatusChange}
-              onOpenStatusDialog={openStatusChangeDialog}
-              onScheduleInterview={handleScheduleInterview}
-            />
-          </TabsContent>
-
-          <TabsContent value="accepted" className="mt-6">
-            <ApplicationsList
-              applications={getApplicationsByStatus('accepted')}
-              onStatusChange={handleStatusChange}
-              onOpenStatusDialog={openStatusChangeDialog}
-              onScheduleInterview={handleScheduleInterview}
-            />
-          </TabsContent>
-
-          <TabsContent value="rejected" className="mt-6">
-            <ApplicationsList
-              applications={getApplicationsByStatus('rejected')}
-              onStatusChange={handleStatusChange}
-              onOpenStatusDialog={openStatusChangeDialog}
-              onScheduleInterview={handleScheduleInterview}
-            />
-          </TabsContent>
+          {/* Same ApplicationsList, scoped to the active tab's status — was previously
+              seven near-identical copies of the same JSX. */}
+          {(['all', 'pending', 'reviewed', 'shortlisted', 'interview_scheduled', 'accepted', 'rejected'] as const).map((tabValue) => (
+            <TabsContent key={tabValue} value={tabValue} className="mt-6">
+              <ApplicationsList
+                applications={tabValue === 'all' ? applications : getApplicationsByStatus(tabValue)}
+                onStatusChange={handleStatusChange}
+                onOpenStatusDialog={openStatusChangeDialog}
+                onScheduleInterview={handleScheduleInterview}
+              />
+            </TabsContent>
+          ))}
         </Tabs>
 
         {/* Status Change Confirmation Dialog */}

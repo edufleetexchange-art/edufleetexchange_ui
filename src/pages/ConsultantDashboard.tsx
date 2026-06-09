@@ -7,7 +7,7 @@ import { interviewService } from '@/api/services/interviewService';
 import { consultantService } from '@/api/services/consultantService';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { PlacementCard } from '@/components/PlacementCard';
-import { Skeleton } from '@/components/ui/skeleton';
+import { DashboardSkeleton } from '@/components/DashboardSkeleton';
 import { LoadError } from '@/components/LoadError';
 import type { Placement, PlacementStage, Interview, ConsultantRosterEntry } from '@/api/types';
 
@@ -57,7 +57,7 @@ export function ConsultantDashboard() {
   }).length;
 
   if (loading) {
-    return <div className="container mx-auto p-4 space-y-4"><Skeleton className="h-12" /><Skeleton className="h-64" /></div>;
+    return <DashboardSkeleton statTiles={4} label="Loading consultant dashboard" />;
   }
   if (error) {
     return <div className="container mx-auto p-4 sm:p-6"><LoadError message={error} onRetry={load} /></div>;
@@ -82,9 +82,11 @@ export function ConsultantDashboard() {
           <h2 className="text-lg font-semibold">Pipeline</h2>
           <Link to="/consultant/placements" className="text-sm underline">View all</Link>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-3 overflow-x-auto">
+        {/* On mobile the 5 kanban columns are horizontally scrollable instead of
+            crammed into one cell; on md+ we use a fixed 5-column grid. */}
+        <div className="flex md:grid md:grid-cols-5 gap-3 overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0 snap-x snap-mandatory md:snap-none">
           {KANBAN_STAGES.map((stage) => (
-            <div key={stage} className="space-y-2 min-w-[180px]">
+            <div key={stage} className="space-y-2 min-w-[260px] md:min-w-0 snap-start">
               <div className="text-xs font-medium text-muted-foreground capitalize">{stage.replace('_', ' ')} ({byStage(stage).length})</div>
               {byStage(stage).slice(0, 4).map((p) => <PlacementCard key={p.id} placement={p} onChange={load} />)}
             </div>
