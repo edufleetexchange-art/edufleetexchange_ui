@@ -24,6 +24,7 @@ import { ConsultantJobSearch } from '@/pages/ConsultantJobSearch';
 import { ConsultantTeacherSearch } from '@/pages/ConsultantTeacherSearch';
 import { TeacherDashboard } from '@/pages/TeacherDashboard';
 import { InstituteTeacherSearch } from '@/pages/InstituteTeacherSearch';
+import { MyAlerts } from '@/pages/MyAlerts';
 import { InstituteJobApplications } from '@/pages/InstituteJobApplications';
 import { SupplierBrowse } from '@/pages/SupplierBrowse';
 import { Advertise } from '@/pages/Advertise';
@@ -167,6 +168,16 @@ function App() {
                   element={
                     <ProtectedRoute requiredRole="consultant">
                       <ConsultantTeacherSearch />
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* Demand alerts — buyer-side (institute / consultant / admin) */}
+                <Route
+                  path="/alerts"
+                  element={
+                    <ProtectedRoute requiredRole={['institute', 'consultant', 'admin']}>
+                      <MyAlerts />
                     </ProtectedRoute>
                   }
                 />

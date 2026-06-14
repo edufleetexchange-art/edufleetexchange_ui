@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,8 +16,9 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Search, MapPin, BookOpen, Briefcase, Mail, Phone, GraduationCap, Award, AlertCircle, Filter } from 'lucide-react';
+import { Search, MapPin, BookOpen, Briefcase, Mail, Phone, GraduationCap, Award, AlertCircle, Filter, Bell } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { CreateAlertDialog } from '@/components/CreateAlertDialog';
 import { toast } from 'sonner';
 import { getTeachers, type TeacherFilters, type Teacher } from '@/api/services/teacherService';
 import { checkBrowseLimit, incrementBrowseCount } from '@/api/services/subscriptionEnforcement';
@@ -39,6 +41,7 @@ export function InstituteTeacherSearch() {
   const [isConnectDialogOpen, setIsConnectDialogOpen] = useState(false);
   const [browseLimitReached, setBrowseLimitReached] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [alertOpen, setAlertOpen] = useState(false);
 
   // sessionStorage deduplication helpers
   const SESSION_KEY = 'browsed-teachers';
@@ -157,12 +160,25 @@ export function InstituteTeacherSearch() {
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">Search Teachers</h1>
-          <p className="text-muted-foreground">
-            Find and connect with qualified teachers who have enabled searchability
-          </p>
+        <div className="mb-8 flex items-start justify-between flex-wrap gap-3">
+          <div>
+            <h1 className="text-4xl font-bold mb-2">Search Teachers</h1>
+            <p className="text-muted-foreground">
+              Find and connect with qualified teachers who have enabled searchability
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Link to="/alerts" className="text-sm underline text-muted-foreground">My alerts</Link>
+            <Button variant="outline" className="gap-2" onClick={() => setAlertOpen(true)}>
+              <Bell className="w-4 h-4" /> Alert me when available
+            </Button>
+          </div>
         </div>
+        <CreateAlertDialog
+          open={alertOpen}
+          onOpenChange={setAlertOpen}
+          defaults={{ subjects: subjectFilter ? [subjectFilter] : [], location: locationFilter || undefined }}
+        />
 
         {/* Browse quota banner */}
         {browseLimitReached && (

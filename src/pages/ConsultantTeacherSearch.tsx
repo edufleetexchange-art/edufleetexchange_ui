@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { apiClient } from '@/lib/apiClient';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,7 +8,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { rosterService } from '@/api/services/rosterService';
 import { LoadError } from '@/components/LoadError';
 import { EmptyState } from '@/components/EmptyState';
-import { GraduationCap } from 'lucide-react';
+import { CreateAlertDialog } from '@/components/CreateAlertDialog';
+import { GraduationCap, Bell } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface TeacherItem {
@@ -20,6 +22,7 @@ export function ConsultantTeacherSearch() {
   const [subject, setSubject] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [alertOpen, setAlertOpen] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -46,11 +49,24 @@ export function ConsultantTeacherSearch() {
 
   return (
     <div className="container mx-auto p-4 sm:p-6 space-y-4">
-      <h1 className="text-2xl font-bold">Teachers</h1>
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <h1 className="text-2xl font-bold">Teachers</h1>
+        <div className="flex items-center gap-2">
+          <Link to="/alerts" className="text-sm underline text-muted-foreground">My alerts</Link>
+          <Button variant="outline" className="gap-2" onClick={() => setAlertOpen(true)}>
+            <Bell className="w-4 h-4" /> Alert me when available
+          </Button>
+        </div>
+      </div>
       <div className="flex gap-2">
         <Input value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="Filter by subject (e.g. Math)" onKeyDown={(e) => e.key === 'Enter' && load()} />
         <Button onClick={load}>Search</Button>
       </div>
+      <CreateAlertDialog
+        open={alertOpen}
+        onOpenChange={setAlertOpen}
+        defaults={{ subjects: subject ? [subject] : [] }}
+      />
       {loading ? <Skeleton className="h-64" /> :
         error ? <LoadError message={error} onRetry={load} /> :
         items.length === 0 ? (
