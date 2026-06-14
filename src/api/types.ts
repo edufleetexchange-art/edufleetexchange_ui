@@ -462,6 +462,34 @@ export interface ConsultantRosterEntry {
   updatedAt: string;
 }
 
+// ── Demand Alerts ("notify me when X is available") ───────────────────────
+export type AlertEntityType = 'teacher' | 'vehicle' | 'job' | 'supplier' | 'custom';
+export type AlertStatus = 'active' | 'paused' | 'expired';
+export type AlertChannel = 'in_app' | 'email' | 'whatsapp';
+
+export interface TeacherAlertCriteria {
+  subjects?: string[];
+  levels?: string[];
+  location?: string;
+  minExperience?: number;
+  maxExpectedSalary?: number;
+}
+
+export interface Alert {
+  id: string;
+  accountId: string;
+  entityType: AlertEntityType;
+  label: string;
+  criteria: TeacherAlertCriteria | Record<string, any>;
+  channels: AlertChannel[];
+  status: AlertStatus;
+  expiresAt?: string;
+  lastMatchedAt?: string;
+  matchCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export type InterviewMode = 'in_person' | 'video' | 'phone';
 export type InterviewStatus = 'scheduled' | 'rescheduled' | 'completed' | 'canceled' | 'no_show';
 export type InterviewOutcome = 'recommend_hire' | 'hold' | 'reject';
