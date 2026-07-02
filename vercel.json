@@ -8,5 +8,13 @@
       "source": "/(.*)",
       "destination": "/index.html"
     }
-  ]
+  ],
+  "git": {
+    "deploymentEnabled": {
+      "main": false,
+      "dev": true,
+      "stage": true,
+      "prod": true
+    }
+  }
 }
