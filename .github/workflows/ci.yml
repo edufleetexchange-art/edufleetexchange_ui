@@ -1,0 +1,25 @@
+name: CI
+
+# Quality gate for the frontend — typecheck + production build on every push/PR
+# to the trunk + environment branches. No secrets needed.
+on:
+  pull_request:
+    branches: [main, dev, stage, prod]
+  push:
+    branches: [main, dev, stage, prod]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          # Vite 7 requires Node 20.19+ or 22.12+
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Typecheck
+        run: npm run lint:types
+      - name: Production build
+        run: npm run build
