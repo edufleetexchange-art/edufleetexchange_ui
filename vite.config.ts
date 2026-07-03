@@ -14,11 +14,12 @@ import path from 'path';
 // to each backend's own URL) — that always wins over the map below. The map is
 // only a fallback default so a build still targets the right backend if the env
 // var is ever missing. Backend + frontend both run on Vercel now (Render
-// retired); these point at the per-environment backend custom domains.
+// retired). We use each backend project's DEFAULT vercel.app domain — no custom
+// DNS records required.
 const BACKEND_BY_BRANCH: Record<string, string> = {
-  dev: 'https://api-dev.edufleetexchange.com/api',
-  stage: 'https://api-stage.edufleetexchange.com/api',
-  prod: 'https://api.edufleetexchange.com/api',
+  dev: 'https://edufleetexchange-server-dev.vercel.app/api',
+  stage: 'https://edufleetexchange-server-stage.vercel.app/api',
+  prod: 'https://edufleetexchange-server-prod.vercel.app/api',
 };
 
 if (!process.env.VITE_API_BASE_URL) {
