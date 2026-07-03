@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { authService } from '@/api/services/authService';
 import type {
   Account,
@@ -249,13 +249,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setSubscription(bundle?.subscription ?? null);
   }, []);
 
+  // Read `subscription` through a ref so ensureSubscription keeps a STABLE
+  // identity. With `subscription` in the deps, every refresh created a new
+  // function, and any consumer effect depending on ensureSubscription re-fired
+  // → refetch → new subscription object → new function → infinite fetch loop
+  // (visible as dashboard flickering + repeated API calls).
+  const subscriptionRef = useRef(subscription);
+  subscriptionRef.current = subscription;
+
   const ensureSubscription = useCallback(
     (force?: boolean) => {
       if (!account?.id) return undefined;
-      if (!force && subscription) return undefined;
+      if (!force && subscriptionRef.current) return undefined;
       return refreshSubscription();
     },
-    [account?.id, subscription, refreshSubscription],
+    [account?.id, refreshSubscription],
   );
 
   return (

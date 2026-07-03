@@ -189,8 +189,6 @@ export function useMyJobs() {
       setLoading(true);
       setError(null);
       const response = await api.jobs.getMyJobs();
-      console.log('Fetched user jobs:', response.data);
-      console.log("*******************************")
       setJobs(response.data);
     } catch (err: any) {
       setError(err.error || 'Failed to load your jobs');
