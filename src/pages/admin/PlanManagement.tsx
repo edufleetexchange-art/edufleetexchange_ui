@@ -124,7 +124,22 @@ export function PlanManagement() {
       price: plan.price,
       currency: plan.currency || 'INR',
       duration: plan.duration,
-      features: { ...plan.features }
+      // Merge over defaults: older plan documents may miss newer feature flags
+      // (or use a legacy array shape); the Switch controls need real booleans.
+      features: {
+        maxListings: 5,
+        maxJobPosts: 0,
+        maxBrowsesPerMonth: 50,
+        dataDelayDays: 0,
+        teacherDataDelayDays: 0,
+        canAdvertiseVehicles: false,
+        instantVehicleAlerts: false,
+        instantJobAlerts: false,
+        priorityListings: false,
+        analytics: false,
+        supportLevel: 'basic',
+        ...(plan.features && !Array.isArray(plan.features) ? plan.features : {}),
+      }
     });
     setIsDialogOpen(true);
   };
