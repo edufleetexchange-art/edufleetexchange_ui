@@ -10,13 +10,14 @@ import path from 'path';
 // across all branches and caused dev/stage/prod to share one backend (demo data
 // leaked into production).
 //
-// An explicit VITE_API_BASE_URL (e.g. a Vercel env var) always wins, so any
-// environment can be overridden from the dashboard without a code change.
+// The REAL wiring is a per-environment `VITE_API_BASE_URL` Vercel env var (set
+// to each backend's own URL) — that always wins over the map below. The map is
+// only a fallback default so a build still targets the right backend if the env
+// var is ever missing. Backend + frontend both run on Vercel now (Render
+// retired); these point at the per-environment backend custom domains.
 const BACKEND_BY_BRANCH: Record<string, string> = {
-  dev: 'https://edufleetexchange.onrender.com/api',
-  stage: 'https://edufleetexchange.onrender.com/api',
-  // TODO(prod): replace with the real production backend URL. Intentionally a
-  // placeholder for now so production does NOT proxy to the dev/demo backend.
+  dev: 'https://api-dev.edufleetexchange.com/api',
+  stage: 'https://api-stage.edufleetexchange.com/api',
   prod: 'https://api.edufleetexchange.com/api',
 };
 
