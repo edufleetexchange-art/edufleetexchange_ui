@@ -336,11 +336,13 @@ export function JobBrowse() {
 
             {/* Results */}
           <div className="flex-1">
-            <div className="mb-6">
-              <p className="text-muted-foreground">
-                Showing <span className="font-semibold text-foreground">{jobs.length}</span> job{jobs.length !== 1 ? 's' : ''}
-              </p>
-            </div>
+            {!marketplaceEmpty && (
+              <div className="mb-6">
+                <p className="text-muted-foreground">
+                  Showing <span className="font-semibold text-foreground">{jobs.length}</span> job{jobs.length !== 1 ? 's' : ''}
+                </p>
+              </div>
+            )}
 
             {jobs.length > 0 ? (
               <div className="grid grid-cols-[repeat(auto-fill,minmax(192px,1fr))] gap-6">
