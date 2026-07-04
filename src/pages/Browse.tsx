@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { VehicleCard } from '@/components/VehicleCard';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -158,7 +158,7 @@ export function Browse() {
               </div>
             )}
 
-            {hasDelay && (
+            {hasDelay && allVehicles.length > 0 && (
               <div className="mb-8">
                 <Alert variant="default" className="border-amber-200 bg-amber-50">
                   <AlertCircle className="h-4 w-4 text-amber-600" />
@@ -430,6 +430,18 @@ export function Browse() {
                         <VehicleCard vehicle={vehicle} />
                       </div>
                     ))}
+                  </div>
+                ) : !vehicleHasActiveFilters ? (
+                  <div className="text-center py-16 bg-muted/30 rounded-xl border border-dashed border-border">
+                    <Search className="w-16 h-16 text-primary/40 mx-auto mb-4" />
+                    <p className="text-xl text-foreground font-bold mb-2">Be the first to list a vehicle</p>
+                    <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
+                      We're onboarding schools in Mysuru — buses, vans and staff cars
+                      listed here reach every institute on the platform. Listing is free.
+                    </p>
+                    <Button asChild>
+                      <Link to="/signup">List your vehicle — free</Link>
+                    </Button>
                   </div>
                 ) : (
                   <div className="text-center py-16 bg-muted/30 rounded-xl border border-dashed border-border">

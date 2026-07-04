@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import { JobCard } from '@/components/JobCard';
 import { useJobs } from '@/hooks/useApi';
 import { Card } from '@/components/ui/card';
@@ -110,10 +110,16 @@ export function JobBrowse() {
     );
   }
 
+  // "Marketplace empty" (nothing posted yet) is a different situation from
+  // "filters too narrow" — the first needs a launch CTA, the second a reset.
+  const marketplaceEmpty = jobs.length === 0 && !hasActiveFilters;
+
   // Consolidate the two possible plan banners into one slot so the primary task
   // (search + results) stays above the fold. Hard-limit overrides the soft-delay
-  // banner since it's strictly more severe.
-  const banner = browseLimitReached
+  // banner since it's strictly more severe. Suppress the "hidden listings"
+  // banner entirely when nothing is posted — implying hidden content on an
+  // empty marketplace is misleading.
+  const banner = marketplaceEmpty ? null : browseLimitReached
     ? { tone: 'destructive' as const, title: 'Monthly browse limit reached', body: "You've reached your monthly browse limit. Upgrade to see more listings.", cta: 'Upgrade Plan' }
     : hasDelay
       ? {
@@ -344,6 +350,24 @@ export function JobBrowse() {
                   </div>
                 ))}
               </div>
+            ) : marketplaceEmpty ? (
+              <Card className="p-12 text-center border-dashed">
+                <Briefcase className="w-12 h-12 text-primary mx-auto mb-4" />
+                <h3 className="text-xl font-semibold mb-2">Hiring season starts here</h3>
+                <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                  We're onboarding schools in Mysuru right now — the first openings
+                  will appear here. Schools can post a job free in under 3 minutes;
+                  teachers who join now are first in line when hiring starts.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                  <Button asChild>
+                    <Link to="/signup">Post a job — free</Link>
+                  </Button>
+                  <Button asChild variant="outline">
+                    <Link to="/teacher/signup">Create free teacher profile</Link>
+                  </Button>
+                </div>
+              </Card>
             ) : (
               <Card className="p-12 text-center border-dashed">
                 <Briefcase className="w-12 h-12 text-muted-foreground mx-auto mb-4" />

@@ -43,7 +43,7 @@ export function Landing() {
   const [suppliersLoading, setSuppliersLoading] = useState(true);
 
   // Search state
-  const [location, setLocation] = useState('Bengaluru');
+  const [location, setLocation] = useState('Mysuru');
   const [searchQuery, setSearchQuery] = useState('');
 
   // Fetch featured jobs and suppliers on mount
@@ -158,7 +158,7 @@ export function Landing() {
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 className="w-full pl-12 pr-4 py-4 outline-none text-foreground font-semibold bg-transparent placeholder:text-muted-foreground rounded-xl focus:bg-muted/50 transition-colors"
-                placeholder="Bengaluru, India"
+                placeholder="Mysuru, India"
               />
             </div>
             
