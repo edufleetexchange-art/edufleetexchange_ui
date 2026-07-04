@@ -191,12 +191,6 @@ export function SubscriptionManagement() {
             return;
           }
           const selectedPlan = plans.find(p => String(p.id) === selectedPlanId);
-          console.log('Changing plan:', { 
-            subscriptionId: actionDialog.subscription.id, 
-            fromPlan: currentPlanId, 
-            toPlan: selectedPlanId,
-            selectedPlanName: selectedPlan?.displayName 
-          });
           await changeUserSubscriptionPlan(
             actionDialog.subscription.id, 
             selectedPlanId,
@@ -277,15 +271,6 @@ export function SubscriptionManagement() {
     setAdminNotes('');
     setSuspendReason('');
     
-    // Log for debugging
-    if (type === 'changePlan') {
-      console.log('Opening changePlan dialog for subscription:', {
-        id: subscription?.id,
-        currentPlanId: subscription?.planId,
-        planName: subscription?.planName,
-        userRole: subscription?.userRole
-      });
-    }
     
     setActionDialog({ open: true, type, subscription });
   };
@@ -742,7 +727,6 @@ export function SubscriptionManagement() {
                   <Select 
                     value={selectedPlanId || undefined} 
                     onValueChange={(value) => {
-                      console.log('Plan selected:', value);
                       setSelectedPlanId(value);
                     }}
                   >

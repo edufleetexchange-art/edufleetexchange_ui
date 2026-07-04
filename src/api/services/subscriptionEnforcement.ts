@@ -1,5 +1,6 @@
 // Subscription enforcement with real backend API implementation
 import { apiClient, APIError } from '@/lib/apiClient';
+import { authService } from './authService';
 import {
   BrowseCheckResult,
   ListingCheckResult,
@@ -283,10 +284,16 @@ export const decrementJobPostCount = async (): Promise<ApiResponse<{ success: bo
 // ==========================================
 
 export const checkListingVisibility = async (
-  listingId: string
+  listingCreatedAt: string,
+  userId: string
 ): Promise<ApiResponse<VisibilityCheckResult>> => {
   try {
-    const response = await apiClient.get<VisibilityCheckResult>(`/subscriptions/check/listing-visibility/${listingId}`);
+    // Server route is POST /subscriptions/check/listing-visibility and expects
+    // { listingCreatedAt, userId } in the body (no path param).
+    const response = await apiClient.post<VisibilityCheckResult>(
+      '/subscriptions/check/listing-visibility',
+      { listingCreatedAt, userId }
+    );
     return {
       success: true,
       data: response,
@@ -332,27 +339,65 @@ export const getSubscriptionStatus = async (): Promise<
     expiresAt: string | null;
   }>
 > => {
+  const fallback = {
+    plan: 'free',
+    features: {
+      browseLimit: 50,
+      listingLimit: 5,
+      jobPostLimit: 10,
+    },
+    expiresAt: null as string | null,
+  };
+
   try {
-    const response = await apiClient.get<{ plan: string; features: Record<string, any>; expiresAt: string | null }>('/subscriptions/status');
-    return {
-      success: true,
-      data: response,
-      timestamp: new Date().toISOString(),
-    };
-  } catch (error: any) {
-    // Mock fallback - basic plan
+    // There is no /subscriptions/status route on the server — derive the
+    // status from the existing GET /subscriptions/user/:userId endpoint.
+    const userId = authService.getStoredUser()?.id;
+    if (!userId) {
+      return {
+        success: true,
+        data: fallback,
+        message: 'skipped: no session',
+        timestamp: new Date().toISOString(),
+      };
+    }
+
+    const sub = await apiClient.get<{
+      planName?: string;
+      browseCountLimit?: number;
+      listingsLimit?: number;
+      jobPostsLimit?: number;
+      endDate?: string | null;
+    } | null>(`/subscriptions/user/${userId}`);
+
+    if (!sub) {
+      return {
+        success: true,
+        data: fallback,
+        message: 'No subscription found',
+        timestamp: new Date().toISOString(),
+      };
+    }
+
     return {
       success: true,
       data: {
-        plan: 'free',
+        plan: sub.planName || 'free',
         features: {
-          browseLimit: 50,
-          listingLimit: 5,
-          jobPostLimit: 10,
+          browseLimit: sub.browseCountLimit ?? 0,
+          listingLimit: sub.listingsLimit ?? 0,
+          jobPostLimit: sub.jobPostsLimit ?? 0,
         },
-        expiresAt: null,
+        expiresAt: sub.endDate ?? null,
       },
-      message: 'Mock subscription status',
+      timestamp: new Date().toISOString(),
+    };
+  } catch (error: any) {
+    // Fallback - basic plan
+    return {
+      success: true,
+      data: fallback,
+      message: 'Fallback subscription status',
       timestamp: new Date().toISOString(),
     };
   }
@@ -370,10 +415,35 @@ export const getUsageStats = async (): Promise<
   }>
 > => {
   try {
-    const response = await apiClient.get<{ browse: { used: number; limit: number }; listings: { used: number; limit: number }; jobPosts: { used: number; limit: number } }>('/subscriptions/usage-stats');
+    // There is no /subscriptions/usage-stats route on the server — use the
+    // real GET /subscriptions/user/:userId/usage endpoint and map its shape.
+    const userId = authService.getStoredUser()?.id;
+    if (!userId) {
+      return {
+        success: true,
+        data: {
+          browse: { used: 0, limit: -1 },
+          listings: { used: 0, limit: -1 },
+          jobPosts: { used: 0, limit: -1 },
+        },
+        message: 'skipped: no session',
+        timestamp: new Date().toISOString(),
+      };
+    }
+
+    const raw = await apiClient.get<{
+      browseCount?: { used?: number; allowed?: number };
+      listingCount?: { used?: number; allowed?: number };
+      jobPostsCount?: { used?: number; allowed?: number };
+    }>(`/subscriptions/user/${userId}/usage`);
+
     return {
       success: true,
-      data: response,
+      data: {
+        browse: { used: raw?.browseCount?.used ?? 0, limit: raw?.browseCount?.allowed ?? 0 },
+        listings: { used: raw?.listingCount?.used ?? 0, limit: raw?.listingCount?.allowed ?? 0 },
+        jobPosts: { used: raw?.jobPostsCount?.used ?? 0, limit: raw?.jobPostsCount?.allowed ?? 0 },
+      },
       timestamp: new Date().toISOString(),
     };
   } catch (error: unknown) {

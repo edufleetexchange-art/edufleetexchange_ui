@@ -135,8 +135,19 @@ export const apiClient = {
         throw new APIError(response.status, errorMessage, errorCode, errorField, errorDetails);
       }
 
-      // Return data (handle both wrapped and unwrapped responses)
-      return responseData?.data || responseData;
+      // Return data (handle both wrapped and unwrapped responses).
+      // Only unwrap the standard { success: true, data: ... } envelope so
+      // falsy payloads (null, 0, false) survive — `data || responseData`
+      // would silently return the envelope for them.
+      if (
+        responseData &&
+        typeof responseData === 'object' &&
+        responseData.success === true &&
+        'data' in responseData
+      ) {
+        return responseData.data;
+      }
+      return responseData;
     } catch (error) {
       // Re-throw API errors
       if (error instanceof APIError) {

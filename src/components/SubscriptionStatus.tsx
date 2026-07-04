@@ -177,12 +177,6 @@ export function SubscriptionStatus({
         throw new Error('Invalid plan selected (missing ID)');
       }
 
-      console.log('Submitting subscription request:', {
-        requestedPlanId,
-        requestType,
-        userNotes: requestDialog.notes
-      });
-
       const response = await createSubscriptionRequest({
         requestedPlanId,
         requestType,
