@@ -213,27 +213,6 @@ export const vehicleService = {
   },
 
   /**
-   * Get vehicle views count
-   */
-  async getVehicleViews(id: string): Promise<ApiResponse<{ views: number }>> {
-    try {
-      const data = await apiClient.get<{ views: number }>(`/vehicles/${id}/views`, { requiresAuth: false });
-
-      return {
-        success: true,
-        data,
-        timestamp: new Date().toISOString(),
-      };
-    } catch (error: any) {
-      throw {
-        success: false,
-        error: error.message || 'Failed to fetch vehicle views',
-        timestamp: new Date().toISOString(),
-      };
-    }
-  },
-
-  /**
    * Upload vehicle images
    */
   async uploadVehicleImages(files: File[]): Promise<ApiResponse<UploadImageResponse[]>> {

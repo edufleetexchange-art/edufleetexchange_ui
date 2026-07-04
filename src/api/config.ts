@@ -26,7 +26,9 @@ export const API_CONFIG = {
     JOBS: '/jobs',
     JOB_BY_ID: (id: string) => `/jobs/${id}`,
     MY_JOBS: '/jobs/my/listings',
-    JOB_APPLICATIONS: (jobId: string) => `/jobs/${jobId}/applications`,
+    // Server has no /jobs/:id/applications route — applications are listed
+    // via /jobs/applications/list, which accepts a jobId query filter.
+    JOB_APPLICATIONS: (jobId: string) => `/jobs/applications/list?jobId=${encodeURIComponent(jobId)}`,
     MY_JOB_APPLICATIONS: '/jobs/applications/my',
     APPLY_TO_JOB: (jobId: string) => `/jobs/${jobId}/apply`,
     UPDATE_APPLICATION: (appId: string) => `/jobs/applications/${appId}/status`,

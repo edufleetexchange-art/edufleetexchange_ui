@@ -165,13 +165,11 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     
     try {
       setError(null);
-      console.log(`[NotificationContext] Deleting notification ${notificationId}...`);
       const result = await deleteNotificationApi(notificationId);
       
       if (!result.success) {
         throw new Error(result.message || 'Failed to delete notification');
       }
-      console.log(`[NotificationContext] Successfully deleted notification ${notificationId}`);
     } catch (err: any) {
       // Revert optimistic update on error by reloading
       const message = err.error || (err instanceof Error ? err.message : 'Failed to delete notification');
