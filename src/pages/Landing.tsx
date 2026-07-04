@@ -76,13 +76,22 @@ export function Landing() {
   }, []);
 
   const handleSearch = () => {
-    // Basic routing logic based on search
-    if (searchQuery.toLowerCase().includes('job')) {
-      navigate('/jobs');
-    } else if (searchQuery.toLowerCase().includes('supplier')) {
-      navigate('/suppliers');
+    // Route to the right vertical AND carry the query — previously the text
+    // was dropped entirely and anything that didn't literally contain "job"
+    // (e.g. "Maths Teacher") landed on vehicles with an empty search box.
+    const q = searchQuery.trim();
+    const qs = q ? `?q=${encodeURIComponent(q)}` : '';
+    const lower = q.toLowerCase();
+    const vehicleHit = /\b(bus|van|car|tempo|traveller|vehicle|transport|seater)\b/;
+    const supplierHit = /\b(supplier|uniform|books?|stationery|lab|furniture|equipment|textbooks?|sports)\b/;
+    if (vehicleHit.test(lower)) {
+      navigate('/browse' + qs);
+    } else if (supplierHit.test(lower)) {
+      navigate('/suppliers' + qs);
     } else {
-      navigate('/browse');
+      // Teachers/jobs are the launch wedge — also the default when the query
+      // doesn't clearly name a vehicle or a supply category.
+      navigate('/jobs' + qs);
     }
   };
 

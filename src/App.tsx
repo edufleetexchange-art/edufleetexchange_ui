@@ -5,57 +5,61 @@ import { NotificationProvider } from '@/context/NotificationContext';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
+import { lazy, Suspense } from 'react';
 import { Landing } from '@/pages/Landing';
+// Heavy authed/admin surfaces are lazy-loaded so anonymous visitors don't
+// download dashboards + charting libs (recharts) on first paint.
+const Dashboard = lazy(() => import('@/pages/Dashboard').then(m => ({ default: m.Dashboard })));
+const ConsultantDashboard = lazy(() => import('@/pages/ConsultantDashboard').then(m => ({ default: m.ConsultantDashboard })));
+const ConsultantRoster = lazy(() => import('@/pages/ConsultantRoster').then(m => ({ default: m.ConsultantRoster })));
+const ConsultantPlacements = lazy(() => import('@/pages/ConsultantPlacements').then(m => ({ default: m.ConsultantPlacements })));
+const ConsultantInterviews = lazy(() => import('@/pages/ConsultantInterviews').then(m => ({ default: m.ConsultantInterviews })));
+const ConsultantJobSearch = lazy(() => import('@/pages/ConsultantJobSearch').then(m => ({ default: m.ConsultantJobSearch })));
+const ConsultantTeacherSearch = lazy(() => import('@/pages/ConsultantTeacherSearch').then(m => ({ default: m.ConsultantTeacherSearch })));
+const TeacherDashboard = lazy(() => import('@/pages/TeacherDashboard').then(m => ({ default: m.TeacherDashboard })));
+const InstituteTeacherSearch = lazy(() => import('@/pages/InstituteTeacherSearch').then(m => ({ default: m.InstituteTeacherSearch })));
+const MyAlerts = lazy(() => import('@/pages/MyAlerts').then(m => ({ default: m.MyAlerts })));
+const InstituteJobApplications = lazy(() => import('@/pages/InstituteJobApplications').then(m => ({ default: m.InstituteJobApplications })));
+const JobEdit = lazy(() => import('@/pages/JobEdit').then(m => ({ default: m.JobEdit })));
+const AdminLayout = lazy(() => import('@/pages/admin/AdminLayout').then(m => ({ default: m.AdminLayout })));
+const AdminOverview = lazy(() => import('@/pages/admin/AdminOverview').then(m => ({ default: m.AdminOverview })));
+const VehicleManagement = lazy(() => import('@/pages/admin/VehicleManagement').then(m => ({ default: m.VehicleManagement })));
+const JobManagement = lazy(() => import('@/pages/admin/JobManagement').then(m => ({ default: m.JobManagement })));
+const SupplierManagement = lazy(() => import('@/pages/admin/SupplierManagement').then(m => ({ default: m.SupplierManagement })));
+const SubscriptionManagement = lazy(() => import('@/pages/admin/SubscriptionManagement').then(m => ({ default: m.SubscriptionManagement })));
+const AdminSettingsPage = lazy(() => import('@/pages/admin/AdminSettingsPage').then(m => ({ default: m.AdminSettingsPage })));
+const AdminAdLayout = lazy(() => import('@/pages/admin/ads/AdminAdLayout').then(m => ({ default: m.AdminAdLayout })));
+const MarketingDashboard = lazy(() => import('@/pages/MarketingDashboard'));
+const SalesDashboard = lazy(() => import('@/pages/SalesDashboard'));
+const UserManagement = lazy(() => import('@/pages/admin/UserManagement'));
+const AuditLogManagement = lazy(() => import('@/pages/admin/AuditLogManagement'));
+const ReportModeration = lazy(() => import('@/pages/admin/ReportModeration'));
+const ConsultantManagement = lazy(() => import('@/pages/admin/ConsultantManagement'));
+const SalesManagement = lazy(() => import('./pages/admin/SalesManagement'));
+const PlacementManagement = lazy(() => import('@/pages/admin/PlacementManagement'));
+const VerificationModeration = lazy(() => import('@/pages/admin/VerificationModeration'));
 import { Browse } from '@/pages/Browse';
 import { ListingDetails } from '@/pages/ListingDetails';
 import { JobBrowse } from '@/pages/JobBrowse';
 import { JobDetails } from '@/pages/JobDetails';
 import { Login } from '@/pages/Login';
 import { Signup } from '@/pages/Signup';
-import { Dashboard } from '@/pages/Dashboard';
 import { TeacherSignup } from '@/pages/TeacherSignup';
 import { VendorSignup } from '@/pages/VendorSignup';
 import { ConsultantSignup } from '@/pages/ConsultantSignup';
-import { ConsultantDashboard } from '@/pages/ConsultantDashboard';
-import { ConsultantRoster } from '@/pages/ConsultantRoster';
-import { ConsultantPlacements } from '@/pages/ConsultantPlacements';
-import { ConsultantInterviews } from '@/pages/ConsultantInterviews';
-import { ConsultantJobSearch } from '@/pages/ConsultantJobSearch';
-import { ConsultantTeacherSearch } from '@/pages/ConsultantTeacherSearch';
-import { TeacherDashboard } from '@/pages/TeacherDashboard';
-import { InstituteTeacherSearch } from '@/pages/InstituteTeacherSearch';
-import { MyAlerts } from '@/pages/MyAlerts';
-import { InstituteJobApplications } from '@/pages/InstituteJobApplications';
 import { SupplierBrowse } from '@/pages/SupplierBrowse';
 import { Advertise } from '@/pages/Advertise';
 import { NotificationsPage } from '@/pages/NotificationsPage';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { Toaster } from '@/components/ui/sonner';
-import MarketingDashboard from '@/pages/MarketingDashboard';
-import SalesDashboard from '@/pages/SalesDashboard';
 import { ForgotPassword } from '@/pages/ForgotPassword';
 import { ResetPassword } from '@/pages/ResetPassword';
-import { JobEdit } from '@/pages/JobEdit';
 
 // Admin imports
 import { AdminLogin } from '@/pages/AdminLogin';
-import { AdminLayout } from '@/pages/admin/AdminLayout';
-import { AdminOverview } from '@/pages/admin/AdminOverview';
-import { VehicleManagement } from '@/pages/admin/VehicleManagement';
-import { JobManagement } from '@/pages/admin/JobManagement';
-import { SupplierManagement } from '@/pages/admin/SupplierManagement';
-import { SubscriptionManagement } from '@/pages/admin/SubscriptionManagement';
-import { AdminSettingsPage } from '@/pages/admin/AdminSettingsPage';
-import UserManagement from '@/pages/admin/UserManagement';
-import AuditLogManagement from '@/pages/admin/AuditLogManagement';
-import ReportModeration from '@/pages/admin/ReportModeration';
-import ConsultantManagement from '@/pages/admin/ConsultantManagement';
-import PlacementManagement from '@/pages/admin/PlacementManagement';
-import VerificationModeration from '@/pages/admin/VerificationModeration';
 
 // Ad Management imports
 import { AdProvider } from '@/context/AdContext';
-import { AdminAdLayout } from '@/pages/admin/ads/AdminAdLayout';
 import AdDashboard from '@/pages/admin/ads/AdDashboard';
 import CreateAd from '@/pages/admin/ads/CreateAd';
 import AdManagement from '@/pages/admin/ads/AdManagement';
@@ -90,6 +94,7 @@ function App() {
           <div className="flex flex-col min-h-screen">
             <Header />
             <main className="flex-grow">
+              <Suspense fallback={<div className="min-h-[50vh] flex items-center justify-center text-muted-foreground">Loading…</div>}>
               <Routes>
                 {/* Public Routes */}
                 <Route path="/" element={<Landing />} />
@@ -269,6 +274,7 @@ function App() {
                   <Route path="subscriptions" element={<SubscriptionManagement />} />
                   <Route path="settings" element={<AdminSettingsPage />} />
                   <Route path="consultants" element={<ConsultantManagement />} />
+                  <Route path="sales" element={<SalesManagement />} />
                   <Route path="placements" element={<PlacementManagement />} />
                 </Route>
 
@@ -286,6 +292,7 @@ function App() {
                 {/* Fallback */}
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
+              </Suspense>
             </main>
             <Footer />
           </div>
