@@ -1,27 +1,29 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
+import { VehicleCard } from '@/components/VehicleCard';
 import { JobCard } from '@/components/JobCard';
-import {
-  ArrowRight, MapPin, Search, Truck, Building2, Bell,
+import { SupplierCard } from '@/components/SupplierCard';
+import { Skeleton } from '@/components/ui/skeleton';
+import { usePriorityListings } from '@/hooks/useApi';
+import { 
+  ArrowRight, MapPin, Search, Truck, Briefcase, 
+  Building2, GraduationCap, Users, Megaphone, 
+  BookOpen, Calculator, Calendar
 } from 'lucide-react';
 import { api } from '@/api';
 import { AdSlot } from '@/components/ads/AdSlot';
 import { PricingSection } from '@/components/PricingSection';
 import { useAuth } from '@/context/AuthContext';
 
-// Chalkboard identity (matches /schools.html pitch page)
-const BOARD = '#1e3a34';
-const BOARD_DEEP = '#162b26';
-const CHALK = '#faf7ef';
-const MARIGOLD = '#e8a020';
-
 export function Landing() {
   const navigate = useNavigate();
   const { account } = useAuth();
   const isTeacher = account?.role === 'teacher';
-
-  // Handle hash scroll (e.g. /#pricing from the header)
+  const { listings: priorityListings = [], loading: priorityLoading } = usePriorityListings();
+  
+  // Handle hash scroll
   useEffect(() => {
     const scrollToHash = () => {
       const hash = window.location.hash.slice(1);
@@ -34,34 +36,50 @@ export function Landing() {
     return () => window.removeEventListener('hashchange', scrollToHash);
   }, []);
 
-  // Featured jobs — social proof under the hero, hidden when empty
+  // State for jobs and suppliers from API
   const [featuredJobs, setFeaturedJobs] = useState<any[]>([]);
-
-  useEffect(() => {
-    let cancelled = false;
-    api.jobs
-      .getFeaturedJobs(4)
-      .then((res) => {
-        if (!cancelled) setFeaturedJobs(res.data ?? []);
-      })
-      .catch((error) => {
-        console.error('Failed to load jobs:', error);
-        if (!cancelled) setFeaturedJobs([]);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const [featuredSuppliers, setFeaturedSuppliers] = useState<any[]>([]);
+  const [jobsLoading, setJobsLoading] = useState(true);
+  const [suppliersLoading, setSuppliersLoading] = useState(true);
 
   // Search state
   const [location, setLocation] = useState('Mysuru');
   const [searchQuery, setSearchQuery] = useState('');
 
-  const handleSearch = (queryOverride?: string) => {
+  // Fetch featured jobs and suppliers on mount
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        // Fetch top 4 jobs
+        const jobsResponse = await api.jobs.getFeaturedJobs(4);
+        setFeaturedJobs(jobsResponse.data ?? []);
+      } catch (error) {
+        console.error('Failed to load jobs:', error);
+        setFeaturedJobs([]);
+      } finally {
+        setJobsLoading(false);
+      }
+
+      try {
+        // Fetch top 4 suppliers
+        const suppliersResponse = await api.suppliers.getSuppliers({ pageSize: 4, page: 1 });
+        setFeaturedSuppliers(suppliersResponse.data?.items ?? []);
+      } catch (error) {
+        console.error('Failed to load suppliers:', error);
+        setFeaturedSuppliers([]);
+      } finally {
+        setSuppliersLoading(false);
+      }
+    }
+
+    fetchData();
+  }, []);
+
+  const handleSearch = () => {
     // Route to the right vertical AND carry the query — previously the text
     // was dropped entirely and anything that didn't literally contain "job"
     // (e.g. "Maths Teacher") landed on vehicles with an empty search box.
-    const q = (queryOverride ?? searchQuery).trim();
+    const q = searchQuery.trim();
     const qs = q ? `?q=${encodeURIComponent(q)}` : '';
     const lower = q.toLowerCase();
     const vehicleHit = /\b(bus|van|car|tempo|traveller|vehicle|transport|seater)\b/;
@@ -77,334 +95,347 @@ export function Landing() {
     }
   };
 
-  const steps = [
-    {
-      title: 'Post your vacancy — free',
-      body: 'Subject, experience, salary range. Three minutes on your phone, no fees during our Mysuru launch.',
-    },
-    {
-      title: 'Teachers in Mysuru apply',
-      body: "See each applicant's subjects, qualifications and experience in one place.",
-    },
-    {
-      title: 'Interview and hire — directly',
-      body: 'Applications come with contact details. No middleman, no commission, no placement fee.',
-    },
+  const quickLinks = [
+    { icon: Truck, label: 'School Buses', path: '/browse', color: 'text-blue-600', bg: 'bg-blue-50' },
+    { icon: Briefcase, label: 'Teaching Jobs', path: '/jobs', color: 'text-orange-600', bg: 'bg-orange-50' },
+    { icon: Building2, label: 'Suppliers', path: '/suppliers', color: 'text-green-600', bg: 'bg-green-50' },
+    { icon: Users, label: 'Staff Hiring', path: '/jobs', color: 'text-purple-600', bg: 'bg-purple-50' },
+    { icon: GraduationCap, label: 'Institutes', path: '/signup', color: 'text-red-600', bg: 'bg-red-50' },
+    { icon: Megaphone, label: 'Advertise', path: '/signup', color: 'text-yellow-600', bg: 'bg-yellow-50' },
+    { icon: BookOpen, label: 'Books', path: '/suppliers', color: 'text-teal-600', bg: 'bg-teal-50' },
+    { icon: Calendar, label: 'Events', path: '/browse', color: 'text-indigo-600', bg: 'bg-indigo-50' }, // Placeholder
   ];
 
   return (
-    <div className="min-h-screen bg-[#faf7ef] font-sans overflow-x-clip">
+    <div className="min-h-screen bg-background font-sans noise-bg relative">
+      
+      {/* Hero Section - Professional Premium Design */}
+      <section className="relative pt-28 pb-40 md:pt-44 md:pb-60 overflow-hidden">
+        {/* Professional Background Image with Overlay */}
+        <div className="absolute inset-0 z-0">
+          <img 
+            src="https://v3b.fal.media/files/b/0a8b3c54/2hCADZMTxkHVX4wRB75ZE.png" 
+            alt="Educational Marketplace" 
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/95 via-primary/80 to-secondary/70 backdrop-blur-[2px]"></div>
+        </div>
 
-      {/* ── Chalkboard hero ─────────────────────────────────────────── */}
-      <section
-        className="relative text-[#faf7ef]"
-        style={{ background: `linear-gradient(168deg, ${BOARD} 0%, ${BOARD_DEEP} 100%)` }}
-      >
-        {/* faint chalk-dust texture */}
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 opacity-[0.06] [background-image:radial-gradient(circle_at_center,#faf7ef_0.5px,transparent_0.5px)] [background-size:22px_22px]"
-        />
+        {/* Premium Background Elements */}
+        <div className="absolute inset-0 opacity-[0.1] z-[1]">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,#ffffff_0.5px,transparent_0.5px)] [background-size:24px_24px]"></div>
+        </div>
+        <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-[1]">
+          <div className="absolute top-10 -left-20 w-[500px] h-[500px] bg-secondary/30 rounded-full blur-[120px] animate-float"></div>
+          <div className="absolute bottom-10 -right-20 w-[600px] h-[600px] bg-accent/20 rounded-full blur-[140px] animate-float delay-1000"></div>
+        </div>
+        
+        <div className="container relative z-10 mx-auto px-4 lg:px-6 text-center">
+          {/* Premium Trust Badge */}
+          <div className="inline-flex items-center gap-2.5 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-6 py-2.5 mb-10 animate-in-fade shadow-xl">
+            <div className="w-2 h-2 bg-success rounded-full animate-pulse shadow-[0_0_12px_rgba(34,197,94,0.8)]"></div>
+            <span className="text-white/95 text-sm font-semibold tracking-wide">Launching first in Mysuru — built for India&apos;s educational institutes</span>
+          </div>
 
-        <div className="container relative mx-auto px-4 pt-14 pb-16 md:pt-24 md:pb-24">
-          <div className="max-w-3xl mx-auto text-center">
-            <p className="animate-in-fade text-[#e8a020] font-semibold text-xs md:text-sm tracking-[0.16em] uppercase mb-5">
-              ನಮಸ್ಕಾರ Mysuru&ensp;·&ensp;Teacher hiring, simplified
-            </p>
+          {/* Professional Main Headline */}
+          <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-8xl font-display font-bold text-white mb-8 tracking-tighter leading-[1] animate-in-slide-up">
+            India's Leading
+            <br className="md:hidden" />
+            <span className="text-accent italic"> Education </span>
+            <br />
+            <span className="relative inline-block">
+              Marketplace
+              <span className="absolute -bottom-3 left-0 w-full h-1.5 bg-gradient-to-r from-accent via-accent-light to-transparent rounded-full shadow-glow"></span>
+            </span>
+          </h1>
+          
+          <p className="text-white/90 mb-16 text-lg md:text-xl lg:text-2xl max-w-4xl mx-auto font-medium leading-relaxed animate-in-slide-up delay-100">
+            Connect with <span className="font-bold text-white border-b-2 border-accent/50 pb-0.5">Vehicles</span>, <span className="font-bold text-white border-b-2 border-accent/50 pb-0.5">Jobs</span>, <span className="font-bold text-white border-b-2 border-accent/50 pb-0.5">Suppliers</span> & <span className="font-bold text-white border-b-2 border-accent/50 pb-0.5">Teachers</span>
+            <br className="hidden md:block" />
+            <span className="text-white/80 mt-2 block">The Definitive Resource for Modern Educational Infrastructure</span>
+          </p>
 
-            <h1 className="animate-in-slide-up font-chalk-serif font-bold tracking-normal text-[#faf7ef] text-4xl leading-[1.15] md:text-6xl md:leading-[1.12] mb-6 [text-wrap:balance]">
-              Your next teacher is{' '}
-              <span className="whitespace-nowrap border-b-[3px] border-[#e8a020] pb-0.5">already looking</span>{' '}
-              for you.
-            </h1>
-
-            <p className="animate-in-slide-up delay-100 text-[#faf7ef]/85 text-base md:text-lg leading-relaxed max-w-2xl mx-auto mb-9">
-              eduFleet Exchange is a free hiring platform for Mysuru&apos;s schools, coaching
-              centres and preschools. Post a vacancy in three minutes — qualified local
-              teachers apply directly to you.
-            </p>
-
-            {/* CTAs */}
-            <div className="animate-in-slide-up delay-150 flex flex-col sm:flex-row items-center justify-center gap-3 mb-12">
-              {isTeacher ? (
-                <Button
-                  size="lg"
-                  onClick={() => navigate('/jobs')}
-                  className="w-full sm:w-auto min-h-[52px] px-8 rounded-xl font-bold text-base bg-[#e8a020] hover:bg-[#d4911a] text-[#162b26] shadow-lg"
-                >
-                  Browse jobs in Mysuru
-                  <ArrowRight className="w-5 h-5 ml-2" />
-                </Button>
-              ) : (
-                <>
-                  <Button
-                    size="lg"
-                    onClick={() => navigate('/signup')}
-                    className="w-full sm:w-auto min-h-[52px] px-8 rounded-xl font-bold text-base bg-[#e8a020] hover:bg-[#d4911a] text-[#162b26] shadow-lg"
-                  >
-                    Post a job — free
-                    <ArrowRight className="w-5 h-5 ml-2" />
-                  </Button>
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    onClick={() => navigate('/teacher/signup')}
-                    className="w-full sm:w-auto min-h-[52px] px-8 rounded-xl font-semibold text-base bg-transparent border-[#faf7ef]/40 text-[#faf7ef] hover:bg-[#faf7ef]/10 hover:text-[#faf7ef]"
-                  >
-                    I&apos;m a teacher
-                  </Button>
-                </>
-              )}
+          {/* Professional Search Box */}
+          <div className="max-w-5xl mx-auto bg-white/95 backdrop-blur-sm rounded-2xl shadow-[0_30px_100px_rgba(0,0,0,0.4)] p-3 flex flex-col md:flex-row gap-2 animate-in-scale delay-200 border border-white/20 ring-1 ring-black/5">
+            {/* Location Input */}
+            <div className="relative md:w-[28%]">
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-primary/70">
+                <MapPin className="w-5 h-5" />
+              </div>
+              <input 
+                type="text" 
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                className="w-full pl-12 pr-4 py-4 outline-none text-foreground font-semibold bg-transparent placeholder:text-muted-foreground rounded-xl focus:bg-muted/50 transition-colors"
+                placeholder="Mysuru, India"
+              />
+            </div>
+            
+            {/* Vertical Divider */}
+            <div className="hidden md:block w-px bg-border/60 self-stretch my-2"></div>
+            
+            {/* Main Search Input */}
+            <div className="relative flex-1">
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-primary/70">
+                <Search className="w-5 h-5" />
+              </div>
+              <input 
+                type="text" 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                className="w-full pl-12 pr-4 py-4 outline-none text-foreground font-semibold bg-transparent placeholder:text-muted-foreground rounded-xl focus:bg-muted/50 transition-colors"
+                placeholder="Try: School Bus, Math Teacher, Lab Equipment..."
+              />
             </div>
 
-            {/* Search card */}
-            <div className="animate-in-scale delay-200 max-w-2xl mx-auto bg-[#faf7ef] rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.35)] p-2 flex flex-col md:flex-row gap-1.5 text-left">
-              <div className="relative md:w-[34%]">
-                <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-[#5f7a6e]" />
-                <input
-                  type="text"
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                  className="w-full pl-10 pr-3 py-3.5 outline-none text-[#22302c] font-medium bg-transparent placeholder:text-[#5f7a6e]/70 rounded-xl focus:bg-[#1e3a34]/5 transition-colors"
-                  placeholder="Mysuru"
-                  aria-label="City"
-                />
-              </div>
-              <div className="hidden md:block w-px bg-[#dcd6c6] self-stretch my-2" />
-              <div className="relative flex-1 border-t border-[#dcd6c6] md:border-t-0">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-[#5f7a6e]" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                  className="w-full pl-10 pr-3 py-3.5 outline-none text-[#22302c] font-medium bg-transparent placeholder:text-[#5f7a6e]/70 rounded-xl focus:bg-[#1e3a34]/5 transition-colors"
-                  placeholder="Try: Maths teacher, school bus, lab supplies…"
-                  aria-label="What are you looking for?"
-                />
-              </div>
+            {/* Search Button */}
+            <div className="md:w-44 flex items-center">
               <Button
-                onClick={() => handleSearch()}
-                className="md:w-36 min-h-[48px] rounded-xl font-bold text-base bg-[#1e3a34] hover:bg-[#162b26] text-[#faf7ef]"
+                onClick={handleSearch}
+                variant="default"
+                size="lg"
+                className="w-full font-bold text-base rounded-xl flex items-center justify-center gap-2 min-h-[58px] shadow-lg hover:shadow-accent/30 transition-all active:scale-95 bg-accent hover:bg-accent/90 text-accent-foreground"
               >
                 Search
+                <ArrowRight className="w-5 h-5" />
               </Button>
-            </div>
-
-            {/* Popular searches */}
-            <div className="animate-in-fade delay-300 mt-5 flex flex-wrap items-center justify-center gap-2">
-              <span className="text-[#faf7ef]/60 text-xs font-semibold uppercase tracking-wider mr-1">Popular</span>
-              {['Maths Teacher', 'Kannada Teacher', 'Preschool Teacher', 'School Bus'].map((term) => (
-                <button
-                  key={term}
-                  onClick={() => {
-                    setSearchQuery(term);
-                    handleSearch(term);
-                  }}
-                  className="px-3.5 py-1.5 rounded-full border border-[#faf7ef]/25 text-[#faf7ef]/85 text-sm hover:bg-[#faf7ef]/10 hover:border-[#faf7ef]/45 transition-colors"
-                >
-                  {term}
-                </button>
-              ))}
             </div>
           </div>
 
-          {/* chalk tray */}
-          <div aria-hidden="true" className="mt-14 border-b border-dashed border-[#faf7ef]/25 max-w-4xl mx-auto" />
-        </div>
-      </section>
-
-      {/* ── Featured jobs (social proof — hidden when empty) ───────── */}
-      {featuredJobs.length > 0 && (
-        <section className="container mx-auto px-4 pt-14">
-          <div className="max-w-5xl mx-auto">
-            <div className="flex items-end justify-between gap-4 mb-6">
-              <div>
-                <p className="text-[#5f7a6e] font-bold text-xs tracking-[0.14em] uppercase mb-1.5">On the board now</p>
-                <h2 className="font-chalk-serif font-bold text-[#22302c] text-2xl md:text-3xl tracking-normal">
-                  Schools hiring in Mysuru
-                </h2>
-              </div>
-              <Button
-                variant="outline"
-                onClick={() => navigate('/jobs')}
-                className="rounded-full border-[#1e3a34]/25 text-[#1e3a34] hover:bg-[#1e3a34]/5 shrink-0"
+          {/* Professional Popular Searches */}
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3 animate-in-fade delay-300">
+            <span className="text-white/80 text-sm font-semibold">Popular:</span>
+            {['School Buses', 'Teaching Jobs', 'Lab Suppliers', 'Textbooks'].map((term, idx) => (
+              <button
+                key={idx}
+                onClick={() => {
+                  setSearchQuery(term);
+                  handleSearch();
+                }}
+                className="px-5 py-2 bg-white/15 hover:bg-white/25 backdrop-blur-sm border border-white/30 rounded-full text-white text-sm font-semibold transition-all duration-200 hover:scale-105 hover:shadow-lg"
               >
-                All jobs
-                <ArrowRight className="w-4 h-4 ml-1.5" />
-              </Button>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-              {featuredJobs.map((job) => (
-                <JobCard
-                  key={job.id || (job as any)._id}
-                  job={job}
-                  className="bg-white"
-                />
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* ── How it works for schools ────────────────────────────────── */}
-      <section className="container mx-auto px-4 py-16 md:py-20">
-        <div className="max-w-3xl mx-auto">
-          <p className="text-[#5f7a6e] font-bold text-xs tracking-[0.14em] uppercase mb-1.5">How it works for schools</p>
-          <h2 className="font-chalk-serif font-bold text-[#22302c] text-2xl md:text-3xl tracking-normal mb-8">
-            Post free. Teachers apply. You hire directly.
-          </h2>
-          <ol className="bg-white border border-[#dcd6c6] rounded-2xl px-6 md:px-8 py-2 shadow-sm">
-            {steps.map((step, i) => (
-              <li
-                key={step.title}
-                className={`flex gap-5 py-5 ${i > 0 ? 'border-t border-[#dcd6c6]' : ''}`}
-              >
-                <span
-                  aria-hidden="true"
-                  className="font-chalk-serif font-bold text-[#e8a020] text-3xl md:text-4xl leading-none w-9 text-center shrink-0 [font-variant-numeric:tabular-nums] mt-0.5"
-                >
-                  {i + 1}
-                </span>
-                <div>
-                  <h3 className="font-sans font-bold text-[#22302c] text-base md:text-lg tracking-normal mb-1">{step.title}</h3>
-                  <p className="text-[#5f7a6e] text-sm md:text-[15px] leading-relaxed">{step.body}</p>
-                </div>
-              </li>
+                {term}
+              </button>
             ))}
-          </ol>
-        </div>
-      </section>
+          </div>
 
-      {/* ── Demand alerts hook ──────────────────────────────────────── */}
-      <section className="container mx-auto px-4 pb-16 md:pb-20">
-        <div
-          className="max-w-3xl mx-auto rounded-2xl text-[#faf7ef] px-6 py-8 md:px-10 md:py-10 relative overflow-hidden"
-          style={{ background: `linear-gradient(168deg, ${BOARD} 0%, ${BOARD_DEEP} 100%)` }}
-        >
-          <div
-            aria-hidden="true"
-            className="absolute inset-0 opacity-[0.06] [background-image:radial-gradient(circle_at_center,#faf7ef_0.5px,transparent_0.5px)] [background-size:22px_22px]"
-          />
-          <div className="relative flex flex-col md:flex-row md:items-center gap-6">
-            <div className="flex-1">
-              <div className="flex items-center gap-2.5 mb-3">
-                <span className="w-9 h-9 rounded-full bg-[#e8a020]/15 grid place-items-center shrink-0">
-                  <Bell className="w-[18px] h-[18px] text-[#e8a020]" />
-                </span>
-                <p className="text-[#e8a020] font-semibold text-xs tracking-[0.14em] uppercase">Demand alerts — we look for you</p>
+          {/* Professional Quick Links Card */}
+          <div className="max-w-6xl mx-auto mt-24 md:mt-28 animate-in-slide-up delay-400">
+            <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 p-6 md:p-12 relative hover:shadow-[0_30px_100px_rgba(0,0,0,0.2)] transition-all duration-300">
+              <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-gradient-to-r from-primary via-primary-light to-secondary px-10 py-3.5 rounded-full shadow-xl">
+                <span className="text-sm font-bold text-white tracking-wide uppercase">Explore Everything</span>
               </div>
-              <h2 className="font-chalk-serif font-bold text-[#faf7ef] text-xl md:text-2xl tracking-normal mb-2 [text-wrap:balance]">
-                Tell us the subject you need.
-              </h2>
-              <p className="text-[#faf7ef]/80 text-sm md:text-[15px] leading-relaxed max-w-xl">
-                The moment a matching teacher registers on eduFleet, you&apos;re notified.
-                No more re-asking around every week.
-              </p>
+              <div className="grid grid-cols-4 md:grid-cols-8 gap-y-10 gap-x-4 md:gap-x-6">
+                {quickLinks.map((link, idx) => (
+                  <button
+                    type="button"
+                    key={idx}
+                    onClick={() => navigate(link.path)}
+                    aria-label={link.label}
+                    className="flex flex-col items-center gap-3 cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-2xl p-1"
+                  >
+                    <div className={`w-12 h-12 md:w-20 md:h-20 rounded-2xl ${link.bg} flex items-center justify-center transition-all duration-300 group-hover:-translate-y-3 group-hover:shadow-xl border-2 border-transparent group-hover:border-white shadow-sm`}>
+                      <link.icon className={`w-6 h-6 md:w-10 md:h-10 ${link.color} transition-transform duration-300 group-hover:scale-110`} />
+                    </div>
+                    <span className="text-xs md:text-sm font-semibold text-gray-700 text-center group-hover:text-primary transition-colors line-clamp-2 leading-tight">
+                      {link.label}
+                    </span>
+                  </button>
+                ))}
+              </div>
             </div>
-            <Button
-              size="lg"
-              onClick={() => navigate('/signup')}
-              className="shrink-0 min-h-[48px] px-6 rounded-xl font-bold bg-[#e8a020] hover:bg-[#d4911a] text-[#162b26]"
-            >
-              Set up an alert
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
           </div>
         </div>
       </section>
 
-      {/* ── Secondary verticals ─────────────────────────────────────── */}
-      <section className="container mx-auto px-4 pb-16 md:pb-20">
-        <div className="max-w-3xl mx-auto">
-          <p className="text-[#5f7a6e] font-bold text-xs tracking-[0.14em] uppercase mb-4">Also on eduFleet</p>
-          <div className="grid sm:grid-cols-2 gap-4">
-            <Link
-              to="/browse"
-              className="group bg-white border border-[#dcd6c6] rounded-2xl p-5 flex items-start gap-4 hover:border-[#1e3a34]/40 hover:shadow-md transition-all"
-            >
-              <span className="w-11 h-11 rounded-xl bg-[#1e3a34]/[0.07] grid place-items-center shrink-0">
-                <Truck className="w-5 h-5 text-[#1e3a34]" />
-              </span>
-              <span>
-                <span className="block font-bold text-[#22302c] group-hover:text-[#1e3a34] mb-0.5">School vehicles</span>
-                <span className="block text-sm text-[#5f7a6e] leading-relaxed">Buses, vans and transport operators for your institute.</span>
-              </span>
-              <ArrowRight className="w-4 h-4 text-[#5f7a6e] ml-auto mt-1 shrink-0 group-hover:translate-x-0.5 transition-transform" />
-            </Link>
-            <Link
-              to="/suppliers"
-              className="group bg-white border border-[#dcd6c6] rounded-2xl p-5 flex items-start gap-4 hover:border-[#1e3a34]/40 hover:shadow-md transition-all"
-            >
-              <span className="w-11 h-11 rounded-xl bg-[#1e3a34]/[0.07] grid place-items-center shrink-0">
-                <Building2 className="w-5 h-5 text-[#1e3a34]" />
-              </span>
-              <span>
-                <span className="block font-bold text-[#22302c] group-hover:text-[#1e3a34] mb-0.5">Suppliers</span>
-                <span className="block text-sm text-[#5f7a6e] leading-relaxed">Books, uniforms, lab equipment and more — from local vendors.</span>
-              </span>
-              <ArrowRight className="w-4 h-4 text-[#5f7a6e] ml-auto mt-1 shrink-0 group-hover:translate-x-0.5 transition-transform" />
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Honest launch note ──────────────────────────────────────── */}
-      <section className="container mx-auto px-4 pb-16 md:pb-20">
-        <div className="max-w-3xl mx-auto border-[1.5px] border-dashed border-[#e8a020] bg-[#fdf4e0] rounded-2xl px-6 py-6 md:px-8">
-          <h2 className="font-chalk-serif font-bold text-[#22302c] text-lg md:text-xl tracking-normal mb-1.5">
-            We&apos;re new, and we&apos;re starting here.
-          </h2>
-          <p className="text-[#6b5a33] text-sm md:text-[15px] leading-relaxed">
-            eduFleet is launching in Mysuru first. The first schools on board get
-            founder-level support and shape how the platform grows. If something
-            doesn&apos;t work for you, you tell us and we fix it — that&apos;s the deal.
-          </p>
-        </div>
-      </section>
-
-      {/* Banner ad (renders nothing when no campaigns) */}
-      <div className="container mx-auto px-4 pb-4">
+      {/* Top Banner Ad (Below Hero) */}
+      <div className="container mx-auto px-4 py-8">
         <AdSlot placement="LP_TOP_BANNER" variant="banner" />
       </div>
 
-      {/* Pricing — kept for the /#pricing anchor used across the app */}
+          {/* Feature Section 1: Vehicles - Hidden for Teachers + hidden when no listings */}
+          {!isTeacher && (priorityLoading || priorityListings.length > 0) && (
+            <motion.section
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+              className="container mx-auto px-4 py-16"
+            >
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10 border-b border-gray-100 pb-5">
+                <div className="flex flex-col gap-1">
+                  <h2 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
+                    <Truck className="w-8 h-8 text-primary" />
+                    Premium Vehicles
+                  </h2>
+                  <p className="text-muted-foreground text-sm font-medium">Verified transport options for your institute</p>
+                </div>
+                <Button 
+                  variant="outline" 
+                  onClick={() => navigate('/browse')} 
+                  className="rounded-full border-primary/20 text-primary hover:bg-primary/5 px-6"
+                >
+                  View All Vehicles
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </div>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                {priorityLoading ? (
+                  Array.from({ length: 4 }).map((_, i) => (
+                    <Skeleton key={i} className="w-full h-[380px] rounded-2xl" />
+                  ))
+                ) : priorityListings.length > 0 ? (
+                  priorityListings.slice(0, 4).map((vehicle, idx) => (
+                    <motion.div 
+                      key={vehicle.id || (vehicle as any)._id} 
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.5, delay: idx * 0.1 }}
+                      className="h-full"
+                    >
+                      <VehicleCard vehicle={vehicle} />
+                    </motion.div>
+                  ))
+                ) : (
+                  <p className="text-muted-foreground text-center col-span-full py-12 bg-muted/30 rounded-2xl">No featured listings available</p>
+                )}
+              </div>
+            </motion.section>
+          )}
+
+          {/* Feature Section 2: Jobs — hidden when no jobs */}
+          {(jobsLoading || featuredJobs.length > 0) && (
+          <motion.section
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="bg-slate-50 py-10"
+          >
+            <div className="container mx-auto px-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10 border-b border-gray-200 pb-5">
+                <div className="flex flex-col gap-1">
+                  <h2 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
+                    <Briefcase className="w-8 h-8 text-orange-600" />
+                    Hot Jobs
+                  </h2>
+                  <p className="text-muted-foreground text-sm font-medium">Exciting career opportunities in top institutes</p>
+                </div>
+                <Button 
+                  variant="outline" 
+                  onClick={() => navigate('/jobs')} 
+                  className="rounded-full border-orange-200 text-orange-600 hover:bg-orange-50 px-6"
+                >
+                  Explore Jobs
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </div>
+
+              <div className="grid grid-cols-[repeat(auto-fill,minmax(192px,1fr))] gap-6">
+                {jobsLoading ? (
+                  Array.from({ length: 4 }).map((_, i) => (
+                    <Skeleton key={i} className="w-[192px] h-[192px] rounded-lg" />
+                  ))
+                ) : featuredJobs.length > 0 ? (
+                  featuredJobs.map((job, idx) => (
+                    <motion.div 
+                      key={job.id || (job as any)._id} 
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.5, delay: idx * 0.1 }}
+                    >
+                      <JobCard 
+                        job={job} 
+                        className="shadow-sm hover:shadow-md transition-all bg-white"
+                      />
+                    </motion.div>
+                  ))
+                ) : (
+                  <p className="text-muted-foreground text-center col-span-full py-12 bg-white/50 rounded-2xl border-2 border-dashed border-gray-200">No jobs available</p>
+                )}
+              </div>
+            </div>
+          </motion.section>
+          )}
+
+          {/* Feature Section 3: Suppliers - Hidden for Teachers + hidden when no suppliers */}
+          {!isTeacher && (suppliersLoading || featuredSuppliers.length > 0) && (
+            <motion.section 
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+              className="container mx-auto px-4 py-10"
+            >
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10 border-b border-gray-100 pb-5">
+                <div className="flex flex-col gap-1">
+                  <h2 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
+                    <Building2 className="w-8 h-8 text-green-600" />
+                    Top Suppliers
+                  </h2>
+                  <p className="text-muted-foreground text-sm font-medium">Reliable vendors for all your institute needs</p>
+                </div>
+                <Button 
+                  variant="outline" 
+                  onClick={() => navigate('/suppliers')} 
+                  className="rounded-full border-green-200 text-green-600 hover:bg-green-50 px-6"
+                >
+                  Find Suppliers
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </div>
+
+              <div className="grid grid-cols-[repeat(auto-fill,minmax(192px,1fr))] gap-6">
+                {suppliersLoading ? (
+                  Array.from({ length: 4 }).map((_, i) => (
+                    <Skeleton key={i} className="w-[192px] h-[192px] rounded-lg" />
+                  ))
+                ) : featuredSuppliers.length > 0 ? (
+                  featuredSuppliers.map((supplier, idx) => (
+                    <motion.div 
+                      key={supplier.id || (supplier as any)._id} 
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.5, delay: idx * 0.1 }}
+                    >
+                      <SupplierCard supplier={supplier} />
+                    </motion.div>
+                  ))
+                ) : (
+                  <p className="text-muted-foreground text-center col-span-full py-12 bg-muted/30 rounded-2xl">No suppliers available</p>
+                )}
+              </div>
+            </motion.section>
+          )}
+
+      {/* Inline Ad */}
+      <div className="container mx-auto px-4 pb-12">
+        <AdSlot placement="LP_INLINE_1" variant="banner" />
+      </div>
+
+      {/* Pricing Section */}
       <PricingSection />
 
-      {/* ── Final CTA ───────────────────────────────────────────────── */}
-      <section
-        className="relative text-[#faf7ef]"
-        style={{ background: `linear-gradient(168deg, ${BOARD} 0%, ${BOARD_DEEP} 100%)` }}
-      >
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 opacity-[0.06] [background-image:radial-gradient(circle_at_center,#faf7ef_0.5px,transparent_0.5px)] [background-size:22px_22px]"
-        />
-        <div className="container relative mx-auto px-4 py-16 md:py-20 text-center">
-          <h2 className="font-chalk-serif font-bold text-[#faf7ef] text-2xl md:text-4xl tracking-normal mb-3 [text-wrap:balance]">
-            Put your vacancy on the board.
-          </h2>
-          <p className="text-[#faf7ef]/80 mb-8 max-w-xl mx-auto text-sm md:text-base">
-            Free for Mysuru&apos;s schools, coaching centres and preschools during launch.
+      {/* CTA Section */}
+      <section className="bg-primary text-primary-foreground py-16">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-3xl font-bold mb-4">List your Business on EduFleet</h2>
+          <p className="text-primary-foreground/80 mb-8 max-w-2xl mx-auto">
+            Reach thousands of educational institutes and students. Join India's fastest growing education marketplace.
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <Button
-              size="lg"
-              onClick={() => navigate('/signup')}
-              className="w-full sm:w-auto min-h-[52px] px-8 rounded-xl font-bold text-base bg-[#e8a020] hover:bg-[#d4911a] text-[#162b26]"
-            >
-              Post a job — free
-              <ArrowRight className="w-5 h-5 ml-2" />
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              onClick={() => navigate('/teacher/signup')}
-              className="w-full sm:w-auto min-h-[52px] px-8 rounded-xl font-semibold text-base bg-transparent border-[#faf7ef]/40 text-[#faf7ef] hover:bg-[#faf7ef]/10 hover:text-[#faf7ef]"
-            >
-              I&apos;m a teacher
-            </Button>
-          </div>
+          <Button 
+            size="lg" 
+            variant="secondary" 
+            className="font-bold px-8 h-12"
+            onClick={() => navigate('/signup')}
+          >
+            Start Selling Today
+          </Button>
         </div>
       </section>
     </div>
