@@ -49,7 +49,7 @@ function PricingCardGrid({ plans, loading, onSelectPlan }: PricingCardGridProps)
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-[repeat(auto-fit,minmax(280px,340px))] md:justify-center gap-8 max-w-7xl mx-auto">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
       {plans.map((plan) => {
         const isPopular = plan.name.toLowerCase().includes('institute') || plan.name.toLowerCase().includes('pro');
         
