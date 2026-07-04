@@ -263,16 +263,6 @@ export function JobListingForm({ initialInstituteId, onSuccess, initialValues, m
       return;
     }
 
-    if (filteredRequirements.length === 0) {
-      toast.error('Please add at least one requirement');
-      return;
-    }
-
-    if (filteredResponsibilities.length === 0) {
-      toast.error('Please add at least one responsibility');
-      return;
-    }
-
     if ((user.role === 'admin' || user.role === 'sales') && !formData.instituteId) {
       toast.error('Please select an institute to list on behalf of');
       return;
@@ -675,7 +665,7 @@ export function JobListingForm({ initialInstituteId, onSuccess, initialValues, m
             {/* Requirements */}
             <div className="border-b border-border pb-6">
               <div className="flex justify-between items-center mb-4">
-                <h3 className="font-semibold text-foreground">Requirements *</h3>
+                <h3 className="font-semibold text-foreground">Requirements (Optional)</h3>
                 <Button
                   type="button"
                   variant="outline"
@@ -715,7 +705,7 @@ export function JobListingForm({ initialInstituteId, onSuccess, initialValues, m
             {/* Responsibilities */}
             <div className="border-b border-border pb-6">
               <div className="flex justify-between items-center mb-4">
-                <h3 className="font-semibold text-foreground">Responsibilities *</h3>
+                <h3 className="font-semibold text-foreground">Responsibilities (Optional)</h3>
                 <Button
                   type="button"
                   variant="outline"
