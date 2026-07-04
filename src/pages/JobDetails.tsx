@@ -254,20 +254,11 @@ export function JobDetails() {
                   <DollarSign className="w-5 h-5 text-primary" />
                   <span className="text-sm font-medium">Salary Range</span>
                 </div>
-                {isUnmasked ? (
-                  <div className="text-2xl font-bold text-primary">
-                    {formatSalary(job.salary)}
-                    <span className="text-sm font-normal text-muted-foreground ml-2">/month</span>
-                  </div>
-                ) : (
-                  <MaskedContent
-                    variant="text"
-                    label="Login to view salary"
-                    className="text-2xl font-bold text-primary"
-                  >
-                    {formatSalary(job.salary)}
-                  </MaskedContent>
-                )}
+                {/* Salary is public browse-level info; only contact/apply is gated. */}
+                <div className="text-2xl font-bold text-primary">
+                  {formatSalary(job.salary)}
+                  <span className="text-sm font-normal text-muted-foreground ml-2">/month</span>
+                </div>
               </div>
             </Card>
 

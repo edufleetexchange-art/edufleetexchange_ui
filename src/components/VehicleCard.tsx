@@ -20,7 +20,10 @@ export function VehicleCard({ vehicle, isListing = false }: VehicleCardProps) {
   const { account } = useAuth();
   const { getCategoryName } = useConfig();
   const navigate = useNavigate();
-  const isUnmasked = !!account;
+  // Browse-level info (photos, price) is public: a guest must be able to
+  // evaluate a vehicle before being asked to sign up. The gate lives at
+  // contact/inquiry (ListingDetails), not at reading.
+  const isUnmasked = true;
 
   const handleClick = () => {
     navigate(`/vehicle/${vehicle.id || (vehicle as any)._id}`);

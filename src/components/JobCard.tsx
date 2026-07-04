@@ -79,7 +79,10 @@ export function JobCard({ job, isListing = false, className, style }: JobCardPro
   const { account } = useAuth();
   const { getCategoryName } = useConfig();
   const navigate = useNavigate();
-  const isUnmasked = !!account;
+  // Browse-level info (title, salary) is public: a guest must be able to
+  // evaluate a job before being asked to sign up. The gate lives at
+  // apply/contact (JobDetails), not at reading.
+  const isUnmasked = true;
 
   const handleClick = () => {
     navigate(`/job/${job.id || (job as any)._id}`);

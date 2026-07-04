@@ -169,7 +169,8 @@ export function ListingDetails() {
           {/* Left: Images */}
           <div className="lg:col-span-2">
             <div className="relative bg-muted rounded-lg overflow-hidden mb-4">
-              {!isUnmasked ? (
+              {/* Photos are public browse-level info; contact/docs stay gated. */}
+              {false ? (
                 <MaskedContent variant="image" label="Login to view image" className="w-full h-96">
                   <img
                     src={vehicle.images[currentImageIndex]}
@@ -275,7 +276,8 @@ export function ListingDetails() {
 
               {/* Price */}
               <div className="mb-6 pb-6 border-b border-border">
-                {isUnmasked ? (
+                {/* Price is public browse-level info. */}
+                {true ? (
                   <div>
                     <p className="text-sm text-muted-foreground mb-1">Price</p>
                     <div className="text-4xl font-bold text-primary">
