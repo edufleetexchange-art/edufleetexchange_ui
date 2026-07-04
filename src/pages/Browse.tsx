@@ -158,14 +158,12 @@ export function Browse() {
               </div>
             )}
 
-            {hasDelay && allVehicles.length > 0 && (
+            {!user && allVehicles.length > 0 && (
               <div className="mb-8">
                 <Alert variant="default" className="border-amber-200 bg-amber-50">
                   <AlertCircle className="h-4 w-4 text-amber-600" />
                   <div className="ml-4 text-amber-800">
-                    {!user
-                      ? "You are browsing as a guest. Login to see newer listings."
-                      : "You are on a Free plan. You are seeing listings that are at least 10 days old. Upgrade to Professional for instant access."}
+                    Photos and prices are free to browse — sign up free to contact sellers and view documents.
                   </div>
                 </Alert>
               </div>

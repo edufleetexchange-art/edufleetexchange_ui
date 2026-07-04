@@ -121,14 +121,15 @@ export function JobBrowse() {
   // empty marketplace is misleading.
   const banner = marketplaceEmpty ? null : browseLimitReached
     ? { tone: 'destructive' as const, title: 'Monthly browse limit reached', body: "You've reached your monthly browse limit. Upgrade to see more listings.", cta: 'Upgrade Plan' }
-    : hasDelay
+    : !user
       ? {
+          // Honest gate: browsing is free and unrestricted; the account is
+          // needed to APPLY. (The old copy claimed newer jobs were hidden,
+          // which wasn't true and scared guests off.)
           tone: 'warning' as const,
-          title: !user ? 'Guest mode' : 'Free plan',
-          body: !user
-            ? 'You are browsing as a guest — newer jobs are hidden. Log in to unlock.'
-            : 'You are seeing jobs at least 10 days old. Upgrade to Professional for instant access.',
-          cta: !user ? 'Log in' : 'Upgrade',
+          title: 'Browsing as guest',
+          body: 'Jobs are free to browse — create a free account to apply and message schools directly.',
+          cta: 'Sign up free',
         }
       : null;
 
@@ -151,7 +152,7 @@ export function JobBrowse() {
               <AlertDescription className="flex flex-col sm:flex-row sm:items-center gap-3 mt-1">
                 <span className={banner.tone === 'warning' ? 'text-amber-800' : ''}>{banner.body}</span>
                 <a
-                  href={!user && banner.tone === 'warning' ? '/login' : '/#pricing'}
+                  href={!user && banner.tone === 'warning' ? '/teacher/signup' : '/#pricing'}
                   className={`inline-flex items-center justify-center rounded-md px-4 py-1.5 text-sm font-semibold whitespace-nowrap ${banner.tone === 'destructive' ? 'bg-destructive-foreground text-destructive hover:opacity-90' : 'bg-amber-600 text-white hover:bg-amber-700'} transition-opacity`}
                 >
                   {banner.cta}
