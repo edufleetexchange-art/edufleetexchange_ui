@@ -4,23 +4,22 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../../../c
 import { Button } from '../../../components/ui/button';
 import { Badge } from '../../../components/ui/badge';
 import { Check, X } from 'lucide-react';
-import { useToast } from '../../../hooks/use-toast';
+import { toast } from 'sonner';
 
 const AdApprovals: React.FC = () => {
   const { ads, updateAd } = useAds();
-  const { toast } = useToast();
   const pendingAds = ads.filter(ad => ad.status === 'pending');
 
   const handleApprove = (id: string) => {
     updateAd(id, { status: 'active' });
-    toast({ title: 'Approved', description: 'Ad is now active.' });
+    toast.success('Ad is now active.');
   };
 
   const handleReject = (id: string) => {
     const reason = prompt("Enter rejection reason:");
     if (reason !== null) {
       updateAd(id, { status: 'rejected', rejectionReason: reason });
-      toast({ title: 'Rejected', description: 'Ad has been rejected.' });
+      toast.success('Ad has been rejected.');
     }
   };
 

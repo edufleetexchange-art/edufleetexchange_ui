@@ -2,14 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useAds } from '../../../context/AdContext';
 import { AdForm } from '../../../components/ads/AdForm';
-import { useToast } from '../../../hooks/use-toast';
+import { toast } from 'sonner';
 
 const CreateAd: React.FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
   const { ads, addAd, updateAd } = useAds();
-  const { toast } = useToast();
   const [initialData, setInitialData] = useState<any>(undefined);
   const [loading, setLoading] = useState(false);
 
@@ -19,14 +18,14 @@ const CreateAd: React.FC = () => {
       if (ad) {
         setInitialData(ad);
       } else {
-        toast({ title: 'Error', description: 'Ad not found', variant: 'destructive' });
+        toast.error('Error: Ad not found');
         navigate('/admin/ads');
       }
     } else if (location.state?.adData) {
       // Handle pre-filled data from other pages (e.g. promoting a vehicle)
       setInitialData(location.state.adData);
     }
-  }, [id, ads, navigate, toast, location.state]);
+  }, [id, ads, navigate, location.state]);
 
   const handleSubmit = async (data: any) => {
     setLoading(true);
@@ -35,10 +34,10 @@ const CreateAd: React.FC = () => {
     
     if (id) {
       updateAd(id, data);
-      toast({ title: 'Success', description: 'Ad updated successfully' });
+      toast.success('Ad updated successfully');
     } else {
       addAd(data);
-      toast({ title: 'Success', description: 'Ad created successfully' });
+      toast.success('Ad created successfully');
     }
     
     setLoading(false);
