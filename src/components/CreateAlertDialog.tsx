@@ -51,7 +51,9 @@ export function CreateAlertDialog({ open, onOpenChange, defaults, onCreated }: P
           location: location || undefined,
           minExperience: minExperience ? Number(minExperience) : undefined,
         },
-        channels: ['in_app'],
+        // Email + in-app by default: alert subscribers rarely log in daily,
+        // so in-app alone means the match goes unseen.
+        channels: ['in_app', 'email'],
       });
       toast.success('Alert set — we\'ll notify you when a matching teacher is available.');
       onCreated?.();
