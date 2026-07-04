@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { SupplierCard } from '@/components/SupplierCard';
@@ -350,6 +350,18 @@ export function SupplierBrowse() {
             {loading ? (
               <div className="flex justify-center items-center py-20">
                 <Spinner className="size-8" />
+              </div>
+            ) : suppliers.length === 0 && !hasActiveFilters ? (
+              <div className="text-center py-16 bg-muted/30 rounded-xl border border-dashed border-border">
+                <Filter className="w-12 h-12 text-primary/40 mx-auto mb-4" />
+                <h3 className="text-lg font-semibold mb-2">Be the first supplier here</h3>
+                <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
+                  Schools in Mysuru will find uniforms, books, lab equipment and more
+                  on this page. Early suppliers get seen first — listing is free.
+                </p>
+                <Button asChild>
+                  <Link to="/vendor/signup">List your business — free</Link>
+                </Button>
               </div>
             ) : suppliers.length === 0 ? (
               <div className="text-center py-16 bg-muted/30 rounded-xl border border-dashed border-border">
