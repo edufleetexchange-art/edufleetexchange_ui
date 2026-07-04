@@ -43,7 +43,7 @@ export function Landing() {
   const [suppliersLoading, setSuppliersLoading] = useState(true);
 
   // Search state
-  const [location, setLocation] = useState('Mysuru');
+  const [location, setLocation] = useState('Bengaluru');
   const [searchQuery, setSearchQuery] = useState('');
 
   // Fetch featured jobs and suppliers on mount
@@ -134,7 +134,7 @@ export function Landing() {
           {/* Premium Trust Badge */}
           <div className="inline-flex items-center gap-2.5 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-6 py-2.5 mb-10 animate-in-fade shadow-xl">
             <div className="w-2 h-2 bg-success rounded-full animate-pulse shadow-[0_0_12px_rgba(34,197,94,0.8)]"></div>
-            <span className="text-white/95 text-sm font-semibold tracking-wide">Launching first in Mysuru — built for India&apos;s educational institutes</span>
+            <span className="text-white/95 text-sm font-semibold tracking-wide">Built for India&apos;s educational institutes</span>
           </div>
 
           {/* Professional Main Headline */}
@@ -167,7 +167,7 @@ export function Landing() {
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 className="w-full pl-12 pr-4 py-4 outline-none text-foreground font-semibold bg-transparent placeholder:text-muted-foreground rounded-xl focus:bg-muted/50 transition-colors"
-                placeholder="Mysuru, India"
+                placeholder="Bengaluru, India"
               />
             </div>
             
