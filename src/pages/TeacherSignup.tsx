@@ -11,6 +11,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { X } from 'lucide-react';
 import { toast } from 'sonner';
 import { AdSlot } from '@/components/ads/AdSlot';
+import { mxPaperCard, mxTealPanel, mxDiamond, mxBtnInk, mxBtnOutline } from '@/lib/meridian';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_RE = /^[6-9]\d{9}$/;
@@ -137,17 +138,17 @@ export function TeacherSignup() {
   };
 
   return (
-    <div className="min-h-screen bg-background py-12">
+    <div className="min-h-screen bg-[#F3F5F7] text-[#0B1626] py-12">
       <div className="container max-w-2xl mx-auto px-4">
         {/* Top Ad */}
         <div className="mb-6">
           <AdSlot placement="LP_TOP_BANNER" variant="banner" />
         </div>
 
-        <Card>
+        <Card className={mxPaperCard}>
           <CardHeader>
-            <CardTitle className="text-3xl">Create Teacher Profile</CardTitle>
-            <CardDescription>
+            <CardTitle className="mx-serif text-4xl font-semibold tracking-tight">Create Teacher Profile</CardTitle>
+            <CardDescription className="text-[#0B1626]/55">
               Join EduFleet Exchange and find your next teaching opportunity
             </CardDescription>
           </CardHeader>
@@ -155,7 +156,7 @@ export function TeacherSignup() {
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Personal Information */}
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Personal Information</h3>
+                <h3 className="mx-serif flex items-center gap-3 text-xl font-semibold tracking-tight border-t border-[#0B1626]/10 pt-5"><span className={mxDiamond} aria-hidden="true"></span>Personal Information</h3>
                 
                 <div>
                   <Label htmlFor="name">Full Name *</Label>
@@ -272,7 +273,7 @@ export function TeacherSignup() {
 
               {/* Professional Information */}
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Professional Information</h3>
+                <h3 className="mx-serif flex items-center gap-3 text-xl font-semibold tracking-tight border-t border-[#0B1626]/10 pt-5"><span className={mxDiamond} aria-hidden="true"></span>Professional Information</h3>
                 
                 <div>
                   <Label htmlFor="experience">Years of Experience</Label>
@@ -301,13 +302,13 @@ export function TeacherSignup() {
                         }
                       }}
                     />
-                    <Button type="button" onClick={addQualification}>
+                    <Button type="button" className={mxBtnOutline} onClick={addQualification}>
                       Add
                     </Button>
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {qualifications.map((qual) => (
-                      <Badge key={qual} variant="secondary" className="text-sm">
+                      <Badge key={qual} variant="secondary" className="mx-mono text-xs rounded-none border border-[#16857B]/25 bg-[#16857B]/[0.07] text-[#16857B] hover:bg-[#16857B]/[0.12]">
                         {qual}
                         <button
                           type="button"
@@ -337,13 +338,13 @@ export function TeacherSignup() {
                         }
                       }}
                     />
-                    <Button type="button" onClick={addSubject}>
+                    <Button type="button" className={mxBtnOutline} onClick={addSubject}>
                       Add
                     </Button>
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {subjects.map((subj) => (
-                      <Badge key={subj} variant="secondary" className="text-sm">
+                      <Badge key={subj} variant="secondary" className="mx-mono text-xs rounded-none border border-[#16857B]/25 bg-[#16857B]/[0.07] text-[#16857B] hover:bg-[#16857B]/[0.12]">
                         {subj}
                         <button
                           type="button"
@@ -372,8 +373,8 @@ export function TeacherSignup() {
               </div>
 
               {/* Availability Preference */}
-              <div className="space-y-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <h3 className="text-lg font-semibold text-blue-900">Institute Searchability</h3>
+              <div className={`space-y-4 p-4 ${mxTealPanel}`}>
+                <h3 className="mx-serif text-xl font-semibold tracking-tight text-[#0B1626]">Institute Searchability</h3>
                 <div className="flex items-start gap-3">
                   <Checkbox
                     id="isAvailable"
@@ -385,18 +386,18 @@ export function TeacherSignup() {
                     <Label htmlFor="isAvailable" className="text-base cursor-pointer font-medium">
                       Available for institute searches
                     </Label>
-                    <p className="text-sm text-blue-700 mt-1">
+                    <p className="text-sm text-[#11655D] mt-1">
                       By enabling this, institutes can discover and contact you directly for job opportunities. Your profile will be visible in institute searches.
                     </p>
                   </div>
                 </div>
               </div>
 
-              <div className="flex gap-4">
-                <Button type="submit" className="flex-1" disabled={submitting}>
+              <div className="flex flex-wrap gap-4">
+                <Button type="submit" className={`w-full sm:w-auto sm:flex-1 h-11 ${mxBtnInk}`} disabled={submitting}>
                   {submitting ? 'Creating account…' : 'Create Profile'}
                 </Button>
-                <Button type="button" variant="outline" onClick={() => navigate('/login')}>
+                <Button type="button" variant="outline" className={mxBtnOutline} onClick={() => navigate('/login')}>
                   Already have an account?
                 </Button>
               </div>

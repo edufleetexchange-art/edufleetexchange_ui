@@ -33,6 +33,7 @@ import {
   DialogDescription 
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
+import { mxPaperCard, mxTealPanel, mxAmberPanel, mxDiamond, mxBtnInk, mxBtnAmber } from '@/lib/meridian';
 import { Textarea } from '@/components/ui/textarea';
 
 const formatLocation = (location: any): string => {
@@ -119,7 +120,7 @@ export function JobDetails() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background py-8">
+      <div className="min-h-screen bg-[#F3F5F7] text-[#0B1626] py-8">
         <div className="container mx-auto px-4">
           <Skeleton className="w-32 h-8 mb-6" />
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -137,10 +138,10 @@ export function JobDetails() {
 
   if (!job) {
     return (
-      <div className="min-h-screen bg-background py-12">
+      <div className="min-h-screen bg-[#F3F5F7] text-[#0B1626] py-12">
         <div className="container mx-auto px-4 text-center">
-          <h1 className="text-2xl font-bold mb-4">Job not found</h1>
-          <Button onClick={() => navigate('/jobs')}>Browse Jobs</Button>
+          <h1 className="mx-serif text-2xl font-bold tracking-tight mb-4">Job not found</h1>
+          <Button className={mxBtnInk} onClick={() => navigate('/jobs')}>Browse Jobs</Button>
         </div>
       </div>
     );
@@ -201,13 +202,13 @@ export function JobDetails() {
   };
 
   return (
-    <div className="min-h-screen bg-background py-8">
+    <div className="min-h-screen bg-[#F3F5F7] text-[#0B1626] py-8">
       <div className="container mx-auto px-4">
         {/* Back Button */}
         <Button
           variant="ghost"
           onClick={() => navigate('/jobs')}
-          className="mb-6 gap-2"
+          className="mx-mono mb-6 gap-2 rounded-none px-1 text-xs uppercase tracking-[0.18em] text-[#0B1626]/60 underline decoration-[#0B1626]/25 underline-offset-4 hover:bg-transparent hover:text-[#0B1626] hover:decoration-[#F0A62B]"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Jobs
@@ -218,30 +219,30 @@ export function JobDetails() {
           {/* Left Column - Job Details */}
           <div className="lg:col-span-2 space-y-6">
             {/* Header Card */}
-            <Card className="p-6">
+            <Card className={`p-6 ${mxPaperCard}`}>
               <div className="flex justify-between items-start mb-4">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
-                    <h1 className="text-2xl font-bold">{job.title}</h1>
+                    <h1 className="mx-serif text-3xl font-semibold tracking-tight">{job.title}</h1>
                     {job.isPriority && <PriorityBadge />}
                   </div>
-                  <p className="text-muted-foreground mb-4">{job.instituteName}</p>
+                  <p className="mx-mono text-xs uppercase tracking-[0.14em] text-[#16857B] mb-4">{job.instituteName}</p>
                   
                   <div className="flex flex-wrap gap-4 text-sm">
                     <div className="flex items-center gap-2">
-                      <MapPin className="w-4 h-4 text-muted-foreground" />
+                      <MapPin className="w-4 h-4 text-[#16857B]" />
                       <span>{formatLocation(job.location)}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Briefcase className="w-4 h-4 text-muted-foreground" />
+                      <Briefcase className="w-4 h-4 text-[#16857B]" />
                       <span>{job.type ? job.type.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : 'Full Time'}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Clock className="w-4 h-4 text-muted-foreground" />
+                      <Clock className="w-4 h-4 text-[#16857B]" />
                       <span>{formatExperience(job.experience)}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4 text-muted-foreground" />
+                      <Calendar className="w-4 h-4 text-[#16857B]" />
                      <span>Posted: {formatDate(job.postedDate || job.postedAt || job.createdAt)}</span>
                     </div>
                   </div>
@@ -249,46 +250,46 @@ export function JobDetails() {
               </div>
 
               {/* Salary */}
-              <div className="bg-primary/10 p-4 rounded-lg">
+              <div className={`${mxTealPanel} p-4`}>
                 <div className="flex items-center gap-2 mb-1">
-                  <DollarSign className="w-5 h-5 text-primary" />
-                  <span className="text-sm font-medium">Salary Range</span>
+                  <DollarSign className="w-5 h-5 text-[#16857B]" />
+                  <span className="mx-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-[#16857B]">Salary Range</span>
                 </div>
                 {/* Salary is public browse-level info; only contact/apply is gated. */}
-                <div className="text-2xl font-bold text-primary">
+                <div className="mx-serif text-3xl font-semibold tracking-tight text-[#0B1626]">
                   {formatSalary(job.salary)}
-                  <span className="text-sm font-normal text-muted-foreground ml-2">/month</span>
+                  <span className="mx-mono text-xs font-normal text-[#0B1626]/50 ml-2">/month</span>
                 </div>
               </div>
             </Card>
 
             {/* Description */}
-            <Card className="p-6">
-              <h2 className="text-xl font-semibold mb-4">Job Description</h2>
-              <p className="text-muted-foreground leading-relaxed">{job.description}</p>
+            <Card className={`p-6 ${mxPaperCard}`}>
+              <h2 className="mx-serif flex items-center gap-3 text-[22px] font-semibold tracking-tight mb-4"><span className={mxDiamond} aria-hidden="true"></span>Job Description</h2>
+              <p className="text-[#0B1626]/65 leading-relaxed">{job.description}</p>
             </Card>
 
             {/* Requirements */}
-            <Card className="p-6">
-              <h2 className="text-xl font-semibold mb-4">Requirements</h2>
+            <Card className={`p-6 ${mxPaperCard}`}>
+              <h2 className="mx-serif flex items-center gap-3 text-[22px] font-semibold tracking-tight mb-4"><span className={mxDiamond} aria-hidden="true"></span>Requirements</h2>
               <ul className="space-y-2">
                 {job.requirements?.map((req, index) => (
                   <li key={index} className="flex items-start gap-2">
-                    <CheckCircle className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                    <span className="text-muted-foreground">{req}</span>
+                    <CheckCircle className="w-5 h-5 text-[#16857B] flex-shrink-0 mt-0.5" />
+                    <span className="text-[#0B1626]/65">{req}</span>
                   </li>
                 ))}
               </ul>
             </Card>
 
             {/* Responsibilities */}
-            <Card className="p-6">
-              <h2 className="text-xl font-semibold mb-4">Responsibilities</h2>
+            <Card className={`p-6 ${mxPaperCard}`}>
+              <h2 className="mx-serif flex items-center gap-3 text-[22px] font-semibold tracking-tight mb-4"><span className={mxDiamond} aria-hidden="true"></span>Responsibilities</h2>
               <ul className="space-y-2">
                 {job.responsibilities?.map((resp, index) => (
                   <li key={index} className="flex items-start gap-2">
-                    <CheckCircle className="w-5 h-5 text-secondary flex-shrink-0 mt-0.5" />
-                    <span className="text-muted-foreground">{resp}</span>
+                    <CheckCircle className="w-5 h-5 text-[#2FB8AA] flex-shrink-0 mt-0.5" />
+                    <span className="text-[#0B1626]/65">{resp}</span>
                   </li>
                 ))}
               </ul>
@@ -296,13 +297,13 @@ export function JobDetails() {
 
             {/* Benefits */}
             {job.benefits && job.benefits.length > 0 && (
-              <Card className="p-6">
-                <h2 className="text-xl font-semibold mb-4">Benefits</h2>
+              <Card className={`p-6 ${mxPaperCard}`}>
+                <h2 className="mx-serif flex items-center gap-3 text-[22px] font-semibold tracking-tight mb-4"><span className={mxDiamond} aria-hidden="true"></span>Benefits</h2>
                 <ul className="space-y-2">
                   {job.benefits.map((benefit, index) => (
                     <li key={index} className="flex items-start gap-2">
-                      <CheckCircle className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
-                      <span className="text-muted-foreground">{benefit}</span>
+                      <CheckCircle className="w-5 h-5 text-[#F0A62B] flex-shrink-0 mt-0.5" />
+                      <span className="text-[#0B1626]/65">{benefit}</span>
                     </li>
                   ))}
                 </ul>
@@ -317,30 +318,30 @@ export function JobDetails() {
               <AdSlot placement="LIST_SIDEBAR" variant="sidebar" />
             </div>
 
-            <Card className="p-6 sticky top-20">
-              <h3 className="font-semibold mb-4">Apply for this position</h3>
+            <Card className={`p-6 sticky top-24 ${mxPaperCard}`}>
+              <h3 className="mx-serif text-xl font-semibold tracking-tight mb-4">Apply for this position</h3>
               
               {!isUnmasked && (
-                <div className="bg-yellow-100 border border-yellow-300 p-3 rounded-lg mb-4 text-sm">
-                  <Lock className="w-4 h-4 text-yellow-700 inline mr-2" />
-                  <span className="text-yellow-700">Login to view full details and apply</span>
+                <div className={`${mxAmberPanel} p-3 mb-4 text-sm`}>
+                  <Lock className="w-4 h-4 text-[#A66B00] inline mr-2" />
+                  <span className="text-[#7A5200]">Login to view full details and apply</span>
                 </div>
               )}
 
               <div className="space-y-4 mb-6">
                 <div className="flex items-center gap-3">
-                  <Building className="w-5 h-5 text-muted-foreground" />
+                  <Building className="w-5 h-5 text-[#16857B]" />
                   <div>
-                    <p className="text-sm text-muted-foreground">Department</p>
+                    <p className="mx-mono text-[10px] uppercase tracking-[0.18em] text-[#0B1626]/50">Department</p>
                     <p className="font-medium">{job.department}</p>
                   </div>
                 </div>
 
                 {job.applicationDeadline && (
                   <div className="flex items-center gap-3">
-                    <Calendar className="w-5 h-5 text-muted-foreground" />
+                    <Calendar className="w-5 h-5 text-[#16857B]" />
                     <div>
-                      <p className="text-sm text-muted-foreground">Deadline</p>
+                      <p className="mx-mono text-[10px] uppercase tracking-[0.18em] text-[#0B1626]/50">Deadline</p>
                       <p className="font-medium">{formatDate(job.applicationDeadline)}</p>
                     </div>
                   </div>
@@ -348,17 +349,17 @@ export function JobDetails() {
 
                 {isUnmasked && job.applicants !== undefined && (
                   <div className="flex items-center gap-3">
-                    <Users className="w-5 h-5 text-muted-foreground" />
+                    <Users className="w-5 h-5 text-[#16857B]" />
                     <div>
-                      <p className="text-sm text-muted-foreground">Applicants</p>
+                      <p className="mx-mono text-[10px] uppercase tracking-[0.18em] text-[#0B1626]/50">Applicants</p>
                       <p className="font-medium">{job.applicants} applied</p>
                     </div>
                   </div>
                 )}
               </div>
 
-              <Button 
-                className="w-full mb-4" 
+              <Button
+                className={`w-full mb-4 ${mxBtnAmber}`}
                 size="lg"
                 onClick={handleApply}
                 disabled={hasApplied}
@@ -366,8 +367,8 @@ export function JobDetails() {
                 {user ? (hasApplied ? 'Already Applied' : 'Apply Now') : 'Login to Apply'}
               </Button>
 
-              <div className="border-t border-border pt-4 space-y-3">
-                <h4 className="font-medium text-sm">Contact Information</h4>
+              <div className="border-t border-[#0B1626]/10 pt-4 space-y-3">
+                <h4 className="mx-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-[#0B1626]/60">Contact Information</h4>
                 {isUnmasked ? (
                   <div className="space-y-2 text-sm">
                     {(job.contactEmail || job.instituteEmail || job.instituteId?.email) ? (

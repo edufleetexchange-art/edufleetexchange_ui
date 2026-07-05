@@ -94,14 +94,14 @@ export function JobCard({ job, isListing = false, className, style }: JobCardPro
       className={`cursor-pointer relative group flex-shrink-0 w-full h-full min-h-[192px] ${className || ''}`}
       style={style}
     >
-      <Card className="overflow-hidden border border-border/60 shadow-sm hover:shadow-md transition-all duration-300 rounded-lg w-full h-full flex flex-col p-2 bg-card group-hover:border-primary/40 border-beam">
+      <Card className="overflow-hidden border border-[#0B1626]/15 shadow-none group-hover:border-[#0B1626]/35 group-hover:shadow-[0_16px_32px_-20px_rgba(3,9,20,0.45)] transition-all duration-300 rounded-md w-full h-full flex flex-col p-2 bg-white">
         {/* Compact Header */}
         <div className="flex items-start justify-between gap-1 mb-1">
-          <div className="bg-primary/10 p-1.5 rounded-md">
-            <Briefcase className="w-4 h-4 text-primary" />
+          <div className="border border-[#16857B]/25 bg-[#16857B]/[0.08] p-1.5 rounded-sm">
+            <Briefcase className="w-4 h-4 text-[#16857B]" />
           </div>
           <div className="flex flex-col items-end gap-0.5">
-            <Badge variant="secondary" className="text-[8px] h-4 px-1 leading-none">
+            <Badge variant="secondary" className="mx-mono text-[8px] h-4 px-1 leading-none rounded-none border border-[#0B1626]/15 bg-[#F3F5F7] uppercase tracking-[0.08em] text-[#0B1626]/70">
               {getCategoryName(job.department || 'other', 'job')}
             </Badge>
             {job.isPriority && (
@@ -120,17 +120,17 @@ export function JobCard({ job, isListing = false, className, style }: JobCardPro
         <div className="flex flex-col flex-grow min-h-0">
           {!isUnmasked && !isListing ? (
             <MaskedContent variant="text" label="Login" className="h-4 w-full mb-0.5">
-              <h3 className="font-bold text-[13px] leading-tight line-clamp-2 text-foreground mb-0.5 group-hover:text-primary transition-colors">
+              <h3 className="font-bold text-[13px] leading-tight line-clamp-2 text-[#0B1626] mb-0.5 group-hover:text-[#16857B] transition-colors">
                 {job.title}
               </h3>
             </MaskedContent>
           ) : (
-            <h3 className="font-bold text-[13px] leading-tight line-clamp-2 text-foreground mb-0.5 group-hover:text-primary transition-colors" title={job.title}>
+            <h3 className="font-bold text-[13px] leading-tight line-clamp-2 text-[#0B1626] mb-0.5 group-hover:text-[#16857B] transition-colors" title={job.title}>
               {job.title}
             </h3>
           )}
           
-          <div className="flex flex-col gap-0.5 text-[10px] text-muted-foreground">
+          <div className="flex flex-col gap-0.5 text-[10px] text-[#0B1626]/55">
             <div className="flex items-center gap-1">
               <Building2 className="w-2.5 h-2.5 flex-shrink-0" />
               <span className="truncate">{job.instituteName}</span>
@@ -141,9 +141,9 @@ export function JobCard({ job, isListing = false, className, style }: JobCardPro
             </div>
           </div>
 
-          <div className="mt-auto pt-1.5 flex flex-col gap-1.5">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-0.5 text-[11px] font-bold text-primary">
+          <div className="mt-auto pt-1.5 flex flex-col gap-1.5 border-t border-[#0B1626]/10">
+            <div className="flex items-center justify-between pt-1">
+              <div className="mx-mono flex items-center gap-0.5 text-[11px] font-bold text-[#16857B]">
                 <DollarSign className="w-3 h-3" />
                 {isUnmasked || isListing ? (
                   <span className="truncate">
@@ -156,14 +156,14 @@ export function JobCard({ job, isListing = false, className, style }: JobCardPro
                   <MaskedContent variant="text" label="Login" className="w-10 h-3" />
                 )}
               </div>
-              <div className="text-[8px] text-muted-foreground">
+              <div className="mx-mono text-[8px] text-[#0B1626]/45">
                 {formatDate(job.postedAt || job.postedDate || job.createdAt)}
               </div>
             </div>
-            
-            <Button 
-              size="sm" 
-              className="w-full text-[10px] h-6 bg-primary hover:bg-primary/90 text-white border-none shadow-sm"
+
+            <Button
+              size="sm"
+              className="w-full text-[10px] h-6 rounded-sm bg-[#0B1626] hover:bg-[#13233A] text-white border-none shadow-none font-semibold transition-colors"
               onClick={(e) => {
                 e.stopPropagation();
                 handleClick();

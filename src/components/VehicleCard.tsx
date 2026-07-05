@@ -34,7 +34,7 @@ export function VehicleCard({ vehicle, isListing = false }: VehicleCardProps) {
       onClick={handleClick}
       className="cursor-pointer relative group flex-shrink-0 w-full h-full"
     >
-      <Card className="overflow-hidden border border-border/40 shadow-card hover:shadow-2xl hover:-translate-y-2 hover:border-primary/30 transition-all duration-500 rounded-xl w-full h-full flex flex-col p-0 bg-card border-beam">
+      <Card className="overflow-hidden border border-[#0B1626]/15 shadow-[0_2px_0_rgba(11,22,38,0.04)] hover:shadow-[0_26px_46px_-26px_rgba(3,9,20,0.55)] hover:-translate-y-1.5 hover:border-[#0B1626]/35 transition-all duration-300 rounded-md w-full h-full flex flex-col p-0 bg-white">
         {/* Image Container */}
         <div className="relative overflow-hidden bg-muted/50 aspect-[4/3] flex-shrink-0">
           {!isUnmasked && !isListing ? (
@@ -100,21 +100,21 @@ export function VehicleCard({ vehicle, isListing = false }: VehicleCardProps) {
         {/* Content */}
         <div className="p-5 flex flex-col flex-grow justify-between gap-3">
           <div className="min-h-0 space-y-2">
-            <h3 className="font-bold text-base leading-tight line-clamp-2 text-foreground group-hover:text-primary transition-colors" title={vehicle.title}>
+            <h3 className="mx-serif font-semibold text-[17px] leading-tight tracking-tight line-clamp-2 text-[#0B1626] group-hover:text-[#16857B] transition-colors" title={vehicle.title}>
               {vehicle.title}
             </h3>
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <span className="font-medium text-foreground/70">{vehicle.manufacturer}</span>
-              <span className="w-1 h-1 rounded-full bg-border"></span>
+            <div className="mx-mono flex items-center gap-2 text-[11px] text-[#0B1626]/55">
+              <span className="font-medium text-[#0B1626]/70">{vehicle.manufacturer}</span>
+              <span className="h-1 w-1 rotate-45 bg-[#F0A62B]"></span>
               <span>{vehicle.year}</span>
             </div>
           </div>
 
-          <div className="space-y-3 mt-auto pt-3 border-t border-border/40">
+          <div className="space-y-3 mt-auto pt-3 border-t border-[#0B1626]/10">
             <div className="flex items-center justify-between">
               <div className="min-w-0">
                 {isUnmasked || isListing ? (
-                  <div className="text-xl font-bold text-primary truncate">
+                  <div className="mx-serif text-xl font-semibold text-[#0B1626] truncate">
                     ₹{(vehicle.price / 100000).toFixed(2)} L
                   </div>
                 ) : (
@@ -129,25 +129,25 @@ export function VehicleCard({ vehicle, isListing = false }: VehicleCardProps) {
               </div>
               
               <div className="flex gap-2 flex-shrink-0">
-                <span className="text-xs bg-secondary/10 text-secondary px-2.5 py-1 rounded-md font-semibold border border-secondary/20">
+                <span className="mx-mono text-[10px] uppercase tracking-[0.08em] bg-[#16857B]/[0.07] text-[#16857B] px-2.5 py-1 rounded-none font-semibold border border-[#16857B]/25">
                   {getCategoryName(vehicle.type, 'vehicle')}
                 </span>
               </div>
             </div>
-            
+
             {/* Professional Call to Action Buttons */}
             <div className="grid grid-cols-2 gap-2.5">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="w-full text-xs h-9 font-semibold border-primary/40 text-primary hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all"
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full text-xs h-9 font-semibold rounded-none border-[#0B1626]/30 text-[#0B1626] shadow-none hover:bg-[#0B1626] hover:text-white hover:border-[#0B1626] transition-colors"
               >
                 View Details
               </Button>
-              <Button 
-                variant="default" 
-                size="sm" 
-                className="w-full text-xs h-9 font-semibold bg-accent hover:bg-accent-light text-accent-foreground border-none shadow-sm hover:shadow-md transition-all"
+              <Button
+                variant="default"
+                size="sm"
+                className="w-full text-xs h-9 font-semibold rounded-none bg-[#F0A62B] hover:bg-[#FFB63F] text-[#0B1626] border-none shadow-[3px_3px_0_rgba(11,22,38,0.18)] hover:shadow-[4px_4px_0_rgba(11,22,38,0.18)] hover:-translate-x-px hover:-translate-y-px transition-all"
               >
                 Enquire Now
               </Button>

@@ -20,6 +20,7 @@ import {
 import { ChevronLeft, ChevronRight, MapPin, Gauge, Calendar, User, Phone, Mail, Lock } from 'lucide-react';
 import { AdSlot } from '@/components/ads/AdSlot';
 import { MaskedContent } from '@/components/MaskedContent';
+import { mxPaperCard, mxAmberPanel, mxDiamond, mxBtnInk, mxBtnAmber } from '@/lib/meridian';
 
 export function ListingDetails() {
   const { id } = useParams();
@@ -97,9 +98,9 @@ export function ListingDetails() {
   if (error || !vehicle) {
     return (
       <div className="container mx-auto px-4 py-12 text-center">
-        <h1 className="text-2xl font-bold mb-4">Vehicle Not Found</h1>
+        <h1 className="mx-serif text-2xl font-bold tracking-tight mb-4">Vehicle Not Found</h1>
         <p className="text-muted-foreground mb-6">{error || 'The vehicle you are looking for does not exist.'}</p>
-        <Button onClick={() => navigate('/browse')}>Back to Browse</Button>
+        <Button className={mxBtnInk} onClick={() => navigate('/browse')}>Back to Browse</Button>
       </div>
     );
   }
@@ -121,11 +122,11 @@ export function ListingDetails() {
   };
 
   return (
-    <div className="min-h-screen bg-background py-8">
+    <div className="min-h-screen bg-[#F3F5F7] text-[#0B1626] py-8">
       <div className="container mx-auto px-4">
         {/* Back Button */}
         <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
-          <Button variant="ghost" onClick={() => navigate('/browse')} className="gap-2 self-start">
+          <Button variant="ghost" onClick={() => navigate('/browse')} className="mx-mono gap-2 self-start rounded-none px-1 text-xs uppercase tracking-[0.18em] text-[#0B1626]/60 underline decoration-[#0B1626]/25 underline-offset-4 hover:bg-transparent hover:text-[#0B1626] hover:decoration-[#F0A62B]">
             <ChevronLeft className="w-4 h-4" />
             Back to Browse
           </Button>
@@ -149,15 +150,15 @@ export function ListingDetails() {
 
         {/* Alert for Unmasked View */}
         {!isUnmasked && (
-          <Card className="mb-6 p-4 border-accent bg-accent/5">
+          <Card className={`mb-6 p-4 ${mxAmberPanel}`}>
             <div className="flex items-start gap-3">
-              <Lock className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
+              <Lock className="w-5 h-5 text-[#A66B00] flex-shrink-0 mt-0.5" />
               <div>
-                <h3 className="font-semibold mb-1">Full Details Require Login</h3>
-                <p className="text-sm text-muted-foreground mb-3">
+                <h3 className="mx-serif font-semibold tracking-tight mb-1">Full Details Require Login</h3>
+                <p className="text-sm text-[#7A5200] mb-3">
                   Price, seller information, and registration number are hidden for guest users.
                 </p>
-                <Button size="sm" onClick={() => navigate('/login')}>
+                <Button size="sm" className={mxBtnInk} onClick={() => navigate('/login')}>
                   Login to View Full Details
                 </Button>
               </div>
@@ -168,7 +169,7 @@ export function ListingDetails() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left: Images */}
           <div className="lg:col-span-2">
-            <div className="relative bg-muted rounded-lg overflow-hidden mb-4">
+            <div className="relative bg-[#0B1626]/5 rounded-md border border-[#0B1626]/15 overflow-hidden mb-4">
               {/* Photos are public browse-level info; contact/docs stay gated. */}
               {false ? (
                 <MaskedContent variant="image" label="Login to view image" className="w-full h-96">
@@ -217,8 +218,8 @@ export function ListingDetails() {
                   <button
                     key={idx}
                     onClick={() => setCurrentImageIndex(idx)}
-                    className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 smooth-transition ${
-                      idx === currentImageIndex ? 'border-primary' : 'border-border'
+                    className={`flex-shrink-0 w-16 h-16 rounded-sm overflow-hidden border-2 smooth-transition ${
+                      idx === currentImageIndex ? 'border-[#16857B]' : 'border-[#0B1626]/15'
                     }`}
                   >
                     <img src={img} alt={`Thumbnail ${idx + 1}`} className="w-full h-full object-cover" />
@@ -228,17 +229,17 @@ export function ListingDetails() {
             )}
 
             {/* Description */}
-            <Card className="p-6 mt-6">
-              <h2 className="text-2xl font-bold mb-4">About This Vehicle</h2>
-              <p className="text-muted-foreground mb-4">{vehicle.description}</p>
+            <Card className={`p-6 mt-6 ${mxPaperCard}`}>
+              <h2 className="mx-serif flex items-center gap-3 text-2xl font-semibold tracking-tight mb-4"><span className={mxDiamond} aria-hidden="true"></span>About This Vehicle</h2>
+              <p className="text-[#0B1626]/65 mb-4">{vehicle.description}</p>
 
               {/* Features */}
               <div>
-                <h3 className="font-semibold mb-3">Features</h3>
+                <h3 className="mx-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-[#0B1626]/60 mb-3">Features</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {vehicle.features.map((feature, idx) => (
                     <div key={idx} className="flex items-center gap-2 text-sm">
-                      <div className="w-2 h-2 bg-primary rounded-full" />
+                      <div className="w-1.5 h-1.5 bg-[#16857B] rotate-45" />
                       {feature}
                     </div>
                   ))}
@@ -253,19 +254,19 @@ export function ListingDetails() {
             {vehicle.isPriority && <div className="mb-4"><PriorityBadge /></div>}
 
             {/* Title & Specs */}
-            <Card className="p-6 mb-6">
-              <h1 className="text-2xl font-bold mb-2">{vehicle.title}</h1>
-              <p className="text-sm text-muted-foreground mb-4">
+            <Card className={`p-6 mb-6 ${mxPaperCard}`}>
+              <h1 className="mx-serif text-[26px] font-semibold tracking-tight leading-tight mb-2">{vehicle.title}</h1>
+              <p className="mx-mono text-xs uppercase tracking-[0.12em] text-[#0B1626]/55 mb-4">
                 {vehicle.manufacturer} {vehicle.vehicleModel}
               </p>
 
               <div className="space-y-3 mb-6">
                 <div className="flex items-center gap-3 text-sm">
-                  <Calendar className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                  <Calendar className="w-4 h-4 text-[#16857B] flex-shrink-0" />
                   <span>Year: <strong>{vehicle.year}</strong></span>
                 </div>
                 <div className="flex items-center gap-3 text-sm">
-                  <Gauge className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                  <Gauge className="w-4 h-4 text-[#16857B] flex-shrink-0" />
                   <span>Mileage: <strong>{(vehicle.mileage / 1000).toFixed(0)}k km</strong></span>
                 </div>
                 <div className="flex items-center gap-3 text-sm capitalize">
@@ -275,12 +276,12 @@ export function ListingDetails() {
               </div>
 
               {/* Price */}
-              <div className="mb-6 pb-6 border-b border-border">
+              <div className="mb-6 pb-6 border-b border-[#0B1626]/10">
                 {/* Price is public browse-level info. */}
                 {true ? (
                   <div>
-                    <p className="text-sm text-muted-foreground mb-1">Price</p>
-                    <div className="text-4xl font-bold text-primary">
+                    <p className="mx-mono text-[10px] uppercase tracking-[0.18em] text-[#0B1626]/50 mb-1">Price</p>
+                    <div className="mx-serif text-4xl font-semibold tracking-tight text-[#0B1626]">
                       ₹{vehicle.price.toLocaleString()}
                     </div>
                   </div>
@@ -299,10 +300,10 @@ export function ListingDetails() {
               </div>
 
               {/* Registration Number */}
-              <div className="mb-6 pb-6 border-b border-border">
-                <p className="text-sm text-muted-foreground mb-1">Registration Number</p>
+              <div className="mb-6 pb-6 border-b border-[#0B1626]/10">
+                <p className="mx-mono text-[10px] uppercase tracking-[0.18em] text-[#0B1626]/50 mb-1">Registration Number</p>
                 {isUnmasked ? (
-                  <p className="font-mono font-semibold">{vehicle.registrationNumber}</p>
+                  <p className="mx-mono font-semibold">{vehicle.registrationNumber}</p>
                 ) : (
                   <MaskedContent variant="text" label="Login to view">
                     AB00 XY 1234
@@ -311,31 +312,31 @@ export function ListingDetails() {
               </div>
 
               {/* Insurance & Documents */}
-              <div className="mb-6 pb-6 border-b border-border">
-                <p className="text-sm font-semibold mb-3">Insurance & Documents</p>
+              <div className="mb-6 pb-6 border-b border-[#0B1626]/10">
+                <p className="mx-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-[#0B1626]/60 mb-3">Insurance & Documents</p>
                 {isUnmasked ? (
                   <div className="space-y-2 text-sm">
                     {vehicle.insurance?.valid && (
                       <div>
-                        <p className="font-medium text-green-600">✓ Insurance Valid</p>
+                        <p className="font-medium text-[#16857B]">✓ Insurance Valid</p>
                         <p className="text-xs text-muted-foreground">{vehicle.insurance.provider} • Expires: {vehicle.insurance.expiryDate}</p>
                       </div>
                     )}
                     {vehicle.fitness?.valid && (
                       <div>
-                        <p className="font-medium text-green-600">✓ Fitness Certificate Valid</p>
+                        <p className="font-medium text-[#16857B]">✓ Fitness Certificate Valid</p>
                         <p className="text-xs text-muted-foreground">Expires: {vehicle.fitness.expiryDate}</p>
                       </div>
                     )}
                     {vehicle.roadTax?.valid && (
                       <div>
-                        <p className="font-medium text-green-600">✓ Road Tax Valid</p>
+                        <p className="font-medium text-[#16857B]">✓ Road Tax Valid</p>
                         <p className="text-xs text-muted-foreground">Expires: {vehicle.roadTax.expiryDate}</p>
                       </div>
                     )}
                     {vehicle.permit?.valid && (
                       <div>
-                        <p className="font-medium text-green-600">✓ Permit Valid</p>
+                        <p className="font-medium text-[#16857B]">✓ Permit Valid</p>
                         <p className="text-xs text-muted-foreground">{vehicle.permit.permitType} • Expires: {vehicle.permit.expiryDate}</p>
                       </div>
                     )}
@@ -352,19 +353,19 @@ export function ListingDetails() {
 
               {/* Seller Info */}
               <div className="mb-6">
-                <p className="text-sm font-semibold mb-3">Seller Information</p>
+                <p className="mx-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-[#0B1626]/60 mb-3">Seller Information</p>
                 {isUnmasked ? (
                   <div className="space-y-2 text-sm">
                     <div className="flex items-center gap-2">
-                      <User className="w-4 h-4 text-muted-foreground" />
+                      <User className="w-4 h-4 text-[#16857B]" />
                       <span>{vehicle.sellerName}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Mail className="w-4 h-4 text-muted-foreground" />
+                      <Mail className="w-4 h-4 text-[#16857B]" />
                       <span>{vehicle.sellerEmail}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Phone className="w-4 h-4 text-muted-foreground" />
+                      <Phone className="w-4 h-4 text-[#16857B]" />
                       <span>{vehicle.sellerPhone}</span>
                     </div>
                   </div>
@@ -376,7 +377,7 @@ export function ListingDetails() {
               {/* Contact Button */}
               <Button
                 size="lg"
-                className="w-full gap-2"
+                className={`w-full gap-2 ${mxBtnAmber}`}
                 onClick={handleContactClick}
               >
                 <Mail className="w-4 h-4" />
