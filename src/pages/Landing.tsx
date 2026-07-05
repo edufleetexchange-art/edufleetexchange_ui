@@ -107,77 +107,84 @@ export function Landing() {
   ];
 
   return (
-    <div className="min-h-screen bg-background font-sans noise-bg relative">
+    <div className="relative min-h-screen bg-[#F3F5F7] text-[#0B1626]">
+      <style>{`
+        .lp-serif { font-family: 'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', Palatino, Georgia, 'Times New Roman', serif; }
+        .lp-mono { font-family: 'Geist Mono', 'SF Mono', ui-monospace, Menlo, Consolas, monospace; }
+        @keyframes lp-drift { 0%, 100% { transform: translate3d(0, 0, 0); } 50% { transform: translate3d(0, -22px, 0); } }
+        .lp-drift { animation: lp-drift 10s ease-in-out infinite; }
+        @keyframes lp-rotate { to { transform: rotate(360deg); } }
+        .lp-rotate { animation: lp-rotate 150s linear infinite; }
+        @media (prefers-reduced-motion: reduce) {
+          .lp-drift, .lp-rotate, .lp-anim { animation: none !important; transition: none !important; }
+        }
+      `}</style>
 
-      {/* Hero Section - Professional Premium Design */}
-      <section className="relative pt-24 pb-28 md:pt-36 md:pb-40 overflow-hidden">
-        {/* Professional Background Image with Overlay */}
-        <div className="absolute inset-0 z-0">
-          <img
-            src="https://v3b.fal.media/files/b/0a8b3c54/2hCADZMTxkHVX4wRB75ZE.png"
-            alt="Educational Marketplace"
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.97] via-primary/90 to-secondary/85"></div>
-          <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-primary/60 to-transparent"></div>
+      {/* Hero Section — Meridian Exchange: asymmetric ink-navy composition */}
+      <section className="relative bg-[#081120] text-white">
+        {/* Layered CSS background: cartographic grid + meridian rings + teal aurora */}
+        <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(148,180,214,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,180,214,0.05)_1px,transparent_1px)] [background-size:64px_64px] [mask-image:linear-gradient(to_bottom,black_30%,transparent_92%)]"></div>
+          <div className="lp-drift absolute -left-44 bottom-[-180px] h-[620px] w-[620px] rounded-full bg-[#16857B]/25 blur-[140px]"></div>
+          <div className="absolute -top-48 right-[-10%] h-[560px] w-[560px] rounded-full bg-[#13305B]/45 blur-[120px]"></div>
+          {/* Signature: meridian instrument rings */}
+          <div className="lp-rotate absolute right-[-300px] top-24 h-[560px] w-[560px] md:right-[-160px] lg:right-[-40px] lg:h-[700px] lg:w-[700px]">
+            <div className="absolute inset-0 rounded-full border border-white/10"></div>
+            <div className="absolute inset-[13%] rounded-full border border-white/[0.13]"></div>
+            <div className="absolute inset-[27%] rounded-full border border-[#2FB8AA]/40"></div>
+            <div className="absolute inset-[41%] rounded-full border-2 border-[#F0A62B]/45"></div>
+            <div className="absolute inset-[55%] rounded-full bg-[#16857B]/30 blur-3xl"></div>
+            <div className="absolute left-1/2 top-0 h-full w-px bg-gradient-to-b from-transparent via-white/[0.12] to-transparent"></div>
+            <div className="absolute top-1/2 left-0 h-px w-full bg-gradient-to-r from-transparent via-white/[0.12] to-transparent"></div>
+            <div className="absolute left-1/2 top-[13%] h-2 w-2 -translate-x-1/2 rotate-45 bg-[#F0A62B]/80"></div>
+            <div className="absolute left-[27%] top-1/2 h-1.5 w-1.5 -translate-y-1/2 rotate-45 bg-[#7BE8DB]/70"></div>
+          </div>
         </div>
 
-        {/* Premium Background Elements */}
-        <div className="absolute inset-0 opacity-[0.07] z-[1]">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,#ffffff_0.5px,transparent_0.5px)] [background-size:28px_28px]"></div>
-        </div>
-        <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-[1]" aria-hidden="true">
-          <div className="absolute top-10 -left-20 w-[500px] h-[500px] bg-secondary/25 rounded-full blur-[130px] animate-float"></div>
-          <div className="absolute bottom-10 -right-20 w-[600px] h-[600px] bg-accent/[0.12] rounded-full blur-[150px] animate-float delay-1000"></div>
-        </div>
-
-        <div className="container relative z-10 mx-auto px-4 lg:px-6 text-center">
-          {/* Premium Trust Badge */}
-          <div className="inline-flex items-center gap-2 bg-white/[0.08] backdrop-blur-md border border-white/15 rounded-full pl-3.5 pr-4 py-1.5 mb-8 md:mb-10 animate-in-fade shadow-lg shadow-black/10">
-            <div className="w-1.5 h-1.5 bg-success rounded-full animate-pulse shadow-[0_0_5px_rgba(34,197,94,0.9)]"></div>
-            <span className="text-white/90 text-xs md:text-sm font-medium tracking-wide">Built for India&apos;s educational institutes</span>
+        <div className="container relative z-10 mx-auto px-4 pt-20 md:pt-28 lg:px-6">
+          {/* Registry tag */}
+          <div className="mb-8 inline-flex items-center gap-3 rounded-sm border border-white/15 bg-white/[0.04] px-4 py-2 md:mb-10">
+            <div className="lp-anim h-1.5 w-1.5 rotate-45 animate-pulse bg-[#7BE8DB]"></div>
+            <span className="lp-mono whitespace-nowrap text-[10px] tracking-[0.1em] text-white/80 sm:text-[11px] sm:tracking-[0.16em] md:text-xs">Built for India&apos;s educational institutes</span>
           </div>
 
-          {/* Professional Main Headline */}
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold text-white mb-6 md:mb-8 tracking-tight leading-[1.06] animate-in-slide-up [text-wrap:balance]">
+          {/* Display headline — editorial serif, left rail */}
+          <h1 className="lp-serif mb-7 max-w-4xl text-[44px] font-semibold leading-[1.04] tracking-[-0.01em] text-white sm:text-6xl md:mb-9 md:text-7xl md:leading-[0.98] lg:text-[86px]">
             India's Leading
             <br className="md:hidden" />
-            <span className="text-accent-light italic"> Education </span>
+            <span className="italic text-[#F0A62B]"> Education </span>
             <br />
             <span className="relative inline-block">
               Marketplace
-              <span className="absolute -bottom-2.5 md:-bottom-3 left-0 w-full h-[3px] md:h-1 bg-gradient-to-r from-accent via-accent-light to-transparent rounded-full opacity-90" aria-hidden="true"></span>
+              <span className="absolute -bottom-1.5 left-0 h-1 w-full bg-gradient-to-r from-[#2FB8AA] via-[#2FB8AA]/60 to-transparent md:-bottom-2.5 md:h-1.5" aria-hidden="true"></span>
             </span>
           </h1>
 
-          <p className="text-white/80 mb-10 md:mb-14 text-base md:text-lg lg:text-xl max-w-3xl mx-auto font-normal leading-relaxed animate-in-slide-up delay-100">
-            Connect with <span className="font-semibold text-white border-b border-accent/60 pb-px">Vehicles</span>, <span className="font-semibold text-white border-b border-accent/60 pb-px">Jobs</span>, <span className="font-semibold text-white border-b border-accent/60 pb-px">Suppliers</span> & <span className="font-semibold text-white border-b border-accent/60 pb-px">Teachers</span>
+          <p className="mb-10 max-w-2xl text-base leading-relaxed text-white/70 md:mb-12 md:text-lg">
+            Connect with <span className="border-b border-[#7BE8DB]/50 pb-px font-medium text-white">Vehicles</span>, <span className="border-b border-[#7BE8DB]/50 pb-px font-medium text-white">Jobs</span>, <span className="border-b border-[#7BE8DB]/50 pb-px font-medium text-white">Suppliers</span> & <span className="border-b border-[#7BE8DB]/50 pb-px font-medium text-white">Teachers</span>
             <br className="hidden md:block" />
-            <span className="text-white/65 mt-3 block text-sm md:text-base tracking-wide">The Definitive Resource for Modern Educational Infrastructure</span>
+            <span className="lp-mono mt-4 block text-[11px] uppercase tracking-[0.22em] text-white/45 md:text-xs">The Definitive Resource for Modern Educational Infrastructure</span>
           </p>
 
-          {/* Professional Search Box */}
-          <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-[0_24px_64px_-16px_rgba(0,0,0,0.45)] p-2 sm:p-2.5 flex flex-col md:flex-row gap-1.5 animate-in-scale delay-200 ring-1 ring-black/[0.06]">
+          {/* Search counter — hairline-divided paper bar, left-anchored */}
+          <div className="flex max-w-3xl flex-col divide-y divide-[#0B1626]/10 overflow-hidden rounded-lg bg-white text-[#0B1626] shadow-[0_36px_80px_-28px_rgba(3,9,20,0.75)] ring-1 ring-white/25 md:flex-row md:items-stretch md:divide-y-0">
             {/* Location Input */}
-            <div className="relative md:w-[28%]">
-              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground">
+            <div className="relative md:w-[30%] md:border-r md:border-[#0B1626]/10">
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#16857B]">
                 <MapPin className="w-[18px] h-[18px]" />
               </div>
               <input
                 type="text"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
-                className="w-full pl-11 pr-4 py-3.5 outline-none text-foreground text-[15px] font-medium bg-transparent placeholder:text-muted-foreground/70 placeholder:font-normal rounded-xl hover:bg-muted/40 focus:bg-muted/50 transition-colors"
+                className="w-full bg-transparent py-4 pl-11 pr-4 text-[15px] font-medium text-[#0B1626] outline-none transition-colors placeholder:font-normal placeholder:text-[#0B1626]/40 focus:bg-[#16857B]/[0.06]"
                 placeholder="Bengaluru, India"
               />
             </div>
 
-            {/* Vertical Divider */}
-            <div className="hidden md:block w-px bg-border self-stretch my-2.5"></div>
-
             {/* Main Search Input */}
-            <div className="relative flex-1">
-              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground">
+            <div className="relative flex-1 md:border-r md:border-[#0B1626]/10">
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#0B1626]/45">
                 <Search className="w-[18px] h-[18px]" />
               </div>
               <input
@@ -185,18 +192,18 @@ export function Landing() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                className="w-full pl-11 pr-4 py-3.5 outline-none text-foreground text-[15px] font-medium bg-transparent placeholder:text-muted-foreground/70 placeholder:font-normal rounded-xl hover:bg-muted/40 focus:bg-muted/50 transition-colors"
+                className="w-full bg-transparent py-4 pl-11 pr-4 text-[15px] font-medium text-[#0B1626] outline-none transition-colors placeholder:font-normal placeholder:text-[#0B1626]/40 focus:bg-[#16857B]/[0.06]"
                 placeholder="Try: School Bus, Math Teacher, Lab Equipment..."
               />
             </div>
 
             {/* Search Button */}
-            <div className="md:w-40 flex items-center">
+            <div className="flex items-stretch p-1.5 md:w-40 md:p-2">
               <Button
                 onClick={handleSearch}
                 variant="default"
                 size="lg"
-                className="w-full font-semibold text-[15px] rounded-xl flex items-center justify-center gap-2 min-h-[52px] shadow-md shadow-accent/25 hover:shadow-lg hover:shadow-accent/30 transition-all active:scale-[0.98] bg-accent hover:bg-accent/90 text-accent-foreground"
+                className="flex h-full min-h-[50px] w-full items-center justify-center gap-2 rounded-md bg-[#F0A62B] text-[15px] font-semibold text-[#0B1626] shadow-none transition-colors hover:bg-[#FFB63F] active:scale-[0.99]"
               >
                 Search
                 <ArrowRight className="w-4 h-4" />
@@ -204,9 +211,9 @@ export function Landing() {
             </div>
           </div>
 
-          {/* Professional Popular Searches */}
-          <div className="mt-7 flex flex-wrap items-center justify-center gap-2 sm:gap-2.5 animate-in-fade delay-300">
-            <span className="text-white/60 text-xs font-semibold uppercase tracking-wider">Popular:</span>
+          {/* Popular searches — mono index links */}
+          <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2.5">
+            <span className="lp-mono text-[10px] font-semibold uppercase tracking-[0.3em] text-[#F0A62B]">Popular:</span>
             {['School Buses', 'Teaching Jobs', 'Lab Suppliers', 'Textbooks'].map((term, idx) => (
               <button
                 key={idx}
@@ -214,32 +221,31 @@ export function Landing() {
                   setSearchQuery(term);
                   handleSearch();
                 }}
-                className="px-4 py-1.5 bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 hover:border-white/35 rounded-full text-white/90 hover:text-white text-[13px] font-medium transition-colors duration-200"
+                className="lp-mono text-xs text-white/65 underline decoration-white/25 underline-offset-4 transition-colors hover:text-white hover:decoration-[#F0A62B]"
               >
                 {term}
               </button>
             ))}
           </div>
 
-          {/* Professional Quick Links Card */}
-          <div className="max-w-5xl mx-auto mt-20 md:mt-24 animate-in-slide-up delay-400">
-            <div className="bg-white rounded-3xl shadow-[0_24px_80px_-24px_rgba(0,0,0,0.35)] ring-1 ring-black/[0.05] px-4 pt-10 pb-7 md:px-10 md:pt-12 md:pb-10 relative">
-              <div className="absolute -top-[18px] left-1/2 -translate-x-1/2 bg-gradient-to-r from-primary to-primary-light px-7 py-2.5 rounded-full shadow-lg shadow-primary/25 ring-1 ring-white/10 whitespace-nowrap">
-                <span className="text-[11px] md:text-xs font-semibold text-white tracking-[0.16em] uppercase">Explore Everything</span>
+          {/* Exchange counter — hairline-grid quick links band breaking the hero edge */}
+          <div className="relative -mb-16 mt-16 md:-mb-20 md:mt-24">
+            <div className="overflow-hidden rounded-xl border border-[#0B1626]/15 bg-white text-[#0B1626] shadow-[0_44px_90px_-32px_rgba(3,9,20,0.55)]">
+              <div className="flex items-center gap-3 border-b border-[#0B1626]/10 bg-[#F3F5F7] px-4 py-3 md:px-6">
+                <span className="h-2 w-2 rotate-45 bg-[#F0A62B]" aria-hidden="true"></span>
+                <span className="lp-mono text-[10px] font-semibold uppercase tracking-[0.3em] text-[#0B1626]/75 md:text-[11px]">Explore Everything</span>
               </div>
-              <div className="grid grid-cols-4 md:grid-cols-8 gap-y-7 gap-x-2 md:gap-x-4">
+              <div className="grid grid-cols-4 gap-px bg-[#0B1626]/10 md:grid-cols-8">
                 {quickLinks.map((link, idx) => (
                   <button
                     type="button"
                     key={idx}
                     onClick={() => navigate(link.path)}
                     aria-label={link.label}
-                    className="flex flex-col items-center gap-2.5 cursor-pointer group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-2xl p-1"
+                    className="group flex cursor-pointer flex-col items-center gap-2.5 bg-white px-1 py-5 transition-colors hover:bg-[#FDF4E1] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#F0A62B] md:py-7"
                   >
-                    <div className={`w-12 h-12 md:w-16 md:h-16 rounded-2xl ${link.bg} flex items-center justify-center transition-all duration-300 group-hover:-translate-y-1.5 group-hover:shadow-lg group-hover:shadow-black/[0.08] ring-1 ring-black/[0.03]`}>
-                      <link.icon className={`w-[22px] h-[22px] md:w-7 md:h-7 ${link.color} transition-transform duration-300 group-hover:scale-110`} />
-                    </div>
-                    <span className="text-[11px] md:text-[13px] font-medium text-gray-600 text-center group-hover:text-primary transition-colors line-clamp-2 leading-tight">
+                    <link.icon className="h-6 w-6 text-[#16857B] transition-transform duration-300 group-hover:-translate-y-1 md:h-7 md:w-7" />
+                    <span className="text-center text-[11px] font-medium leading-tight text-[#0B1626]/65 transition-colors line-clamp-2 group-hover:text-[#0B1626] md:text-xs">
                       {link.label}
                     </span>
                   </button>
@@ -251,7 +257,7 @@ export function Landing() {
       </section>
 
       {/* Top Banner Ad (Below Hero) */}
-      <div className="container mx-auto px-4 py-10 md:py-12">
+      <div className="container mx-auto px-4 pb-8 pt-28 md:pb-10 md:pt-32">
         <AdSlot placement="LP_TOP_BANNER" variant="banner" />
       </div>
 
@@ -262,22 +268,22 @@ export function Landing() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-100px" }}
               transition={{ duration: 0.8, ease: "easeOut" }}
-              className="container mx-auto px-4 py-14 md:py-20"
+              className="container mx-auto px-4 py-12 md:py-16"
             >
-              <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8 md:mb-10">
-                <div className="flex flex-col gap-1.5">
-                  <h2 className="text-2xl md:text-[28px] font-display font-bold tracking-tight text-gray-900 flex items-center gap-3">
-                    <span className="inline-flex w-10 h-10 md:w-11 md:h-11 rounded-xl bg-primary/[0.07] ring-1 ring-primary/10 items-center justify-center shrink-0">
-                      <Truck className="w-5 h-5 md:w-[22px] md:h-[22px] text-primary" />
+              <div className="mb-10 flex flex-col justify-between gap-5 border-t border-[#0B1626]/15 pt-8 sm:flex-row sm:items-end md:mb-12 md:pt-10">
+                <div className="flex flex-col gap-2.5">
+                  <h2 className="lp-serif flex items-center gap-4 text-3xl font-semibold tracking-tight text-[#0B1626] md:text-[44px] md:leading-none">
+                    <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-sm border border-[#0B1626]/20 bg-white md:h-12 md:w-12">
+                      <Truck className="h-5 w-5 text-[#16857B]" />
                     </span>
                     Premium Vehicles
                   </h2>
-                  <p className="text-muted-foreground text-sm md:pl-[52px] lg:pl-14">Verified transport options for your institute</p>
+                  <p className="lp-mono text-[11px] uppercase tracking-[0.22em] text-[#16857B] md:pl-16">Verified transport options for your institute</p>
                 </div>
                 <Button
                   variant="outline"
                   onClick={() => navigate('/browse')}
-                  className="rounded-full border-primary/20 text-primary hover:bg-primary/[0.04] hover:border-primary/40 px-6 font-semibold shadow-xs transition-colors self-start sm:self-auto"
+                  className="self-start rounded-none border-0 border-b-2 border-[#0B1626] bg-transparent px-1 pb-2 font-semibold text-[#0B1626] shadow-none transition-colors hover:border-[#F0A62B] hover:bg-transparent hover:text-[#A66B00] sm:self-auto"
                 >
                   View All Vehicles
                   <ArrowRight className="w-4 h-4 ml-2" />
@@ -303,7 +309,7 @@ export function Landing() {
                     </motion.div>
                   ))
                 ) : (
-                  <p className="text-muted-foreground text-sm text-center col-span-full py-14 bg-muted/25 rounded-2xl border border-dashed border-border">No featured listings available</p>
+                  <p className="col-span-full border border-dashed border-[#0B1626]/20 bg-white/60 py-14 text-center text-sm text-[#0B1626]/55">No featured listings available</p>
                 )}
               </div>
             </motion.section>
@@ -316,23 +322,27 @@ export function Landing() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.8, ease: "easeOut" }}
-            className="bg-slate-50/90 border-y border-slate-200/60 py-14 md:py-20"
+            className="relative overflow-hidden bg-[#0B1626] py-16 text-white md:py-24"
           >
-            <div className="container mx-auto px-4">
-              <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8 md:mb-10">
-                <div className="flex flex-col gap-1.5">
-                  <h2 className="text-2xl md:text-[28px] font-display font-bold tracking-tight text-gray-900 flex items-center gap-3">
-                    <span className="inline-flex w-10 h-10 md:w-11 md:h-11 rounded-xl bg-orange-500/[0.08] ring-1 ring-orange-500/10 items-center justify-center shrink-0">
-                      <Briefcase className="w-5 h-5 md:w-[22px] md:h-[22px] text-orange-600" />
+            <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+              <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(148,180,214,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,180,214,0.05)_1px,transparent_1px)] [background-size:64px_64px] [mask-image:linear-gradient(to_right,transparent,black_65%)]"></div>
+              <div className="absolute -right-40 -top-48 h-[480px] w-[480px] rounded-full bg-[#16857B]/20 blur-[120px]"></div>
+            </div>
+            <div className="container relative mx-auto px-4">
+              <div className="mb-10 flex flex-col justify-between gap-5 sm:flex-row sm:items-end md:mb-12">
+                <div className="flex flex-col gap-2.5">
+                  <h2 className="lp-serif flex items-center gap-4 text-3xl font-semibold tracking-tight text-white md:text-[44px] md:leading-none">
+                    <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-sm border border-white/25 bg-white/[0.04] md:h-12 md:w-12">
+                      <Briefcase className="h-5 w-5 text-[#F0A62B]" />
                     </span>
                     Hot Jobs
                   </h2>
-                  <p className="text-muted-foreground text-sm md:pl-[52px] lg:pl-14">Exciting career opportunities in top institutes</p>
+                  <p className="lp-mono text-[11px] uppercase tracking-[0.22em] text-[#7BE8DB] md:pl-16">Exciting career opportunities in top institutes</p>
                 </div>
                 <Button
                   variant="outline"
                   onClick={() => navigate('/jobs')}
-                  className="rounded-full border-orange-200 text-orange-600 hover:bg-orange-50 hover:border-orange-300 px-6 font-semibold shadow-xs transition-colors self-start sm:self-auto"
+                  className="self-start rounded-none border-0 border-b-2 border-white bg-transparent px-1 pb-2 font-semibold text-white shadow-none transition-colors hover:border-[#F0A62B] hover:bg-transparent hover:text-[#F0A62B] sm:self-auto"
                 >
                   Explore Jobs
                   <ArrowRight className="w-4 h-4 ml-2" />
@@ -342,7 +352,7 @@ export function Landing() {
               <div className="grid grid-cols-[repeat(auto-fill,minmax(192px,1fr))] gap-5 md:gap-6">
                 {jobsLoading ? (
                   Array.from({ length: 4 }).map((_, i) => (
-                    <Skeleton key={i} className="w-full h-[192px] rounded-xl" />
+                    <Skeleton key={i} className="w-full h-[192px] rounded-xl bg-white/10" />
                   ))
                 ) : featuredJobs.length > 0 ? (
                   featuredJobs.map((job, idx) => (
@@ -355,12 +365,12 @@ export function Landing() {
                     >
                       <JobCard
                         job={job}
-                        className="bg-white shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-300"
+                        className="bg-white transition-transform duration-300 hover:-translate-y-1"
                       />
                     </motion.div>
                   ))
                 ) : (
-                  <p className="text-muted-foreground text-sm text-center col-span-full py-14 bg-white/60 rounded-2xl border border-dashed border-slate-200">No jobs available</p>
+                  <p className="col-span-full border border-dashed border-white/20 bg-white/[0.04] py-14 text-center text-sm text-white/60">No jobs available</p>
                 )}
               </div>
             </div>
@@ -374,76 +384,78 @@ export function Landing() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-100px" }}
               transition={{ duration: 0.8, ease: "easeOut" }}
-              className="container mx-auto px-4 py-14 md:py-20"
+              className="relative py-16 md:py-24"
             >
-              <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8 md:mb-10">
-                <div className="flex flex-col gap-1.5">
-                  <h2 className="text-2xl md:text-[28px] font-display font-bold tracking-tight text-gray-900 flex items-center gap-3">
-                    <span className="inline-flex w-10 h-10 md:w-11 md:h-11 rounded-xl bg-green-600/[0.08] ring-1 ring-green-600/10 items-center justify-center shrink-0">
-                      <Building2 className="w-5 h-5 md:w-[22px] md:h-[22px] text-green-600" />
-                    </span>
-                    Top Suppliers
-                  </h2>
-                  <p className="text-muted-foreground text-sm md:pl-[52px] lg:pl-14">Reliable vendors for all your institute needs</p>
+              <div className="absolute inset-y-0 left-0 right-0 border-y border-[#16857B]/15 bg-[#16857B]/[0.05] md:left-16 md:border-l lg:left-24" aria-hidden="true"></div>
+              <div className="container relative mx-auto px-4">
+                <div className="mb-10 flex flex-col justify-between gap-5 sm:flex-row sm:items-end md:mb-12">
+                  <div className="flex flex-col gap-2.5">
+                    <h2 className="lp-serif flex items-center gap-4 text-3xl font-semibold tracking-tight text-[#0B1626] md:text-[44px] md:leading-none">
+                      <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-sm border border-[#16857B]/35 bg-white md:h-12 md:w-12">
+                        <Building2 className="h-5 w-5 text-[#16857B]" />
+                      </span>
+                      Top Suppliers
+                    </h2>
+                    <p className="lp-mono text-[11px] uppercase tracking-[0.22em] text-[#16857B] md:pl-16">Reliable vendors for all your institute needs</p>
+                  </div>
+                  <Button
+                    variant="outline"
+                    onClick={() => navigate('/suppliers')}
+                    className="self-start rounded-none border-0 border-b-2 border-[#0B1626] bg-transparent px-1 pb-2 font-semibold text-[#0B1626] shadow-none transition-colors hover:border-[#F0A62B] hover:bg-transparent hover:text-[#A66B00] sm:self-auto"
+                  >
+                    Find Suppliers
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
                 </div>
-                <Button
-                  variant="outline"
-                  onClick={() => navigate('/suppliers')}
-                  className="rounded-full border-green-200 text-green-600 hover:bg-green-50 hover:border-green-300 px-6 font-semibold shadow-xs transition-colors self-start sm:self-auto"
-                >
-                  Find Suppliers
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
-              </div>
 
-              <div className="grid grid-cols-[repeat(auto-fill,minmax(192px,1fr))] gap-5 md:gap-6">
-                {suppliersLoading ? (
-                  Array.from({ length: 4 }).map((_, i) => (
-                    <Skeleton key={i} className="w-full h-[192px] rounded-xl" />
-                  ))
-                ) : featuredSuppliers.length > 0 ? (
-                  featuredSuppliers.map((supplier, idx) => (
-                    <motion.div
-                      key={supplier.id || (supplier as any)._id}
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.5, delay: idx * 0.1 }}
-                    >
-                      <SupplierCard supplier={supplier} />
-                    </motion.div>
-                  ))
-                ) : (
-                  <p className="text-muted-foreground text-sm text-center col-span-full py-14 bg-muted/25 rounded-2xl border border-dashed border-border">No suppliers available</p>
-                )}
+                <div className="grid grid-cols-[repeat(auto-fill,minmax(192px,1fr))] gap-5 md:gap-6">
+                  {suppliersLoading ? (
+                    Array.from({ length: 4 }).map((_, i) => (
+                      <Skeleton key={i} className="w-full h-[192px] rounded-xl" />
+                    ))
+                  ) : featuredSuppliers.length > 0 ? (
+                    featuredSuppliers.map((supplier, idx) => (
+                      <motion.div
+                        key={supplier.id || (supplier as any)._id}
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.5, delay: idx * 0.1 }}
+                      >
+                        <SupplierCard supplier={supplier} />
+                      </motion.div>
+                    ))
+                  ) : (
+                    <p className="col-span-full border border-dashed border-[#16857B]/30 bg-white/60 py-14 text-center text-sm text-[#0B1626]/55">No suppliers available</p>
+                  )}
+                </div>
               </div>
             </motion.section>
           )}
 
       {/* Inline Ad */}
-      <div className="container mx-auto px-4 pb-14 md:pb-16">
+      <div className="container mx-auto px-4 py-10 md:py-14">
         <AdSlot placement="LP_INLINE_1" variant="banner" />
       </div>
 
       {/* Pricing Section */}
       <PricingSection />
 
-      {/* CTA Section */}
-      <section className="relative overflow-hidden bg-primary text-primary-foreground py-16 md:py-24">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary to-primary-light" aria-hidden="true"></div>
-        <div className="absolute inset-0 opacity-[0.06]" aria-hidden="true">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,#ffffff_0.5px,transparent_0.5px)] [background-size:28px_28px]"></div>
-        </div>
-        <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[640px] h-[320px] bg-secondary/20 rounded-full blur-[130px]" aria-hidden="true"></div>
-        <div className="container relative mx-auto px-4 text-center">
-          <h2 className="text-3xl md:text-4xl font-display font-bold tracking-tight text-white mb-4 md:mb-5 [text-wrap:balance]">List your Business on EduFleet</h2>
-          <p className="text-primary-foreground/75 mb-8 md:mb-10 max-w-2xl mx-auto text-base md:text-lg leading-relaxed">
+      {/* CTA Section — the bold amber moment */}
+      <section className="relative overflow-hidden bg-[#F0A62B] py-16 text-[#0B1626] md:py-24">
+        <div className="absolute inset-x-0 top-0 h-2.5 bg-[repeating-linear-gradient(135deg,#0B1626_0px,#0B1626_5px,transparent_5px,transparent_13px)] opacity-60" aria-hidden="true"></div>
+        <div className="absolute inset-x-0 bottom-0 h-2.5 bg-[repeating-linear-gradient(135deg,#0B1626_0px,#0B1626_5px,transparent_5px,transparent_13px)] opacity-60" aria-hidden="true"></div>
+        <div className="absolute -right-48 -top-64 h-[620px] w-[620px] rounded-full border-[22px] border-[#0B1626]/[0.08]" aria-hidden="true"></div>
+        <div className="absolute -right-20 -top-36 h-[360px] w-[360px] rounded-full border-[14px] border-[#0B1626]/[0.08]" aria-hidden="true"></div>
+        <div className="container relative mx-auto grid items-center gap-x-12 gap-y-8 px-4 md:grid-cols-[1fr_auto]">
+          <h2 className="lp-serif text-3xl font-semibold tracking-tight text-[#0B1626] md:col-start-1 md:row-start-1 md:text-5xl lg:text-[54px] lg:leading-[1.05] [text-wrap:balance]">List your Business on EduFleet</h2>
+          <p className="max-w-2xl text-base leading-relaxed text-[#0B1626]/75 md:col-start-1 md:row-start-2 md:text-lg">
             Reach thousands of educational institutes and students. Join India's fastest growing education marketplace.
           </p>
           <Button
             size="lg"
             variant="secondary"
-            className="font-semibold px-10 h-12 rounded-full shadow-lg shadow-black/20 hover:shadow-xl hover:shadow-black/25 hover:-translate-y-0.5 transition-all"
+            className="h-14 justify-self-start rounded-none bg-[#0B1626] px-10 font-semibold text-white shadow-[6px_6px_0_rgba(11,22,38,0.25)] transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:bg-[#13233A] hover:text-white hover:shadow-[9px_9px_0_rgba(11,22,38,0.25)] md:col-start-2 md:row-span-2 md:row-start-1 md:justify-self-end"
             onClick={() => navigate('/signup')}
           >
             Start Selling Today
