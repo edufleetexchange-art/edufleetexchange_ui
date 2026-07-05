@@ -38,6 +38,18 @@ import { AdSlot } from '@/components/ads/AdSlot';
 import { ApplicantsList } from '@/components/ApplicantsList';
 import { ConfirmDestructive } from '@/components/ConfirmDestructive';
 import { recommendationService, type TeacherRecommendation } from '@/api/services/recommendationService';
+import {
+  mxPaperCard,
+  mxEmptyPanel,
+  mxAmberPanel,
+  mxTealPanel,
+  mxLabel,
+  mxBtnInk,
+  mxBtnOutline,
+  mxBtnAmber,
+  mxLinkBtn,
+  mxInput,
+} from '@/lib/meridian';
 
 interface DashboardProps {
   initialTab?: string;
@@ -85,8 +97,10 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
     if (user?.id) {
       refreshProfile();
       ensureSubscription();
-      refetchListings();
-      refetchJobs();
+      if (isInstitute) {
+        refetchListings();
+        refetchJobs();
+      }
       if (isInstitute) {
         fetchRecentApplications();
       }
@@ -347,8 +361,8 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
   // Loading state while checking auth (shouldn't normally show due to ProtectedRoute)
   if (!user) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      <div className="flex items-center justify-center min-h-screen bg-[#F3F5F7]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#16857B]"></div>
       </div>
     );
   }
@@ -362,17 +376,17 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
   }
 
   return (
-    <div className="min-h-screen bg-background py-8">
-      <div className="container mx-auto px-4">
-        {/* Ad Placement */}
-        <div className="mb-8">
-          <AdSlot placement="DASH_TOP" variant="banner" />
+    <div className="min-h-screen bg-[#F3F5F7] text-[#0B1626]">
+      {/* Header — ink-navy ledger band (Meridian Exchange) */}
+      <section className="relative overflow-hidden bg-[#081120] py-8 text-white sm:py-10">
+        <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+          <div className="absolute inset-0 mx-grid-ink [mask-image:linear-gradient(to_right,transparent,black_45%)]"></div>
+          <div className="absolute -right-28 -top-44 h-[380px] w-[380px] rounded-full bg-[#16857B]/20 blur-[110px]"></div>
         </div>
-
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold mb-2">Welcome, {user.name}</h1>
-          <p className="text-muted-foreground">{instituteProfile?.instituteName}</p>
+        <div className="container relative z-10 mx-auto px-4">
+          <h1 className="mx-serif text-2xl sm:text-3xl font-semibold tracking-tight text-white mb-2">Welcome, {user.name}</h1>
+          <div className="mt-2 mb-3 h-1 w-24 bg-gradient-to-r from-[#2FB8AA] via-[#2FB8AA]/60 to-transparent" aria-hidden="true"></div>
+          <p className="text-sm text-white/65">{instituteProfile?.instituteName}</p>
           {/* Verification status */}
           {isInstitute && (() => {
             const vStatus = (instituteProfile as any)?.verification?.status;
@@ -381,13 +395,13 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
             }
             if (vStatus === 'pending') {
               return (
-                <div className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 text-amber-700 text-xs font-medium border border-amber-500/20">
+                <div className="mt-2 inline-flex items-center gap-1.5 mx-mono text-[10px] font-semibold uppercase tracking-[0.08em] rounded-none border px-2 py-0.5 border-[#F0A62B]/50 bg-[#F0A62B]/15 text-[#F0A62B]">
                   Verification under review
                 </div>
               );
             }
             return (
-              <Button size="sm" variant="outline" className="mt-2 gap-1.5 text-xs" onClick={() => setShowVerifyDialog(true)}>
+              <Button size="sm" variant="outline" className="mt-2 gap-1.5 text-xs rounded-none border-white/40 bg-transparent text-white shadow-none transition-colors hover:bg-white hover:text-[#0B1626]" onClick={() => setShowVerifyDialog(true)}>
                 Get verified
               </Button>
             );
@@ -399,6 +413,13 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
               onSubmitted={() => refreshProfile()}
             />
           )}
+        </div>
+      </section>
+
+      <div className="container mx-auto px-4 py-8">
+        {/* Ad Placement */}
+        <div className="mb-8">
+          <AdSlot placement="DASH_TOP" variant="banner" />
         </div>
 
         {/* Subscription Alerts & Usage Summary */}
@@ -424,75 +445,75 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-8">
           {isInstitute && (
             <>
-              <Card className="p-4 md:p-6">
-                <p className="text-sm text-muted-foreground mb-2">Total Listings</p>
-                <div className="text-2xl md:text-3xl font-bold text-primary">{stats.totalListings}</div>
+              <Card className={`p-4 md:p-6 ${mxPaperCard}`}>
+                <p className={`${mxLabel} mb-2`}>Total Listings</p>
+                <div className="mx-serif text-2xl md:text-3xl font-semibold tracking-tight text-[#16857B]">{stats.totalListings}</div>
               </Card>
-              <Card className="p-4 md:p-6">
-                <p className="text-sm text-muted-foreground mb-2">Active Listings</p>
-                <div className="text-2xl md:text-3xl font-bold text-secondary">{stats.activeListings}</div>
+              <Card className={`p-4 md:p-6 ${mxPaperCard}`}>
+                <p className={`${mxLabel} mb-2`}>Active Listings</p>
+                <div className="mx-serif text-2xl md:text-3xl font-semibold tracking-tight text-[#16857B]">{stats.activeListings}</div>
               </Card>
-              <Card className="p-4 md:p-6">
-                <p className="text-sm text-muted-foreground mb-2">Pending Approval</p>
-                <div className="text-2xl md:text-3xl font-bold text-accent">{stats.pendingApprovals}</div>
+              <Card className={`p-4 md:p-6 ${mxPaperCard}`}>
+                <p className={`${mxLabel} mb-2`}>Pending Approval</p>
+                <div className="mx-serif text-2xl md:text-3xl font-semibold tracking-tight text-[#A66B00]">{stats.pendingApprovals}</div>
               </Card>
-              <Card className="p-4 md:p-6">
-                <p className="text-sm text-muted-foreground mb-2">Total Views</p>
-                <div className="text-2xl md:text-3xl font-bold">{stats.totalViews}</div>
+              <Card className={`p-4 md:p-6 ${mxPaperCard}`}>
+                <p className={`${mxLabel} mb-2`}>Total Views</p>
+                <div className="mx-serif text-2xl md:text-3xl font-semibold tracking-tight text-[#0B1626]">{stats.totalViews}</div>
               </Card>
-              <Card className="p-4 md:p-6">
-                <p className="text-sm text-muted-foreground mb-2">Job Openings</p>
-                <div className="text-2xl md:text-3xl font-bold text-primary">{stats.totalJobs}</div>
+              <Card className={`p-4 md:p-6 ${mxPaperCard}`}>
+                <p className={`${mxLabel} mb-2`}>Job Openings</p>
+                <div className="mx-serif text-2xl md:text-3xl font-semibold tracking-tight text-[#16857B]">{stats.totalJobs}</div>
               </Card>
-              <Card className="p-4 md:p-6">
-                <p className="text-sm text-muted-foreground mb-2">Active Jobs</p>
-                <div className="text-2xl md:text-3xl font-bold text-secondary">{stats.activeJobs}</div>
+              <Card className={`p-4 md:p-6 ${mxPaperCard}`}>
+                <p className={`${mxLabel} mb-2`}>Active Jobs</p>
+                <div className="mx-serif text-2xl md:text-3xl font-semibold tracking-tight text-[#16857B]">{stats.activeJobs}</div>
               </Card>
-              <Card className="p-4 md:p-6">
-                <p className="text-sm text-muted-foreground mb-2">Applicants</p>
-                <div className="text-2xl md:text-3xl font-bold text-accent">{stats.totalApplicants}</div>
+              <Card className={`p-4 md:p-6 ${mxPaperCard}`}>
+                <p className={`${mxLabel} mb-2`}>Applicants</p>
+                <div className="mx-serif text-2xl md:text-3xl font-semibold tracking-tight text-[#A66B00]">{stats.totalApplicants}</div>
               </Card>
             </>
           )}
           
           {isVendor && (
             <>
-              <Card className="p-4 md:p-6 col-span-2">
-                <p className="text-sm text-muted-foreground mb-2">Profile Views</p>
+              <Card className={`p-4 md:p-6 col-span-2 ${mxPaperCard}`}>
+                <p className={`${mxLabel} mb-2`}>Profile Views</p>
                 {/* TODO: real view/contact counts from analytics endpoint */}
-                <div className="text-2xl md:text-3xl font-bold text-primary">—</div>
+                <div className="mx-serif text-2xl md:text-3xl font-semibold tracking-tight text-[#16857B]">—</div>
               </Card>
-              <Card className="p-4 md:p-6 col-span-2">
-                <p className="text-sm text-muted-foreground mb-2">Contact Requests</p>
-                <div className="text-2xl md:text-3xl font-bold text-secondary">—</div>
+              <Card className={`p-4 md:p-6 col-span-2 ${mxPaperCard}`}>
+                <p className={`${mxLabel} mb-2`}>Contact Requests</p>
+                <div className="mx-serif text-2xl md:text-3xl font-semibold tracking-tight text-[#16857B]">—</div>
               </Card>
-              <Card className="p-4 md:p-6 col-span-3">
-                <p className="text-sm text-muted-foreground mb-2">Current Plan</p>
-                <div className="text-xl font-bold text-accent">{activePlan?.displayName || 'Basic'}</div>
+              <Card className={`p-4 md:p-6 col-span-3 ${mxPaperCard}`}>
+                <p className={`${mxLabel} mb-2`}>Current Plan</p>
+                <div className="mx-serif text-xl font-semibold tracking-tight text-[#A66B00]">{activePlan?.displayName || 'Basic'}</div>
               </Card>
             </>
           )}
 
           {user?.role === 'teacher' && (
             <>
-              <Card className="p-4 md:p-6 col-span-2">
-                <p className="text-sm text-muted-foreground mb-2">Applied Jobs</p>
-                <div className="text-2xl md:text-3xl font-bold text-primary">{subscriptionStats?.jobPostsCount?.used || 0}</div>
+              <Card className={`p-4 md:p-6 col-span-2 ${mxPaperCard}`}>
+                <p className={`${mxLabel} mb-2`}>Applied Jobs</p>
+                <div className="mx-serif text-2xl md:text-3xl font-semibold tracking-tight text-[#16857B]">{subscriptionStats?.jobPostsCount?.used || 0}</div>
               </Card>
-              <Card className="p-4 md:p-6 col-span-2">
-                <p className="text-sm text-muted-foreground mb-2">Remaining Applications</p>
-                <div className="text-2xl md:text-3xl font-bold text-secondary">{subscriptionStats?.jobPostsCount?.remaining || 0}</div>
+              <Card className={`p-4 md:p-6 col-span-2 ${mxPaperCard}`}>
+                <p className={`${mxLabel} mb-2`}>Remaining Applications</p>
+                <div className="mx-serif text-2xl md:text-3xl font-semibold tracking-tight text-[#16857B]">{subscriptionStats?.jobPostsCount?.remaining || 0}</div>
               </Card>
-              <Card className="p-4 md:p-6 col-span-3">
-                <p className="text-sm text-muted-foreground mb-2">Profile Status</p>
-                <div className="text-xl font-bold text-accent capitalize">{planFeatures.profileVisibility || 'Basic'}</div>
+              <Card className={`p-4 md:p-6 col-span-3 ${mxPaperCard}`}>
+                <p className={`${mxLabel} mb-2`}>Profile Status</p>
+                <div className="mx-serif text-xl font-semibold tracking-tight text-[#A66B00] capitalize">{planFeatures.profileVisibility || 'Basic'}</div>
               </Card>
             </>
           )}
         </div>
 
         {/* Tabs */}
-        <div className="mb-6 border-b border-border flex gap-4 overflow-x-auto">
+        <div className="mb-6 border-b border-[#0B1626]/15 flex gap-4 overflow-x-auto">
           {!isVendor && (
             <>
               <button
@@ -500,10 +521,10 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
                   setActiveTab('listings');
                   setStatusFilter('all');
                 }}
-                className={`px-4 py-2 font-medium border-b-2 smooth-transition whitespace-nowrap ${
+                className={`mx-mono text-[12px] font-semibold uppercase tracking-[0.14em] px-4 py-2.5 border-b-2 transition-colors whitespace-nowrap ${
                   activeTab === 'listings'
-                    ? 'border-primary text-primary'
-                    : 'border-transparent text-muted-foreground hover:text-foreground'
+                    ? 'border-[#F0A62B] text-[#0B1626]'
+                    : 'border-transparent text-[#0B1626]/50 hover:text-[#0B1626]'
                 }`}
               >
                 My Listings
@@ -513,30 +534,30 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
                   setEditingListing(null);
                   setActiveTab('create');
                 }}
-                className={`px-4 py-2 font-medium border-b-2 smooth-transition whitespace-nowrap ${
+                className={`mx-mono text-[12px] font-semibold uppercase tracking-[0.14em] px-4 py-2.5 border-b-2 transition-colors whitespace-nowrap ${
                   activeTab === 'create'
-                    ? 'border-primary text-primary'
-                    : 'border-transparent text-muted-foreground hover:text-foreground'
+                    ? 'border-[#F0A62B] text-[#0B1626]'
+                    : 'border-transparent text-[#0B1626]/50 hover:text-[#0B1626]'
                 }`}
               >
                 {editingListing ? 'Edit Listing' : 'Create Listing'}
               </button>
               <button
                 onClick={() => setActiveTab('jobs')}
-                className={`px-4 py-2 font-medium border-b-2 smooth-transition whitespace-nowrap ${
+                className={`mx-mono text-[12px] font-semibold uppercase tracking-[0.14em] px-4 py-2.5 border-b-2 transition-colors whitespace-nowrap ${
                   activeTab === 'jobs'
-                    ? 'border-primary text-primary'
-                    : 'border-transparent text-muted-foreground hover:text-foreground'
+                    ? 'border-[#F0A62B] text-[#0B1626]'
+                    : 'border-transparent text-[#0B1626]/50 hover:text-[#0B1626]'
                 }`}
               >
                 My Jobs
               </button>
               <button
                 onClick={() => setActiveTab('create-job')}
-                className={`px-4 py-2 font-medium border-b-2 smooth-transition whitespace-nowrap ${
+                className={`mx-mono text-[12px] font-semibold uppercase tracking-[0.14em] px-4 py-2.5 border-b-2 transition-colors whitespace-nowrap ${
                   activeTab === 'create-job'
-                    ? 'border-primary text-primary'
-                    : 'border-transparent text-muted-foreground hover:text-foreground'
+                    ? 'border-[#F0A62B] text-[#0B1626]'
+                    : 'border-transparent text-[#0B1626]/50 hover:text-[#0B1626]'
                 }`}
               >
                 Create Job
@@ -544,10 +565,10 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
               {isInstitute && (
                 <button
                   onClick={() => setActiveTab('applications')}
-                  className={`px-4 py-2 font-medium border-b-2 smooth-transition whitespace-nowrap ${
+                  className={`mx-mono text-[12px] font-semibold uppercase tracking-[0.14em] px-4 py-2.5 border-b-2 transition-colors whitespace-nowrap ${
                     activeTab === 'applications'
-                      ? 'border-primary text-primary'
-                      : 'border-transparent text-muted-foreground hover:text-foreground'
+                      ? 'border-[#F0A62B] text-[#0B1626]'
+                      : 'border-transparent text-[#0B1626]/50 hover:text-[#0B1626]'
                   }`}
                 >
                   Applications
@@ -557,27 +578,27 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
           )}
           <button
             onClick={() => setActiveTab('profile')}
-            className={`px-4 py-2 font-medium border-b-2 smooth-transition whitespace-nowrap ${
+            className={`mx-mono text-[12px] font-semibold uppercase tracking-[0.14em] px-4 py-2.5 border-b-2 transition-colors whitespace-nowrap ${
               activeTab === 'profile'
-                ? 'border-primary text-primary'
-                : 'border-transparent text-muted-foreground hover:text-foreground'
+                ? 'border-[#F0A62B] text-[#0B1626]'
+                : 'border-transparent text-[#0B1626]/50 hover:text-[#0B1626]'
             }`}
           >
             Profile
           </button>
           <button
             onClick={() => setActiveTab('subscription')}
-            className={`px-4 py-2 font-medium border-b-2 smooth-transition whitespace-nowrap ${
+            className={`mx-mono text-[12px] font-semibold uppercase tracking-[0.14em] px-4 py-2.5 border-b-2 transition-colors whitespace-nowrap ${
               activeTab === 'subscription'
-                ? 'border-primary text-primary'
-                : 'border-transparent text-muted-foreground hover:text-foreground'
+                ? 'border-[#F0A62B] text-[#0B1626]'
+                : 'border-transparent text-[#0B1626]/50 hover:text-[#0B1626]'
             }`}
           >
             Subscription
           </button>
           <button
             onClick={() => navigate('/suppliers')}
-            className="px-4 py-2 font-medium border-b-2 border-transparent text-muted-foreground hover:text-foreground smooth-transition whitespace-nowrap"
+            className="mx-mono text-[12px] font-semibold uppercase tracking-[0.14em] px-4 py-2.5 border-b-2 border-transparent text-[#0B1626]/50 hover:text-[#0B1626] transition-colors whitespace-nowrap"
           >
             Browse Vendors
           </button>
@@ -589,7 +610,7 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
         ) : activeTab === 'subscription' ? (
           <div className="space-y-6">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold">Subscription Management</h2>
+              <h2 className="mx-serif text-2xl font-semibold tracking-tight">Subscription Management</h2>
             </div>
             <SubscriptionStatus 
               subscriptionData={subscriptionData} 
@@ -601,8 +622,8 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
         ) : activeTab === 'jobs' ? (
           <div>
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-0 mb-6">
-              <h2 className="text-2xl font-bold">My Job Openings</h2>
-              <Button onClick={() => setActiveTab('create-job')} className="gap-2">
+              <h2 className="mx-serif text-2xl font-semibold tracking-tight">My Job Openings</h2>
+              <Button onClick={() => setActiveTab('create-job')} className={`gap-2 ${mxBtnInk}`}>
                 <Plus className="w-4 h-4" />
                 New Job
               </Button>
@@ -618,26 +639,26 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
                 </div>
 
                 {/* Table View */}
-                <Card className="p-6">
-                  <h3 className="font-semibold mb-4">Job Management</h3>
+                <Card className={`p-6 ${mxPaperCard}`}>
+                  <h3 className="mx-serif text-lg font-semibold tracking-tight mb-4">Job Management</h3>
                   <div className="overflow-x-auto">
                     <Table>
                       <TableHeader>
-                        <TableRow>
-                          <TableHead>Position</TableHead>
-                          <TableHead>Department</TableHead>
-                          <TableHead>Status</TableHead>
-                          <TableHead>Applicants</TableHead>
-                          <TableHead className="text-right">Actions</TableHead>
+                        <TableRow className="border-[#0B1626]/10">
+                          <TableHead className="mx-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-[#0B1626]/60">Position</TableHead>
+                          <TableHead className="mx-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-[#0B1626]/60">Department</TableHead>
+                          <TableHead className="mx-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-[#0B1626]/60">Status</TableHead>
+                          <TableHead className="mx-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-[#0B1626]/60">Applicants</TableHead>
+                          <TableHead className="mx-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-[#0B1626]/60 text-right">Actions</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
                         {userJobs.map((job) => (
-                          <TableRow key={job.id || (job as any)._id}>
+                          <TableRow key={job.id || (job as any)._id} className="border-[#0B1626]/10">
                             <TableCell>
                               <div>
                                 <p className="font-medium line-clamp-1">{job.title}</p>
-                                <p className="text-xs text-muted-foreground">
+                                <p className="text-xs text-[#0B1626]/60">
                                   {typeof job.location === 'string' ? job.location : job.location?.city || 'Location not specified'}
                                 </p>
                               </div>
@@ -645,12 +666,12 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
                             <TableCell>{job.department}</TableCell>
                             <TableCell>
                               <span
-                                className={`text-xs font-medium px-2 py-1 rounded-full ${
-                                  (job.status as string) === 'approved'
-                                    ? 'bg-green-100 text-green-700'
+                                className={`mx-mono text-[10px] font-semibold uppercase tracking-[0.08em] rounded-none border px-2 py-0.5 ${
+                                  (job.status as string) === 'approved' || (job.status as string) === 'active'
+                                    ? 'border-[#16857B]/30 bg-[#16857B]/10 text-[#16857B]'
                                     : (job.status as string) === 'pending'
-                                    ? 'bg-yellow-100 text-yellow-700'
-                                    : 'bg-red-100 text-red-700'
+                                    ? 'border-[#F0A62B]/40 bg-[#FDF4E1] text-[#A66B00]'
+                                    : 'border-red-200 bg-red-50 text-red-700'
                                 }`}
                               >
                                 {job.status?.charAt(0).toUpperCase() + job.status?.slice(1)}
@@ -662,6 +683,7 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
                                 <Button
                                   variant="ghost"
                                   size="sm"
+                                  className="hover:bg-[#16857B]/10 hover:text-[#16857B]"
                                   onClick={() => navigate(`/job/${job.id || (job as any)._id}`)}
                                   title="View"
                                 >
@@ -670,6 +692,7 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
                                 <Button
                                   variant="ghost"
                                   size="sm"
+                                  className="hover:bg-[#16857B]/10 hover:text-[#16857B]"
                                   onClick={() => navigate(`/institute/job/${job.id || (job as any)._id}/applications`)}
                                   title="View Applications"
                                 >
@@ -678,6 +701,7 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
                                 <Button
                                   variant="ghost"
                                   size="sm"
+                                  className="hover:bg-[#16857B]/10 hover:text-[#16857B]"
                                   title="Edit"
                                   onClick={() => handleEditJob(job.id || (job as any)._id)}
                                 >
@@ -686,7 +710,7 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  className="text-red-600 hover:text-red-700"
+                                  className="text-red-600 hover:bg-red-50 hover:text-red-700"
                                   title="Delete"
                                   onClick={() => handleDeleteJob(job.id || (job as any)._id)}
                                 >
@@ -702,23 +726,23 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
                 </Card>
               </>
             ) : (
-              <Card className="p-12 text-center">
-                <p className="text-muted-foreground mb-4">No job openings yet</p>
-                <Button onClick={() => setActiveTab('create-job')}>Create First Job</Button>
+              <Card className={`${mxEmptyPanel} p-12 text-center`}>
+                <p className="text-[#0B1626]/60 mb-4">No job openings yet</p>
+                <Button onClick={() => setActiveTab('create-job')} className={mxBtnInk}>Create First Job</Button>
               </Card>
             )}
           </div>
         ) : activeTab === 'create-job' ? (
           <div>
             {jobLimitReached ? (
-              <Card className="p-12 text-center bg-amber-50 border-amber-200">
+              <Card className={`p-12 text-center ${mxAmberPanel}`}>
                 <div className="max-w-md mx-auto">
-                  <h3 className="text-xl font-bold text-amber-900 mb-2">Job Post Limit Reached</h3>
-                  <p className="text-amber-800 mb-6">
+                  <h3 className="mx-serif text-xl font-semibold tracking-tight text-[#0B1626] mb-2">Job Post Limit Reached</h3>
+                  <p className="text-[#7A5200] mb-6">
                     You have reached the maximum number of job posts ({maxJobs}) allowed on your current plan.
                     Please upgrade to a Professional or higher plan to post more jobs.
                   </p>
-                  <Button onClick={() => setActiveTab('subscription')} className="bg-amber-600 hover:bg-amber-700">
+                  <Button onClick={() => setActiveTab('subscription')} className={mxBtnAmber}>
                     Upgrade Plan
                   </Button>
                 </div>
@@ -734,20 +758,20 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
             )}
 
             {isInstitute && !loadingRecentApps && recentApplications.length > 0 && (
-              <Card className="border-primary/10 shadow-sm overflow-hidden">
-                <CardHeader className="bg-primary/5 pb-4">
+              <Card className={`${mxPaperCard} overflow-hidden`}>
+                <CardHeader className="bg-[#16857B]/[0.06] border-b border-[#0B1626]/10 pb-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <CardTitle className="text-lg flex items-center gap-2">
-                        <Users className="w-5 h-5 text-primary" />
+                      <CardTitle className="mx-serif text-lg tracking-tight flex items-center gap-2">
+                        <Users className="w-5 h-5 text-[#16857B]" />
                         Recent Job Applications
                       </CardTitle>
                       <CardDescription>Latest candidates interested in your job postings</CardDescription>
                     </div>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className="text-primary hover:text-primary hover:bg-primary/10"
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className={`text-sm ${mxLinkBtn}`}
                       onClick={() => setActiveTab('applications')}
                     >
                       View All
@@ -755,31 +779,31 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
                   </div>
                 </CardHeader>
                 <CardContent className="p-0">
-                  <div className="divide-y divide-border">
+                  <div className="divide-y divide-[#0B1626]/10">
                     {recentApplications.map((app) => (
-                      <div key={app._id || app.id} className="p-4 flex items-center justify-between hover:bg-muted/30 transition-colors">
+                      <div key={app._id || app.id} className="p-4 flex items-center justify-between hover:bg-[#0B1626]/5 transition-colors">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+                          <div className="w-10 h-10 rounded-full bg-[#16857B]/10 flex items-center justify-center text-[#16857B] font-bold">
                             {(app.teacherName || 'U').charAt(0).toUpperCase()}
                           </div>
                           <div>
                             <p className="font-semibold text-sm">{app.teacherName || 'Anonymous'}</p>
-                            <p className="text-xs text-muted-foreground line-clamp-1">Applied for: {app.jobTitle || 'N/A'}</p>
+                            <p className="text-xs text-[#0B1626]/60 line-clamp-1">Applied for: {app.jobTitle || 'N/A'}</p>
                           </div>
                         </div>
                         <div className="flex items-center gap-4">
-                          <Badge 
-                            variant="secondary" 
-                            className={`text-[10px] uppercase tracking-wider ${
-                              app.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
-                              app.status === 'accepted' ? 'bg-green-100 text-green-700' :
-                              app.status === 'rejected' ? 'bg-red-100 text-red-700' :
-                              'bg-blue-100 text-blue-700'
+                          <Badge
+                            variant="secondary"
+                            className={`mx-mono text-[10px] font-semibold uppercase tracking-[0.08em] rounded-none border px-2 py-0.5 ${
+                              app.status === 'pending' ? 'border-[#F0A62B]/40 bg-[#FDF4E1] text-[#A66B00]' :
+                              app.status === 'accepted' ? 'border-[#16857B]/30 bg-[#16857B]/10 text-[#16857B]' :
+                              app.status === 'rejected' ? 'border-red-200 bg-red-50 text-red-700' :
+                              'border-[#0B1626]/15 bg-[#F3F5F7] text-[#0B1626]/70'
                             }`}
                           >
                             {app.status}
                           </Badge>
-                          <span className="text-[10px] text-muted-foreground hidden sm:inline">
+                          <span className="text-[10px] text-[#0B1626]/60 hidden sm:inline">
                             {app.appliedDate ? new Date(app.appliedDate).toLocaleDateString() : 'Recent'}
                           </span>
                         </div>
@@ -793,21 +817,21 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
             {/* Recommended Teachers Section — for most recent active job */}
             {isInstitute && teacherRecsLoading && (
               <div className="mb-6">
-                <div className="h-5 w-64 bg-muted animate-pulse rounded mb-3" />
+                <div className="h-5 w-64 bg-[#0B1626]/10 animate-pulse rounded mb-3" />
                 <div className="flex gap-4 overflow-x-auto pb-2">
                   {[...Array(3)].map((_, i) => (
-                    <div key={i} className="min-w-[200px] h-28 bg-muted animate-pulse rounded-lg flex-shrink-0" />
+                    <div key={i} className="min-w-[200px] h-28 bg-[#0B1626]/10 animate-pulse rounded-lg flex-shrink-0" />
                   ))}
                 </div>
               </div>
             )}
             {isInstitute && !teacherRecsLoading && teacherRecs.length > 0 && (
-              <Card className="border-primary/10 shadow-sm mb-6">
-                <CardHeader className="bg-primary/5 pb-4">
+              <Card className={`${mxPaperCard} mb-6`}>
+                <CardHeader className="bg-[#16857B]/[0.06] border-b border-[#0B1626]/10 pb-4">
                   <div className="flex items-center gap-2">
-                    <Users className="w-5 h-5 text-primary" />
+                    <Users className="w-5 h-5 text-[#16857B]" />
                     <div>
-                      <CardTitle className="text-lg">Recommended teachers for your most recent posting</CardTitle>
+                      <CardTitle className="mx-serif text-lg tracking-tight">Recommended teachers for your most recent posting</CardTitle>
                       <CardDescription>Top matches by skill, experience and location</CardDescription>
                     </div>
                   </div>
@@ -819,20 +843,20 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
                       return (
                         <div
                           key={teacherId}
-                          className="min-w-[200px] flex-shrink-0 border border-border rounded-lg p-4 bg-background"
+                          className="min-w-[200px] flex-shrink-0 border border-[#0B1626]/15 rounded-md p-4 bg-white"
                         >
                           <div className="flex items-start justify-between mb-2">
                             <p className="font-semibold text-sm line-clamp-1 flex-1 mr-2">
                               {teacher.location || 'Teacher'}
                             </p>
-                            <Badge variant="secondary" className="text-xs whitespace-nowrap">
+                            <Badge variant="secondary" className="mx-mono text-[10px] font-semibold uppercase tracking-[0.08em] rounded-none border border-[#0B1626]/15 bg-[#F3F5F7] text-[#0B1626]/70 px-2 py-0.5 whitespace-nowrap">
                               {score}% match
                             </Badge>
                           </div>
-                          <p className="text-xs text-muted-foreground line-clamp-1">
+                          <p className="text-xs text-[#0B1626]/60 line-clamp-1">
                             {(teacher.subjects ?? []).slice(0, 3).join(', ') || 'No subjects listed'}
                           </p>
-                          <p className="text-xs text-muted-foreground mt-1">
+                          <p className="text-xs text-[#0B1626]/60 mt-1">
                             {teacher.experience ?? 0} yrs exp
                           </p>
                         </div>
@@ -844,46 +868,46 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
             )}
 
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-0 mb-6">
-              <h2 className="text-2xl font-bold">My Listings</h2>
+              <h2 className="mx-serif text-2xl font-semibold tracking-tight">My Listings</h2>
               <Button onClick={() => {
                 setEditingListing(null);
                 setActiveTab('create');
-              }} className="gap-2">
+              }} className={`gap-2 ${mxBtnInk}`}>
                 <Plus className="w-4 h-4" />
                 New Listing
               </Button>
             </div>
 
             <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
-              <Button 
-                variant={statusFilter === 'all' ? 'default' : 'outline'} 
-                onClick={() => setStatusFilter('all')} 
+              <Button
+                variant={statusFilter === 'all' ? 'default' : 'outline'}
+                onClick={() => setStatusFilter('all')}
                 size="sm"
-                className="rounded-full"
+                className={`rounded-none shadow-none ${statusFilter === 'all' ? 'border border-[#0B1626] bg-[#0B1626] text-white hover:bg-[#0B1626] hover:text-white' : 'border border-[#0B1626]/25 bg-white text-[#0B1626]/70 hover:border-[#0B1626] hover:bg-white hover:text-[#0B1626]'}`}
               >
                 All ({userListings.length})
               </Button>
-              <Button 
-                variant={statusFilter === 'approved' ? 'default' : 'outline'} 
-                onClick={() => setStatusFilter('approved')} 
+              <Button
+                variant={statusFilter === 'approved' ? 'default' : 'outline'}
+                onClick={() => setStatusFilter('approved')}
                 size="sm"
-                className="rounded-full"
+                className={`rounded-none shadow-none ${statusFilter === 'approved' ? 'border border-[#0B1626] bg-[#0B1626] text-white hover:bg-[#0B1626] hover:text-white' : 'border border-[#0B1626]/25 bg-white text-[#0B1626]/70 hover:border-[#0B1626] hover:bg-white hover:text-[#0B1626]'}`}
               >
                 Active ({userListings.filter(v => v.status === 'approved').length})
               </Button>
-              <Button 
-                variant={statusFilter === 'pending' ? 'default' : 'outline'} 
-                onClick={() => setStatusFilter('pending')} 
+              <Button
+                variant={statusFilter === 'pending' ? 'default' : 'outline'}
+                onClick={() => setStatusFilter('pending')}
                 size="sm"
-                className="rounded-full"
+                className={`rounded-none shadow-none ${statusFilter === 'pending' ? 'border border-[#0B1626] bg-[#0B1626] text-white hover:bg-[#0B1626] hover:text-white' : 'border border-[#0B1626]/25 bg-white text-[#0B1626]/70 hover:border-[#0B1626] hover:bg-white hover:text-[#0B1626]'}`}
               >
                 Pending ({userListings.filter(v => v.status === 'pending').length})
               </Button>
-              <Button 
-                variant={statusFilter === 'rejected' ? 'default' : 'outline'} 
-                onClick={() => setStatusFilter('rejected')} 
+              <Button
+                variant={statusFilter === 'rejected' ? 'default' : 'outline'}
+                onClick={() => setStatusFilter('rejected')}
                 size="sm"
-                className="rounded-full"
+                className={`rounded-none shadow-none ${statusFilter === 'rejected' ? 'border border-[#0B1626] bg-[#0B1626] text-white hover:bg-[#0B1626] hover:text-white' : 'border border-[#0B1626]/25 bg-white text-[#0B1626]/70 hover:border-[#0B1626] hover:bg-white hover:text-[#0B1626]'}`}
               >
                 Rejected ({userListings.filter(v => v.status === 'rejected').length})
               </Button>
@@ -901,39 +925,39 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
                 </div>
 
                 {/* Table View */}
-                <Card className="p-6">
-                  <h3 className="font-semibold mb-4">Listings Management</h3>
+                <Card className={`p-6 ${mxPaperCard}`}>
+                  <h3 className="mx-serif text-lg font-semibold tracking-tight mb-4">Listings Management</h3>
                   <div className="overflow-x-auto">
                     <Table>
                       <TableHeader>
-                        <TableRow>
-                          <TableHead>Vehicle</TableHead>
-                          <TableHead>Price</TableHead>
-                          <TableHead>Status</TableHead>
-                          <TableHead>Views</TableHead>
-                          <TableHead className="text-right">Actions</TableHead>
+                        <TableRow className="border-[#0B1626]/10">
+                          <TableHead className="mx-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-[#0B1626]/60">Vehicle</TableHead>
+                          <TableHead className="mx-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-[#0B1626]/60">Price</TableHead>
+                          <TableHead className="mx-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-[#0B1626]/60">Status</TableHead>
+                          <TableHead className="mx-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-[#0B1626]/60">Views</TableHead>
+                          <TableHead className="mx-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-[#0B1626]/60 text-right">Actions</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
                         {userListings
                           .filter(v => statusFilter === 'all' || v.status === statusFilter)
                           .map((vehicle) => (
-                          <TableRow key={vehicle.id || (vehicle as any)._id}>
+                          <TableRow key={vehicle.id || (vehicle as any)._id} className="border-[#0B1626]/10">
                             <TableCell>
                               <div>
                                 <p className="font-medium line-clamp-1">{vehicle.title}</p>
-                                <p className="text-xs text-muted-foreground">{vehicle.manufacturer} {vehicle.vehicleModel}</p>
+                                <p className="text-xs text-[#0B1626]/60">{vehicle.manufacturer} {vehicle.vehicleModel}</p>
                               </div>
                             </TableCell>
-                            <TableCell className="font-mono">₹{vehicle.price.toLocaleString()}</TableCell>
+                            <TableCell className="mx-mono">₹{vehicle.price.toLocaleString()}</TableCell>
                             <TableCell>
                               <span
-                                className={`text-xs font-medium px-2 py-1 rounded-full ${
+                                className={`mx-mono text-[10px] font-semibold uppercase tracking-[0.08em] rounded-none border px-2 py-0.5 ${
                                   vehicle.status === 'approved'
-                                    ? 'bg-green-100 text-green-700'
+                                    ? 'border-[#16857B]/30 bg-[#16857B]/10 text-[#16857B]'
                                     : vehicle.status === 'pending'
-                                    ? 'bg-yellow-100 text-yellow-700'
-                                    : 'bg-red-100 text-red-700'
+                                    ? 'border-[#F0A62B]/40 bg-[#FDF4E1] text-[#A66B00]'
+                                    : 'border-red-200 bg-red-50 text-red-700'
                                 }`}
                               >
                                 {vehicle.status.charAt(0).toUpperCase() + vehicle.status.slice(1)}
@@ -946,23 +970,25 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
                                 <Button
                                   variant="ghost"
                                   size="sm"
+                                  className="hover:bg-[#16857B]/10 hover:text-[#16857B]"
                                   onClick={() => navigate(`/vehicle/${vehicle.id || (vehicle as any)._id}`)}
                                   title="View"
                                 >
                                   <Eye className="w-4 h-4" />
                                 </Button>
-                                <Button 
-                                  variant="ghost" 
-                                  size="sm" 
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="hover:bg-[#16857B]/10 hover:text-[#16857B]"
                                   title="Edit"
                                   onClick={() => handleEditListing(vehicle)}
                                 >
                                   <Edit2 className="w-4 h-4" />
                                 </Button>
-                                <Button 
-                                  variant="ghost" 
-                                  size="sm" 
-                                  className="text-red-600 hover:text-red-700" 
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="text-red-600 hover:bg-red-50 hover:text-red-700"
                                   title="Delete"
                                   onClick={() => handleDeleteListing(vehicle.id || (vehicle as any)._id)}
                                 >
@@ -978,43 +1004,43 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
                 </Card>
               </>
             ) : (
-              <Card className="p-12 text-center">
-                <p className="text-muted-foreground mb-4">
-                  {statusFilter === 'all' 
-                    ? "No listings yet" 
+              <Card className={`${mxEmptyPanel} p-12 text-center`}>
+                <p className="text-[#0B1626]/60 mb-4">
+                  {statusFilter === 'all'
+                    ? "No listings yet"
                     : `No ${statusFilter} listings found`}
                 </p>
                 <Button onClick={() => {
                   setEditingListing(null);
                   setActiveTab('create');
-                }}>Create First Listing</Button>
+                }} className={mxBtnInk}>Create First Listing</Button>
               </Card>
             )}
           </div>
         ) : activeTab === 'create' ? (
           <div>
             {!canAdvertise ? (
-              <Card className="p-12 text-center bg-blue-50 border-blue-200">
+              <Card className={`p-12 text-center ${mxTealPanel}`}>
                 <div className="max-w-md mx-auto">
-                  <h3 className="text-xl font-bold text-blue-900 mb-2">Upgrade Required</h3>
-                  <p className="text-blue-800 mb-6">
-                    Your current plan does not allow advertising vehicles. 
+                  <h3 className="mx-serif text-xl font-semibold tracking-tight text-[#0B1626] mb-2">Upgrade Required</h3>
+                  <p className="text-[#0B1626]/70 mb-6">
+                    Your current plan does not allow advertising vehicles.
                     Please upgrade to a Professional or higher plan to start listing your vehicles.
                   </p>
-                  <Button onClick={() => setActiveTab('subscription')} className="bg-blue-600 hover:bg-blue-700">
+                  <Button onClick={() => setActiveTab('subscription')} className={mxBtnInk}>
                     View Upgrade Options
                   </Button>
                 </div>
               </Card>
             ) : listingLimitReached && !editingListing ? (
-              <Card className="p-12 text-center bg-amber-50 border-amber-200">
+              <Card className={`p-12 text-center ${mxAmberPanel}`}>
                 <div className="max-w-md mx-auto">
-                  <h3 className="text-xl font-bold text-amber-900 mb-2">Listing Limit Reached</h3>
-                  <p className="text-amber-800 mb-6">
+                  <h3 className="mx-serif text-xl font-semibold tracking-tight text-[#0B1626] mb-2">Listing Limit Reached</h3>
+                  <p className="text-[#7A5200] mb-6">
                     You have reached the maximum number of vehicle listings ({maxListings}) allowed on your current plan.
                     Please upgrade to a Business or higher plan to list more vehicles.
                   </p>
-                  <Button onClick={() => setActiveTab('subscription')} className="bg-amber-600 hover:bg-amber-700">
+                  <Button onClick={() => setActiveTab('subscription')} className={mxBtnAmber}>
                     Upgrade Plan
                   </Button>
                 </div>
@@ -1032,14 +1058,14 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
           </div>
         ) : activeTab === 'profile' ? (
           <div className="max-w-4xl mx-auto">
-            <Card>
+            <Card className={mxPaperCard}>
               <CardHeader className="flex flex-row items-center justify-between">
                 <div>
-                  <CardTitle>Institute Profile</CardTitle>
+                  <CardTitle className="mx-serif tracking-tight">Institute Profile</CardTitle>
                   <CardDescription>Manage your institute's details and contact information</CardDescription>
                 </div>
                 {!isEditingProfile && (
-                  <Button onClick={() => setIsEditingProfile(true)} variant="outline" className="gap-2">
+                  <Button onClick={() => setIsEditingProfile(true)} variant="outline" className={`gap-2 ${mxBtnOutline}`}>
                     <Edit2 className="w-4 h-4" />
                     Edit Profile
                   </Button>
@@ -1051,13 +1077,13 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
                   <div className="flex flex-col items-center gap-4">
                     <Avatar className="h-32 w-32">
                       <AvatarImage src={user.avatar} />
-                      <AvatarFallback className="text-2xl bg-primary text-white">
+                      <AvatarFallback className="text-2xl bg-[#16857B] text-white">
                         {user.name?.charAt(0)}
                       </AvatarFallback>
                     </Avatar>
                     <div className="text-center">
                       <p className="font-semibold text-lg">{user.name}</p>
-                      <span className="text-xs font-medium px-2 py-1 bg-primary/10 text-primary rounded-full uppercase">
+                      <span className="mx-mono text-[10px] font-semibold uppercase tracking-[0.08em] rounded-none border border-[#0B1626]/15 bg-[#F3F5F7] text-[#0B1626]/70 px-2 py-0.5">
                         {user.role}
                       </span>
                     </div>
@@ -1067,97 +1093,97 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
                   <div className="flex-1 space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
-                        <Label htmlFor="profile-name">Full Name</Label>
+                        <Label htmlFor="profile-name" className={mxLabel}>Full Name</Label>
                         <div className="relative">
-                          <UserCircle className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                          <UserCircle className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#0B1626]/60" />
                           <Input
                             id="profile-name"
                             value={profileData.name}
                             onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
                             disabled={!isEditingProfile}
-                            className="pl-10"
+                            className={`pl-10 ${mxInput}`}
                           />
                         </div>
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="profile-institute">Institute Name</Label>
+                        <Label htmlFor="profile-institute" className={mxLabel}>Institute Name</Label>
                         <div className="relative">
-                          <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                          <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#0B1626]/60" />
                           <Input
                             id="profile-institute"
                             value={profileData.instituteName}
                             onChange={(e) => setProfileData({ ...profileData, instituteName: e.target.value })}
                             disabled={!isEditingProfile}
-                            className="pl-10"
+                            className={`pl-10 ${mxInput}`}
                           />
                         </div>
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="profile-email">Email Address</Label>
+                        <Label htmlFor="profile-email" className={mxLabel}>Email Address</Label>
                         <div className="relative">
-                          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#0B1626]/60" />
                           <Input
                             id="profile-email"
                             value={user.email}
                             disabled
-                            className="pl-10 bg-muted"
+                            className={`pl-10 ${mxInput} bg-[#0B1626]/5`}
                           />
                         </div>
-                        <p className="text-[10px] text-muted-foreground">Email cannot be changed</p>
+                        <p className="text-[10px] text-[#0B1626]/60">Email cannot be changed</p>
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="profile-contact">Contact Person</Label>
+                        <Label htmlFor="profile-contact" className={mxLabel}>Contact Person</Label>
                         <div className="relative">
-                          <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                          <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#0B1626]/60" />
                           <Input
                             id="profile-contact"
                             value={profileData.contactPerson}
                             onChange={(e) => setProfileData({ ...profileData, contactPerson: e.target.value })}
                             disabled={!isEditingProfile}
-                            className="pl-10"
+                            className={`pl-10 ${mxInput}`}
                           />
                         </div>
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="profile-phone">Phone Number</Label>
+                        <Label htmlFor="profile-phone" className={mxLabel}>Phone Number</Label>
                         <div className="relative">
-                          <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                          <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#0B1626]/60" />
                           <Input
                             id="profile-phone"
                             value={profileData.phone}
                             onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
                             disabled={!isEditingProfile}
-                            className="pl-10"
+                            className={`pl-10 ${mxInput}`}
                           />
                         </div>
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="profile-location">Location</Label>
+                        <Label htmlFor="profile-location" className={mxLabel}>Location</Label>
                         <div className="relative">
-                          <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                          <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#0B1626]/60" />
                           <Input
                             id="profile-location"
                             value={profileData.location}
                             onChange={(e) => setProfileData({ ...profileData, location: e.target.value })}
                             disabled={!isEditingProfile}
-                            className="pl-10"
+                            className={`pl-10 ${mxInput}`}
                           />
                         </div>
                       </div>
                     </div>
 
                     {isEditingProfile && (
-                      <div className="pt-4 border-t border-border space-y-3">
-                        <p className="text-xs text-muted-foreground">
+                      <div className="pt-4 border-t border-[#0B1626]/15 space-y-3">
+                        <p className="text-xs text-[#0B1626]/60">
                           Only your name and phone are saved here right now. Email{' '}
                           <a href="mailto:support@edufleet.com" className="underline">support@edufleet.com</a>{' '}
                           to update institute name or address.
                         </p>
                         <div className="flex justify-end gap-3">
-                          <Button variant="outline" onClick={() => setIsEditingProfile(false)}>
+                          <Button variant="outline" className={mxBtnOutline} onClick={() => setIsEditingProfile(false)}>
                             Cancel
                           </Button>
-                          <Button onClick={handleSaveProfile}>
+                          <Button className={mxBtnInk} onClick={handleSaveProfile}>
                             Save Changes
                           </Button>
                         </div>
@@ -1168,9 +1194,9 @@ export function Dashboard({ initialTab = 'listings' }: DashboardProps) {
               </CardContent>
             </Card>
 
-            <Card className="mt-8 border-red-100 bg-red-50/10">
+            <Card className="mt-8 rounded-md border border-red-200 bg-red-50/40 shadow-none">
               <CardHeader>
-                <CardTitle className="text-red-600 flex items-center gap-2">
+                <CardTitle className="mx-serif tracking-tight text-red-600 flex items-center gap-2">
                   <Trash2 className="w-5 h-5" />
                   Danger Zone
                 </CardTitle>
