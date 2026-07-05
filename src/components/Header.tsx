@@ -106,7 +106,7 @@ export function Header() {
   }
 
   return (
-    <header className="glass-nav sticky top-0 z-50 shadow-sm">
+    <header className="sticky top-0 z-50 border-b border-[#0B1626]/12 bg-[#F7F8FA]/95 text-[#0B1626] backdrop-blur-xl">
       <div className="container mx-auto px-4 lg:px-6 py-4">
         <div className="flex justify-between items-center gap-4">
 <Link to="/" className="flex items-center shrink-0 group">
@@ -123,16 +123,16 @@ export function Header() {
 
           {/* Marketing Role Badge */}
           {isMarketing && (
-            <Badge variant="outline" className="hidden sm:flex bg-primary/5 text-primary border-primary/20 px-2 py-1 gap-1.5 font-mono text-[10px]">
-              <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+            <Badge variant="outline" className="mx-mono hidden sm:flex rounded-none bg-[#16857B]/[0.07] text-[#16857B] border-[#16857B]/30 px-2 py-1 gap-1.5 text-[10px] tracking-[0.12em]">
+              <div className="w-1.5 h-1.5 rotate-45 bg-[#16857B] animate-pulse" />
               MARKETING TEAM
             </Badge>
           )}
 
           {/* Sales Role Badge */}
           {isSales && (
-            <Badge variant="outline" className="hidden sm:flex bg-emerald-50 text-emerald-600 border-emerald-200 px-2 py-1 gap-1.5 font-mono text-[10px]">
-              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            <Badge variant="outline" className="mx-mono hidden sm:flex rounded-none bg-[#FDF4E1] text-[#A66B00] border-[#F0A62B]/40 px-2 py-1 gap-1.5 text-[10px] tracking-[0.12em]">
+              <div className="w-1.5 h-1.5 rotate-45 bg-[#F0A62B] animate-pulse" />
               SALES TEAM
             </Badge>
           )}
@@ -147,9 +147,9 @@ export function Header() {
                 onChange={(e) => setHeaderSearch(e.target.value)}
                 onKeyDown={handleHeaderSearch}
                 placeholder="Search vehicles, jobs, suppliers..." 
-                className="w-full pl-11 pr-4 py-2.5 rounded-lg border border-border bg-background/60 focus:bg-background focus:border-primary/40 focus:ring-2 focus:ring-primary/20 outline-none transition-all placeholder:text-muted-foreground/60 text-sm" 
+                className="w-full pl-11 pr-4 py-2.5 rounded-sm border border-[#0B1626]/20 bg-white focus:border-[#16857B] focus:ring-2 focus:ring-[#16857B]/20 outline-none transition-all placeholder:text-[#0B1626]/40 text-sm"
               />
-              <button onClick={performSearch} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors">
+              <button onClick={performSearch} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#16857B] hover:text-[#0B1626] transition-colors">
                 <Search className="w-4.5 h-4.5" />
               </button>
             </div>
@@ -160,76 +160,76 @@ export function Header() {
             <nav className="flex items-center gap-7 text-sm font-medium">
               {!shouldShowTeacherNav && !isVendor && !shouldShowConsultantNav && !isCompanyUser && (
                 <>
-                  <Link to="/browse" className="text-foreground/70 hover:text-primary transition-all relative group">
+                  <Link to="/browse" className="text-[#0B1626]/70 hover:text-[#0B1626] transition-all relative group">
                     <span>Vehicles</span>
-                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all group-hover:w-full"></span>
+                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#F0A62B] transition-all group-hover:w-full"></span>
                   </Link>
-                  <Link to="/jobs" className="text-foreground/70 hover:text-primary transition-all relative group">
+                  <Link to="/jobs" className="text-[#0B1626]/70 hover:text-[#0B1626] transition-all relative group">
                     <span>Jobs</span>
-                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all group-hover:w-full"></span>
+                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#F0A62B] transition-all group-hover:w-full"></span>
                   </Link>
-                  <Link to="/suppliers" className="text-foreground/70 hover:text-primary transition-all relative group">
+                  <Link to="/suppliers" className="text-[#0B1626]/70 hover:text-[#0B1626] transition-all relative group">
                     <span>Suppliers</span>
-                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all group-hover:w-full"></span>
+                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#F0A62B] transition-all group-hover:w-full"></span>
                   </Link>
                   {user?.role === 'institute' && (
-                    <Link to="/institute/teachers" className="text-foreground/70 hover:text-primary transition-all relative group">
+                    <Link to="/institute/teachers" className="text-[#0B1626]/70 hover:text-[#0B1626] transition-all relative group">
                       <span>Find Teacher</span>
-                      <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all group-hover:w-full"></span>
+                      <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#F0A62B] transition-all group-hover:w-full"></span>
                     </Link>
                   )}
                   {!isCompanyUser && (
-                    <Link to="/#pricing" className="text-foreground/70 hover:text-primary transition-all relative group">
+                    <Link to="/#pricing" className="text-[#0B1626]/70 hover:text-[#0B1626] transition-all relative group">
                       <span>Pricing</span>
-                      <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all group-hover:w-full"></span>
+                      <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#F0A62B] transition-all group-hover:w-full"></span>
                     </Link>
                   )}
-                  <div className="h-5 w-px bg-border/70"></div>
+                  <div className="h-5 w-px bg-[#0B1626]/15"></div>
                 </>
               )}
               {isVendor && (
                 <>
-                  <Link to="/jobs" className="text-foreground/70 hover:text-primary transition-all relative group">
+                  <Link to="/jobs" className="text-[#0B1626]/70 hover:text-[#0B1626] transition-all relative group">
                     <span>Jobs</span>
-                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all group-hover:w-full"></span>
+                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#F0A62B] transition-all group-hover:w-full"></span>
                   </Link>
-                  <Link to="/suppliers" className="text-foreground/70 hover:text-primary transition-all relative group">
+                  <Link to="/suppliers" className="text-[#0B1626]/70 hover:text-[#0B1626] transition-all relative group">
                     <span>Suppliers</span>
-                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all group-hover:w-full"></span>
+                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#F0A62B] transition-all group-hover:w-full"></span>
                   </Link>
                    {!isCompanyUser && (
-                    <Link to="/#pricing" className="text-foreground/70 hover:text-primary transition-all relative group">
+                    <Link to="/#pricing" className="text-[#0B1626]/70 hover:text-[#0B1626] transition-all relative group">
                       <span>Pricing</span>
-                      <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all group-hover:w-full"></span>
+                      <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#F0A62B] transition-all group-hover:w-full"></span>
                     </Link>
                   )}
-                  <div className="h-5 w-px bg-border/70"></div>
+                  <div className="h-5 w-px bg-[#0B1626]/15"></div>
                 </>
               )}
               {shouldShowTeacherNav && (
-                <Link to="/jobs" className="text-foreground/70 hover:text-primary transition-all relative group">
+                <Link to="/jobs" className="text-[#0B1626]/70 hover:text-[#0B1626] transition-all relative group">
                   <span>Browse Jobs</span>
-                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all group-hover:w-full"></span>
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#F0A62B] transition-all group-hover:w-full"></span>
                 </Link>
               )}
               {shouldShowConsultantNav && (
                 <>
-                  <Link to="/consultant/dashboard" className="text-foreground/70 hover:text-primary transition-all">Dashboard</Link>
-                  <Link to="/consultant/roster" className="text-foreground/70 hover:text-primary transition-all">Roster</Link>
-                  <Link to="/consultant/jobs" className="text-foreground/70 hover:text-primary transition-all">Jobs</Link>
-                  <Link to="/consultant/teachers" className="text-foreground/70 hover:text-primary transition-all">Teachers</Link>
-                  <Link to="/consultant/placements" className="text-foreground/70 hover:text-primary transition-all">Pipeline</Link>
-                  <Link to="/consultant/interviews" className="text-foreground/70 hover:text-primary transition-all">Interviews</Link>
+                  <Link to="/consultant/dashboard" className="text-[#0B1626]/70 hover:text-[#16857B] transition-all">Dashboard</Link>
+                  <Link to="/consultant/roster" className="text-[#0B1626]/70 hover:text-[#16857B] transition-all">Roster</Link>
+                  <Link to="/consultant/jobs" className="text-[#0B1626]/70 hover:text-[#16857B] transition-all">Jobs</Link>
+                  <Link to="/consultant/teachers" className="text-[#0B1626]/70 hover:text-[#16857B] transition-all">Teachers</Link>
+                  <Link to="/consultant/placements" className="text-[#0B1626]/70 hover:text-[#16857B] transition-all">Pipeline</Link>
+                  <Link to="/consultant/interviews" className="text-[#0B1626]/70 hover:text-[#16857B] transition-all">Interviews</Link>
                 </>
               )}
               {showPromoLinks && (
                 <>
-                  <Link to="/advertise" className="flex items-center gap-1.5 text-foreground/70 hover:text-secondary transition-all">
+                  <Link to="/advertise" className="flex items-center gap-1.5 text-[#0B1626]/70 hover:text-[#16857B] transition-all">
                     <Megaphone className="w-4 h-4" />
                     <span>Advertise</span>
                   </Link>
-                  <Link to="/signup" className="flex items-center gap-1.5 bg-accent/10 text-accent hover:bg-accent hover:text-accent-foreground transition-all font-semibold px-4 py-2 border border-accent/30 hover:border-accent rounded-lg shadow-sm hover:shadow-md border-beam">
-                    <span className="uppercase text-xs tracking-wide">Free Listing</span>
+                  <Link to="/signup" className="flex items-center gap-1.5 bg-[#FDF4E1] text-[#A66B00] hover:bg-[#F0A62B] hover:text-[#0B1626] transition-colors font-semibold px-4 py-2 border border-[#F0A62B]/50 hover:border-[#F0A62B] rounded-none">
+                    <span className="mx-mono uppercase text-xs tracking-[0.14em]">Free Listing</span>
                   </Link>
                 </>
               )}
@@ -279,11 +279,11 @@ export function Header() {
                 </>
               ) : (
                 <>
-                  <Link to="/login" className="text-sm font-medium text-foreground/70 hover:text-primary transition-all px-3 py-2 hover:bg-muted/30 rounded-lg">Login</Link>
-                  <Button 
-                    onClick={() => navigate('/signup')} 
+                  <Link to="/login" className="text-sm font-medium text-[#0B1626]/70 hover:text-[#0B1626] transition-colors px-3 py-2 underline decoration-transparent decoration-2 underline-offset-8 hover:decoration-[#F0A62B]">Login</Link>
+                  <Button
+                    onClick={() => navigate('/signup')}
                     size="sm"
-                    className="bg-primary text-primary-foreground hover:bg-primary-light shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all font-semibold px-6 py-2.5 active:scale-95 border-beam"
+                    className="mx-btn-hard rounded-none bg-[#0B1626] text-white hover:bg-[#13233A] font-semibold px-6 py-2.5"
                   >
                     Sign Up Free
                   </Button>
@@ -327,47 +327,47 @@ export function Header() {
             <div className="grid grid-cols-2 gap-2 mb-4">
               {!shouldShowTeacherNav && !isVendor && !shouldShowConsultantNav && !isCompanyUser ? (
                 <>
-                  <Link to={user?.role === 'institute' ? "/dashboard?tab=listings" : "/browse"} className="flex flex-col items-center justify-center p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
+                  <Link to={user?.role === 'institute' ? "/dashboard?tab=listings" : "/browse"} className="flex flex-col items-center justify-center p-4 rounded-sm border border-[#0B1626]/12 bg-white hover:bg-[#FDF4E1] transition-colors">
                     <span className="font-medium">Vehicles</span>
                   </Link>
-                  <Link to="/jobs" className="flex flex-col items-center justify-center p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
+                  <Link to="/jobs" className="flex flex-col items-center justify-center p-4 rounded-sm border border-[#0B1626]/12 bg-white hover:bg-[#FDF4E1] transition-colors">
                     <span className="font-medium">Jobs</span>
                   </Link>
-                  <Link to="/suppliers" className="flex flex-col items-center justify-center p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
+                  <Link to="/suppliers" className="flex flex-col items-center justify-center p-4 rounded-sm border border-[#0B1626]/12 bg-white hover:bg-[#FDF4E1] transition-colors">
                     <span className="font-medium">Suppliers</span>
                   </Link>
                   {user?.role === 'institute' && (
-                    <Link to="/institute/teachers" className="flex flex-col items-center justify-center p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
+                    <Link to="/institute/teachers" className="flex flex-col items-center justify-center p-4 rounded-sm border border-[#0B1626]/12 bg-white hover:bg-[#FDF4E1] transition-colors">
                       <span className="font-medium">Find Teacher</span>
                     </Link>
                   )}
                   {!isCompanyUser && (
-                    <Link to="/#pricing" className="flex flex-col items-center justify-center p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
+                    <Link to="/#pricing" className="flex flex-col items-center justify-center p-4 rounded-sm border border-[#0B1626]/12 bg-white hover:bg-[#FDF4E1] transition-colors">
                       <span className="font-medium">Pricing</span>
                     </Link>
                   )}
                 </>
               ) : isVendor ? (
                 <>
-                   <Link to="/jobs" className="flex flex-col items-center justify-center p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
+                   <Link to="/jobs" className="flex flex-col items-center justify-center p-4 rounded-sm border border-[#0B1626]/12 bg-white hover:bg-[#FDF4E1] transition-colors">
                     <span className="font-medium">Jobs</span>
                   </Link>
-                  <Link to="/suppliers" className="flex flex-col items-center justify-center p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
+                  <Link to="/suppliers" className="flex flex-col items-center justify-center p-4 rounded-sm border border-[#0B1626]/12 bg-white hover:bg-[#FDF4E1] transition-colors">
                     <span className="font-medium">Suppliers</span>
                   </Link>
                   {!isCompanyUser && (
-                    <Link to="/#pricing" className="flex flex-col items-center justify-center p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
+                    <Link to="/#pricing" className="flex flex-col items-center justify-center p-4 rounded-sm border border-[#0B1626]/12 bg-white hover:bg-[#FDF4E1] transition-colors">
                       <span className="font-medium">Pricing</span>
                     </Link>
                   )}
                 </>
               ) : (
-                <Link to="/jobs" className="flex flex-col items-center justify-center p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors col-span-2">
+                <Link to="/jobs" className="flex flex-col items-center justify-center p-4 rounded-sm border border-[#0B1626]/12 bg-white hover:bg-[#FDF4E1] transition-colors col-span-2">
                   <span className="font-medium">Browse Jobs</span>
                 </Link>
               )}
               {showPromoLinks && (
-                <Link to="/advertise" className="flex flex-col items-center justify-center p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
+                <Link to="/advertise" className="flex flex-col items-center justify-center p-4 rounded-sm border border-[#0B1626]/12 bg-white hover:bg-[#FDF4E1] transition-colors">
                   <span className="font-medium">Advertise</span>
                 </Link>
               )}

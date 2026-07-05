@@ -19,6 +19,7 @@ import { AdSlot } from '@/components/ads/AdSlot';
 import { useAuth } from '@/context/AuthContext';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { checkBrowseLimit } from '@/api/services/subscriptionEnforcement';
+import { mxPaperCard, mxEmptyPanel, mxLabel, mxBtnInk, mxBtnOutline, mxInput } from '@/lib/meridian';
 
 const ALL_FILTER = '__all__';
 
@@ -123,16 +124,23 @@ export function Browse() {
   const hasDelay = isFreePlan;
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Hero Section */}
-      <section className="bg-gradient-primary text-white py-12 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-white rounded-full blur-3xl"></div>
-          <div className="absolute bottom-0 left-0 w-96 h-96 bg-white rounded-full blur-3xl"></div>
+    <div className="min-h-screen bg-[#F3F5F7] text-[#0B1626]">
+      {/* Hero Section — ink-navy ledger band (Meridian Exchange) */}
+      <section className="relative overflow-hidden bg-[#081120] py-12 text-white md:py-14">
+        <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+          <div className="absolute inset-0 mx-grid-ink [mask-image:linear-gradient(to_right,transparent,black_45%)]"></div>
+          <div className="absolute -right-28 -top-48 h-[420px] w-[420px] rounded-full bg-[#16857B]/20 blur-[110px]"></div>
+          <div className="mx-rotate absolute -right-28 -top-44 h-[380px] w-[380px]">
+            <div className="absolute inset-0 rounded-full border border-white/10"></div>
+            <div className="absolute inset-[16%] rounded-full border border-[#2FB8AA]/35"></div>
+            <div className="absolute inset-[34%] rounded-full border-2 border-[#F0A62B]/40"></div>
+            <div className="absolute left-1/2 top-0 h-full w-px bg-gradient-to-b from-transparent via-white/[0.12] to-transparent"></div>
+          </div>
         </div>
         <div className="container mx-auto px-4 relative z-10">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">Browse Vehicles</h1>
-          <p className="text-lg text-white/85 max-w-2xl font-light">
+          <h1 className="mx-serif text-4xl md:text-5xl font-semibold tracking-tight text-white mb-3">Browse Vehicles</h1>
+          <div className="mb-4 h-1 w-24 bg-gradient-to-r from-[#2FB8AA] via-[#2FB8AA]/60 to-transparent" aria-hidden="true"></div>
+          <p className="text-lg text-white/65 max-w-2xl font-light">
             Discover verified used transport vehicles from educational institutions.
           </p>
         </div>
@@ -160,9 +168,9 @@ export function Browse() {
 
             {!user && allVehicles.length > 0 && (
               <div className="mb-8">
-                <Alert variant="default" className="border-amber-200 bg-amber-50">
-                  <AlertCircle className="h-4 w-4 text-amber-600" />
-                  <div className="ml-4 text-amber-800">
+                <Alert variant="default" className="rounded-sm border-[#F0A62B]/45 bg-[#FDF4E1]">
+                  <AlertCircle className="h-4 w-4 text-[#A66B00]" />
+                  <div className="ml-4 text-[#7A5200]">
                     Photos and prices are free to browse — sign up free to contact sellers and view documents.
                   </div>
                 </Alert>
@@ -174,7 +182,7 @@ export function Browse() {
               <div className="lg:hidden mb-4">
                 <Sheet open={filtersOpen} onOpenChange={setFiltersOpen}>
                   <SheetTrigger asChild>
-                    <Button variant="outline" className="w-full justify-start gap-2">
+                    <Button variant="outline" className="w-full justify-start gap-2 rounded-sm border-[#0B1626]/20 bg-white text-[#0B1626] shadow-none hover:bg-[#FDF4E1] hover:text-[#0B1626]">
                       <Filter className="w-4 h-4" />
                       Filters
                     </Button>
@@ -187,21 +195,21 @@ export function Browse() {
                       {/* Search */}
                       <div className="relative">
                         <div className="absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                          <Search className="text-primary w-4 h-4" />
+                          <Search className="text-[#16857B] w-4 h-4" />
                         </div>
                         <Input
                           placeholder="Search vehicles..."
                           value={vehicleSearchTerm}
                           onChange={(e) => setVehicleSearchTerm(e.target.value)}
-                          className="pl-9 bg-background"
+                          className={`pl-9 ${mxInput}`}
                         />
                       </div>
                       {/* Filters Card */}
-                      <div className="bg-card p-6 rounded-xl border border-border shadow-sm">
+                      <div className={`p-6 ${mxPaperCard}`}>
                         <div className="flex items-center justify-between mb-4">
                           <div className="flex items-center gap-2">
-                            <Sliders className="w-4 h-4 text-primary" />
-                            <h3 className="font-bold text-foreground">Filters</h3>
+                            <Sliders className="w-4 h-4 text-[#16857B]" />
+                            <h3 className="mx-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-[#0B1626]/70">Filters</h3>
                           </div>
                           {vehicleHasActiveFilters && (
                             <Button
@@ -216,9 +224,9 @@ export function Browse() {
                         </div>
                         <div className="space-y-4">
                           <div className="space-y-1.5">
-                            <label className="text-xs font-semibold text-muted-foreground">Vehicle Type</label>
+                            <label className={mxLabel}>Vehicle Type</label>
                             <Select value={typeFilter} onValueChange={setTypeFilter}>
-                              <SelectTrigger>
+                              <SelectTrigger className="rounded-sm border-[#0B1626]/20 bg-white">
                                 <SelectValue placeholder="All Types" />
                               </SelectTrigger>
                               <SelectContent>
@@ -232,9 +240,9 @@ export function Browse() {
                             </Select>
                           </div>
                           <div className="space-y-1.5">
-                            <label className="text-xs font-semibold text-muted-foreground">Manufacturer</label>
+                            <label className={mxLabel}>Manufacturer</label>
                             <Select value={manufacturerFilter} onValueChange={setManufacturerFilter}>
-                              <SelectTrigger>
+                              <SelectTrigger className="rounded-sm border-[#0B1626]/20 bg-white">
                                 <SelectValue placeholder="All Manufacturers" />
                               </SelectTrigger>
                               <SelectContent>
@@ -248,9 +256,9 @@ export function Browse() {
                             </Select>
                           </div>
                           <div className="space-y-1.5">
-                            <label className="text-xs font-semibold text-muted-foreground">Year</label>
+                            <label className={mxLabel}>Year</label>
                             <Select value={yearFilter} onValueChange={setYearFilter}>
-                              <SelectTrigger>
+                              <SelectTrigger className="rounded-sm border-[#0B1626]/20 bg-white">
                                 <SelectValue placeholder="All Years" />
                               </SelectTrigger>
                               <SelectContent>
@@ -264,9 +272,9 @@ export function Browse() {
                             </Select>
                           </div>
                           <div className="space-y-1.5">
-                            <label className="text-xs font-semibold text-muted-foreground">Condition</label>
+                            <label className={mxLabel}>Condition</label>
                             <Select value={conditionFilter} onValueChange={setConditionFilter}>
-                              <SelectTrigger>
+                              <SelectTrigger className="rounded-sm border-[#0B1626]/20 bg-white">
                                 <SelectValue placeholder="All Conditions" />
                               </SelectTrigger>
                               <SelectContent>
@@ -291,22 +299,22 @@ export function Browse() {
                 {/* Search */}
                 <div className="relative">
                   <div className="absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                    <Search className="text-primary w-4 h-4" />
+                    <Search className="text-[#16857B] w-4 h-4" />
                   </div>
                   <Input
                     placeholder="Search vehicles..."
                     value={vehicleSearchTerm}
                     onChange={(e) => setVehicleSearchTerm(e.target.value)}
-                    className="pl-9 bg-background"
+                    className={`pl-9 ${mxInput}`}
                   />
                 </div>
 
                 {/* Filters Card */}
-                <div className="bg-card p-6 rounded-xl border border-border shadow-sm">
+                <div className={`p-6 ${mxPaperCard}`}>
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
-                      <Sliders className="w-4 h-4 text-primary" />
-                      <h3 className="font-bold text-foreground">Filters</h3>
+                      <Sliders className="w-4 h-4 text-[#16857B]" />
+                      <h3 className="mx-mono text-[11px] font-semibold uppercase tracking-[0.22em] text-[#0B1626]/70">Filters</h3>
                     </div>
                     {vehicleHasActiveFilters && (
                       <Button
@@ -322,9 +330,9 @@ export function Browse() {
 
                   <div className="space-y-4">
                     <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-muted-foreground">Vehicle Type</label>
+                      <label className={mxLabel}>Vehicle Type</label>
                       <Select value={typeFilter} onValueChange={setTypeFilter}>
-                        <SelectTrigger>
+                        <SelectTrigger className="rounded-sm border-[#0B1626]/20 bg-white">
                           <SelectValue placeholder="All Types" />
                         </SelectTrigger>
                         <SelectContent>
@@ -339,9 +347,9 @@ export function Browse() {
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-muted-foreground">Manufacturer</label>
+                      <label className={mxLabel}>Manufacturer</label>
                       <Select value={manufacturerFilter} onValueChange={setManufacturerFilter}>
-                        <SelectTrigger>
+                        <SelectTrigger className="rounded-sm border-[#0B1626]/20 bg-white">
                           <SelectValue placeholder="All Manufacturers" />
                         </SelectTrigger>
                         <SelectContent>
@@ -356,9 +364,9 @@ export function Browse() {
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-muted-foreground">Year</label>
+                      <label className={mxLabel}>Year</label>
                       <Select value={yearFilter} onValueChange={setYearFilter}>
-                        <SelectTrigger>
+                        <SelectTrigger className="rounded-sm border-[#0B1626]/20 bg-white">
                           <SelectValue placeholder="All Years" />
                         </SelectTrigger>
                         <SelectContent>
@@ -373,9 +381,9 @@ export function Browse() {
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-muted-foreground">Condition</label>
+                      <label className={mxLabel}>Condition</label>
                       <Select value={conditionFilter} onValueChange={setConditionFilter}>
-                        <SelectTrigger>
+                        <SelectTrigger className="rounded-sm border-[#0B1626]/20 bg-white">
                           <SelectValue placeholder="All Conditions" />
                         </SelectTrigger>
                         <SelectContent>
@@ -398,13 +406,13 @@ export function Browse() {
               {/* Vehicles Main Content */}
               <div className="flex-1">
                 {/* Results Header */}
-                <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div className="mb-6 flex flex-col border-b border-[#0B1626]/10 pb-3 sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div>
-                    <p className="text-lg text-foreground font-semibold">
-                      Found <span className="text-primary font-bold">{filteredVehicles.length}</span> {filteredVehicles.length === 1 ? 'vehicle' : 'vehicles'}
+                    <p className="mx-serif text-lg text-[#0B1626] font-semibold tracking-tight">
+                      Found <span className="text-[#16857B] font-bold">{filteredVehicles.length}</span> {filteredVehicles.length === 1 ? 'vehicle' : 'vehicles'}
                     </p>
                     {vehicleHasActiveFilters && (
-                      <p className="text-sm text-muted-foreground">Filtered results</p>
+                      <p className="mx-mono text-[11px] uppercase tracking-[0.18em] text-[#0B1626]/50">Filtered results</p>
                     )}
                   </div>
                 </div>
@@ -412,14 +420,14 @@ export function Browse() {
                 {/* Loading State */}
                 {vehiclesLoading ? (
                   <div className="flex flex-col items-center justify-center py-20">
-                    <Loader2 className="w-12 h-12 text-primary animate-spin mb-4" />
-                    <p className="text-lg text-muted-foreground">Loading vehicles...</p>
+                    <Loader2 className="w-12 h-12 text-[#16857B] animate-spin mb-4" />
+                    <p className="text-lg text-[#0B1626]/55">Loading vehicles...</p>
                   </div>
                 ) : vehiclesError ? (
-                  <div className="text-center py-20 bg-destructive/5 rounded-xl border border-destructive/20">
-                    <p className="text-xl text-destructive font-bold mb-2">Error Loading Vehicles</p>
-                    <p className="text-muted-foreground mb-6">{vehiclesError}</p>
-                    <Button onClick={() => window.location.reload()}>Retry</Button>
+                  <div className="text-center py-20 bg-destructive/5 rounded-md border border-destructive/20">
+                    <p className="mx-serif text-xl text-destructive font-bold tracking-tight mb-2">Error Loading Vehicles</p>
+                    <p className="text-[#0B1626]/60 mb-6">{vehiclesError}</p>
+                    <Button className={mxBtnInk} onClick={() => window.location.reload()}>Retry</Button>
                   </div>
                 ) : filteredVehicles.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -430,25 +438,25 @@ export function Browse() {
                     ))}
                   </div>
                 ) : !vehicleHasActiveFilters ? (
-                  <div className="text-center py-16 bg-muted/30 rounded-xl border border-dashed border-border">
-                    <Search className="w-16 h-16 text-primary/40 mx-auto mb-4" />
-                    <p className="text-xl text-foreground font-bold mb-2">Be the first to list a vehicle</p>
-                    <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
+                  <div className={`text-center py-16 ${mxEmptyPanel}`}>
+                    <Search className="w-16 h-16 text-[#16857B]/45 mx-auto mb-4" />
+                    <p className="mx-serif text-2xl text-[#0B1626] font-semibold tracking-tight mb-2">Be the first to list a vehicle</p>
+                    <p className="text-[#0B1626]/60 mb-6 max-w-sm mx-auto">
                       We're onboarding schools in Mysuru — buses, vans and staff cars
                       listed here reach every institute on the platform. Listing is free.
                     </p>
-                    <Button asChild>
+                    <Button asChild className={mxBtnInk}>
                       <Link to="/signup">List your vehicle — free</Link>
                     </Button>
                   </div>
                 ) : (
-                  <div className="text-center py-16 bg-muted/30 rounded-xl border border-dashed border-border">
-                    <Search className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
-                    <p className="text-xl text-foreground font-bold mb-2">No vehicles found</p>
-                    <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
+                  <div className={`text-center py-16 ${mxEmptyPanel}`}>
+                    <Search className="w-16 h-16 text-[#0B1626]/25 mx-auto mb-4" />
+                    <p className="mx-serif text-2xl text-[#0B1626] font-semibold tracking-tight mb-2">No vehicles found</p>
+                    <p className="text-[#0B1626]/60 mb-6 max-w-sm mx-auto">
                       Try adjusting your filters or search terms
                     </p>
-                    <Button variant="outline" onClick={handleClearVehicleFilters}>
+                    <Button variant="outline" className={mxBtnOutline} onClick={handleClearVehicleFilters}>
                       Clear Filters
                     </Button>
                   </div>

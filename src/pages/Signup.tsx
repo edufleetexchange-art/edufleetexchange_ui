@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Mail, Lock, Building2, User, Send, MapPin, Store } from 'lucide-react';
 import { AdSlot } from '@/components/ads/AdSlot';
+import { mxPaperCard, mxDiamond, mxBtnInk } from '@/lib/meridian';
 
 export function Signup() {
   const [formData, setFormData] = useState({
@@ -98,7 +99,7 @@ export function Signup() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-background py-12 px-4">
+    <div className="min-h-screen bg-[#F3F5F7] text-[#0B1626] py-12 px-4">
       <div className="w-full max-w-2xl mx-auto">
         {/* Top Ad */}
         <div className="mb-6">
@@ -106,49 +107,50 @@ export function Signup() {
         </div>
         {/* Logo */}
         <div className="text-center mb-4">
-          <h1 className="text-3xl font-bold mb-2">
-            EduFleet<span className="text-primary">Exchange</span>
+          <h1 className="mx-serif text-4xl font-semibold tracking-tight mb-2">
+            EduFleet<span className="italic text-[#16857B]">Exchange</span>
           </h1>
-          <p className="text-muted-foreground">
+          <div className="mx-auto mb-3 h-1 w-20 bg-gradient-to-r from-transparent via-[#F0A62B] to-transparent" aria-hidden="true"></div>
+          <p className="text-[#0B1626]/55">
             Create your institution account
           </p>
         </div>
         <div className="flex flex-col sm:flex-row gap-3 justify-center mb-8">
           <Link
             to="/signup"
-            className="flex flex-col items-center p-3 rounded-xl border border-border/50 bg-muted/30 hover:bg-primary/5 hover:border-primary/20 transition-all group flex-1 sm:flex-none"
+            className="flex flex-col items-center p-3 rounded-sm border border-[#0B1626]/15 bg-white hover:bg-[#FDF4E1] hover:border-[#F0A62B]/50 transition-colors group flex-1 sm:flex-none"
           >
-            <span className="text-xs font-bold text-primary group-hover:scale-110 transition-transform">INSTITUTE</span>
-            <span className="text-[10px] text-muted-foreground mt-0.5">Register School</span>
+            <span className="mx-mono text-xs font-bold tracking-[0.08em] text-[#0B1626] group-hover:text-[#A66B00] transition-colors">INSTITUTE</span>
+            <span className="text-[10px] text-[#0B1626]/50 mt-0.5">Register School</span>
           </Link>
           <Link
             to="/teacher/signup"
-            className="flex flex-col items-center p-3 rounded-xl border border-border/50 bg-muted/30 hover:bg-secondary/5 hover:border-secondary/20 transition-all group flex-1 sm:flex-none"
+            className="flex flex-col items-center p-3 rounded-sm border border-[#0B1626]/15 bg-white hover:bg-[#FDF4E1] hover:border-[#F0A62B]/50 transition-colors group flex-1 sm:flex-none"
           >
-            <span className="text-xs font-bold text-secondary group-hover:scale-110 transition-transform">TEACHER</span>
-            <span className="text-[10px] text-muted-foreground mt-0.5">Individual Account</span>
+            <span className="mx-mono text-xs font-bold tracking-[0.08em] text-[#16857B] group-hover:text-[#A66B00] transition-colors">TEACHER</span>
+            <span className="text-[10px] text-[#0B1626]/50 mt-0.5">Individual Account</span>
           </Link>
           <Link
             to="/vendor/signup"
-            className="flex flex-col items-center p-3 rounded-xl border border-border/50 bg-muted/30 hover:bg-orange-500/5 hover:border-orange-500/20 transition-all group flex-1 sm:flex-none"
+            className="flex flex-col items-center p-3 rounded-sm border border-[#0B1626]/15 bg-white hover:bg-[#FDF4E1] hover:border-[#F0A62B]/50 transition-colors group flex-1 sm:flex-none"
           >
-            <Store className="w-3 h-3 mb-0.5 text-orange-500 group-hover:scale-110 transition-transform" />
-            <span className="text-xs font-bold text-orange-500 group-hover:scale-110 transition-transform">VENDOR</span>
-            <span className="text-[10px] text-muted-foreground mt-0.5">Supplier / Business</span>
+            <Store className="w-3 h-3 mb-0.5 text-[#A66B00] transition-colors" />
+            <span className="mx-mono text-xs font-bold tracking-[0.08em] text-[#A66B00] group-hover:text-[#0B1626] transition-colors">VENDOR</span>
+            <span className="text-[10px] text-[#0B1626]/50 mt-0.5">Supplier / Business</span>
           </Link>
         </div>
 
-        <Card className="p-8 border-border">
+        <Card className={`p-8 ${mxPaperCard}`}>
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Personal Information */}
             <div>
-              <h3 className="font-semibold mb-4 text-lg">Personal Information</h3>
+              <h3 className="mx-serif flex items-center gap-3 font-semibold tracking-tight mb-4 text-xl"><span className={mxDiamond} aria-hidden="true"></span>Personal Information</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Contact Person Name */}
                 <div>
-                  <label htmlFor="signup-name" className="text-sm font-medium mb-2 block">Contact Person Name</label>
+                  <label htmlFor="signup-name" className="mx-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-[#0B1626]/60 mb-2 block">Contact Person Name</label>
                   <div className="relative">
-                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[#0B1626]/40" />
                     <Input
                       id="signup-name"
                       type="text"
@@ -165,9 +167,9 @@ export function Signup() {
 
                 {/* Email */}
                 <div>
-                  <label htmlFor="signup-email" className="text-sm font-medium mb-2 block">Email Address</label>
+                  <label htmlFor="signup-email" className="mx-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-[#0B1626]/60 mb-2 block">Email Address</label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[#0B1626]/40" />
                     <Input
                       id="signup-email"
                       type="email"
@@ -185,14 +187,14 @@ export function Signup() {
             </div>
 
             {/* Institute Information */}
-            <div className="pt-4 border-t border-border">
-              <h3 className="font-semibold mb-4 text-lg">Institute Information</h3>
+            <div className="pt-4 border-t border-[#0B1626]/10">
+              <h3 className="mx-serif flex items-center gap-3 font-semibold tracking-tight mb-4 text-xl"><span className={mxDiamond} aria-hidden="true"></span>Institute Information</h3>
               <div className="space-y-4">
                 {/* Institute Name */}
                 <div>
-                  <label htmlFor="signup-institute-name" className="text-sm font-medium mb-2 block">Institute Name</label>
+                  <label htmlFor="signup-institute-name" className="mx-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-[#0B1626]/60 mb-2 block">Institute Name</label>
                   <div className="relative">
-                    <Building2 className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Building2 className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[#0B1626]/40" />
                     <Input
                       id="signup-institute-name"
                       type="text"
@@ -211,7 +213,7 @@ export function Signup() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Phone Number */}
                   <div>
-                    <label htmlFor="signup-phone" className="text-sm font-medium mb-2 block">
+                    <label htmlFor="signup-phone" className="mx-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-[#0B1626]/60 mb-2 block">
                       Phone Number <span className="text-red-500">*</span>
                     </label>
                     <Input
@@ -232,7 +234,7 @@ export function Signup() {
 
                   {/* Contact Person Title */}
                   <div>
-                    <label htmlFor="signup-contact-person" className="text-sm font-medium mb-2 block">Your Role at the Institute</label>
+                    <label htmlFor="signup-contact-person" className="mx-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-[#0B1626]/60 mb-2 block">Your Role at the Institute</label>
                     <Input
                       id="signup-contact-person"
                       type="text"
@@ -248,9 +250,9 @@ export function Signup() {
             </div>
 
             {/* Address Information */}
-            <div className="pt-4 border-t border-border">
-              <h3 className="font-semibold mb-4 text-lg flex items-center gap-2">
-                <MapPin className="w-4 h-4" />
+            <div className="pt-4 border-t border-[#0B1626]/10">
+              <h3 className="mx-serif font-semibold tracking-tight mb-4 text-xl flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-[#16857B]" />
                 Institute Address
               </h3>
               <p className="text-xs text-muted-foreground mb-3">
@@ -259,7 +261,7 @@ export function Signup() {
               <div className="space-y-4">
                 {/* Street */}
                 <div>
-                  <label htmlFor="signup-street" className="text-sm font-medium mb-2 block">
+                  <label htmlFor="signup-street" className="mx-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-[#0B1626]/60 mb-2 block">
                     Street Address <span className="text-red-500">*</span>
                   </label>
                   <Input
@@ -277,7 +279,7 @@ export function Signup() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {/* City */}
                   <div>
-                    <label htmlFor="signup-city" className="text-sm font-medium mb-2 block">
+                    <label htmlFor="signup-city" className="mx-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-[#0B1626]/60 mb-2 block">
                       City <span className="text-red-500">*</span>
                     </label>
                     <Input
@@ -294,7 +296,7 @@ export function Signup() {
 
                   {/* State */}
                   <div>
-                    <label htmlFor="signup-state" className="text-sm font-medium mb-2 block">
+                    <label htmlFor="signup-state" className="mx-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-[#0B1626]/60 mb-2 block">
                       State <span className="text-red-500">*</span>
                     </label>
                     <Input
@@ -311,7 +313,7 @@ export function Signup() {
 
                   {/* Pincode */}
                   <div>
-                    <label htmlFor="signup-pincode" className="text-sm font-medium mb-2 block">
+                    <label htmlFor="signup-pincode" className="mx-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-[#0B1626]/60 mb-2 block">
                       Pincode <span className="text-red-500">*</span>
                     </label>
                     <Input
@@ -331,14 +333,14 @@ export function Signup() {
             </div>
 
             {/* Security Information */}
-            <div className="pt-4 border-t border-border">
-              <h3 className="font-semibold mb-4 text-lg">Security</h3>
+            <div className="pt-4 border-t border-[#0B1626]/10">
+              <h3 className="mx-serif flex items-center gap-3 font-semibold tracking-tight mb-4 text-xl"><span className={mxDiamond} aria-hidden="true"></span>Security</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Password */}
                 <div>
-                  <label htmlFor="signup-password" className="text-sm font-medium mb-2 block">Password</label>
+                  <label htmlFor="signup-password" className="mx-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-[#0B1626]/60 mb-2 block">Password</label>
                   <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[#0B1626]/40" />
                     <Input
                       id="signup-password"
                       type="password"
@@ -356,9 +358,9 @@ export function Signup() {
 
                 {/* Confirm Password */}
                 <div>
-                  <label htmlFor="signup-confirm-password" className="text-sm font-medium mb-2 block">Confirm Password</label>
+                  <label htmlFor="signup-confirm-password" className="mx-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-[#0B1626]/60 mb-2 block">Confirm Password</label>
                   <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[#0B1626]/40" />
                     <Input
                       id="signup-confirm-password"
                       type="password"
@@ -377,7 +379,7 @@ export function Signup() {
 
             {/* Error Message */}
             {error && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+              <div className="p-3 bg-red-50 border border-red-200 rounded-sm text-red-700 text-sm">
                 {error}
               </div>
             )}
@@ -385,7 +387,7 @@ export function Signup() {
             {/* Submit Button */}
             <Button
               type="submit"
-              className="w-full gap-2"
+              className={`w-full gap-2 h-12 ${mxBtnInk}`}
               disabled={loading}
             >
               <Send className="w-4 h-4" />
@@ -396,17 +398,17 @@ export function Signup() {
           {/* Divider */}
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-border" />
+              <div className="w-full border-t border-[#0B1626]/10" />
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-background text-muted-foreground">Or</span>
+              <span className="mx-mono px-2 bg-white text-[10px] uppercase tracking-[0.22em] text-[#0B1626]/45">Or</span>
             </div>
           </div>
 
           {/* Login Link */}
-          <p className="text-center text-sm text-muted-foreground">
+          <p className="text-center text-sm text-[#0B1626]/55">
             Already have an account?{' '}
-            <Link to="/login" className="text-primary hover:underline font-medium">
+            <Link to="/login" className="text-[#16857B] font-medium underline decoration-[#16857B]/30 underline-offset-4 hover:text-[#0B1626] hover:decoration-[#F0A62B]">
               Sign in here
             </Link>
           </p>
@@ -414,7 +416,7 @@ export function Signup() {
 
         {/* Back Button */}
         <div className="text-center mt-6">
-          <Link to="/" className="text-sm text-muted-foreground hover:text-primary smooth-transition">
+          <Link to="/" className="mx-mono text-xs uppercase tracking-[0.14em] text-[#0B1626]/50 hover:text-[#0B1626] underline decoration-transparent underline-offset-4 hover:decoration-[#F0A62B] smooth-transition">
             ← Back to Home
           </Link>
         </div>
